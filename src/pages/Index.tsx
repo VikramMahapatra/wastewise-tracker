@@ -1,12 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import Header from "@/components/Header";
+import FleetStats from "@/components/FleetStats";
+import MapView from "@/components/MapView";
+import TruckList from "@/components/TruckList";
+import AlertsPanel from "@/components/AlertsPanel";
 
 const Index = () => {
+  const [selectedTruck, setSelectedTruck] = useState<string | null>(null);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        <FleetStats />
+        
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <MapView selectedTruck={selectedTruck} />
+            <AlertsPanel />
+          </div>
+          
+          <div>
+            <TruckList onSelectTruck={setSelectedTruck} selectedTruck={selectedTruck} />
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
