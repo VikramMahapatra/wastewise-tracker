@@ -26,7 +26,7 @@ export interface TruckData {
 
 export interface GeofencePath {
   truckId: string;
-  path: google.maps.LatLngLiteral[];
+  path: { lat: number; lng: number }[];
   enabled: boolean;
   color: string;
 }
