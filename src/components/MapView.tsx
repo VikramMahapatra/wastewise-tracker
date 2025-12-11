@@ -188,11 +188,11 @@ const MapView = ({ selectedTruck }: MapViewProps) => {
                         <h3 className="font-bold text-gray-900">{truck.id}</h3>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="p-1 hover:bg-gray-100 rounded">
+                            <button className="p-1 hover:bg-gray-100 rounded" title="Geofence Settings">
                               <MoreVertical className="h-4 w-4 text-gray-600" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="z-[9999] bg-white shadow-lg border">
                             <DropdownMenuItem onClick={() => handleToggleGeofence(truck.id)}>
                               <CircleIcon className="h-4 w-4 mr-2" />
                               {truckGeofences[truck.id]?.enabled ? 'Disable' : 'Enable'} Geofence
