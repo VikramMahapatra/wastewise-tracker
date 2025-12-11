@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Twitter, 
@@ -16,7 +17,8 @@ import {
   Shield, 
   Database,
   Save,
-  RefreshCw
+  RefreshCw,
+  MessageCircle
 } from 'lucide-react';
 
 export default function Settings() {
@@ -42,6 +44,31 @@ export default function Settings() {
   const [deviationThreshold, setDeviationThreshold] = useState('200');
   const [gpsUpdateInterval, setGpsUpdateInterval] = useState('30');
 
+  // WhatsApp Templates
+  const [driverTemplate, setDriverTemplate] = useState(`Dear Driver,
+
+Alert for Vehicle: {truckId}
+Type: {alertType}
+Details: {alertMessage}
+
+Please take immediate action and respond to this alert.
+
+Regards,
+Municipal Fleet Management`);
+
+  const [vendorTemplate, setVendorTemplate] = useState(`Dear Vendor,
+
+We are notifying you about an alert for your vehicle.
+
+Vehicle: {truckId}
+Alert Type: {alertType}
+Details: {alertMessage}
+
+Please coordinate with the driver and take necessary action.
+
+Regards,
+Municipal Fleet Management`);
+
   useEffect(() => {
     // Load saved settings
     const savedHandle = localStorage.getItem('twitterTrackedHandle');
@@ -52,7 +79,24 @@ export default function Settings() {
     
     const savedRefreshInterval = localStorage.getItem('twitterRefreshInterval');
     if (savedRefreshInterval) setRefreshInterval(savedRefreshInterval);
+
+    // Load WhatsApp templates
+    const savedDriverTemplate = localStorage.getItem('whatsappDriverTemplate');
+    if (savedDriverTemplate) setDriverTemplate(savedDriverTemplate);
+    
+    const savedVendorTemplate = localStorage.getItem('whatsappVendorTemplate');
+    if (savedVendorTemplate) setVendorTemplate(savedVendorTemplate);
   }, []);
+
+  const saveWhatsAppTemplates = () => {
+    localStorage.setItem('whatsappDriverTemplate', driverTemplate);
+    localStorage.setItem('whatsappVendorTemplate', vendorTemplate);
+    
+    toast({
+      title: "Templates Saved",
+      description: "WhatsApp message templates have been updated.",
+    });
+  };
 
   const saveTwitterSettings = () => {
     localStorage.setItem('twitterTrackedHandle', twitterHandle);
@@ -114,6 +158,10 @@ export default function Settings() {
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Security
+          </TabsTrigger>
+          <TabsTrigger value="whatsapp" className="flex items-center gap-2">
+            <MessageCircle className="h-4 w-4" />
+            WhatsApp
           </TabsTrigger>
         </TabsList>
 
@@ -492,6 +540,70 @@ export default function Settings() {
                 <Button>
                   <Save className="h-4 w-4 mr-2" />
                   Save Security Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* WhatsApp Templates */}
+        <TabsContent value="whatsapp">
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-green-500" />
+                WhatsApp Message Templates
+              </CardTitle>
+              <CardDescription>
+                Configure message templates for contacting drivers and vendors via WhatsApp
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Available Placeholders</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <code className="px-2 py-1 bg-muted rounded text-xs">{"{truckId}"}</code>
+                    <code className="px-2 py-1 bg-muted rounded text-xs">{"{alertType}"}</code>
+                    <code className="px-2 py-1 bg-muted rounded text-xs">{"{alertMessage}"}</code>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <Label htmlFor="driver-template">Driver Message Template</Label>
+                  <Textarea
+                    id="driver-template"
+                    value={driverTemplate}
+                    onChange={(e) => setDriverTemplate(e.target.value)}
+                    rows={8}
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This template will be used when sending WhatsApp messages to drivers
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="vendor-template">Vendor Message Template</Label>
+                  <Textarea
+                    id="vendor-template"
+                    value={vendorTemplate}
+                    onChange={(e) => setVendorTemplate(e.target.value)}
+                    rows={8}
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This template will be used when sending WhatsApp messages to vendors
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={saveWhatsAppTemplates}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Templates
                 </Button>
               </div>
             </CardContent>

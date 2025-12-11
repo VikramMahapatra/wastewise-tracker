@@ -50,6 +50,8 @@ import {
   Truck,
   Calendar,
   RefreshCw,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 import {
   AreaChart,
@@ -66,6 +68,7 @@ import {
   Bar,
   Legend,
 } from "recharts";
+import { ActionDropdown } from "@/components/ActionDropdown";
 
 // Alert types and data
 const alertTypes = [
@@ -84,6 +87,9 @@ const activeAlerts = [
     type: "route_deviation",
     truck: "TRK-002",
     driver: "Ramesh Kumar",
+    driverPhone: "+919876543210",
+    vendorName: "FleetCo Transport",
+    vendorPhone: "+919876543220",
     message: "Deviated from assigned route by 350m near Kharadi IT Park",
     location: "18.5523, 73.9423",
     time: "5 min ago",
@@ -97,6 +103,9 @@ const activeAlerts = [
     type: "missed_pickup",
     truck: "TRK-004",
     driver: "Suresh Patil",
+    driverPhone: "+919876543211",
+    vendorName: "Metro Logistics",
+    vendorPhone: "+919876543221",
     message: "Missed scheduled pickup at Zone C - Point 12 (Hospital Waste)",
     location: "18.5612, 73.9356",
     time: "12 min ago",
@@ -110,6 +119,9 @@ const activeAlerts = [
     type: "unauthorized_halt",
     truck: "TRK-002",
     driver: "Ramesh Kumar",
+    driverPhone: "+919876543210",
+    vendorName: "FleetCo Transport",
+    vendorPhone: "+919876543220",
     message: "Unauthorized halt detected for 15 minutes outside designated area",
     location: "18.5534, 73.9445",
     time: "18 min ago",
@@ -123,6 +135,9 @@ const activeAlerts = [
     type: "speed_violation",
     truck: "TRK-007",
     driver: "Mahesh Jadhav",
+    driverPhone: "+919876543212",
+    vendorName: "City Fleet Services",
+    vendorPhone: "+919876543222",
     message: "Speed limit exceeded: 65 km/h in 40 km/h zone",
     location: "18.5489, 73.9312",
     time: "25 min ago",
@@ -136,6 +151,9 @@ const activeAlerts = [
     type: "geofence_breach",
     truck: "TRK-011",
     driver: "Prakash More",
+    driverPhone: "+919876543213",
+    vendorName: "Metro Logistics",
+    vendorPhone: "+919876543221",
     message: "Exited designated collection zone boundary",
     location: "18.5678, 73.9234",
     time: "32 min ago",
@@ -149,6 +167,9 @@ const activeAlerts = [
     type: "device_tamper",
     truck: "TRK-015",
     driver: "Vijay Shinde",
+    driverPhone: "+919876543214",
+    vendorName: "FleetCo Transport",
+    vendorPhone: "+919876543220",
     message: "GPS device disconnection detected - possible tampering",
     location: "18.5456, 73.9567",
     time: "45 min ago",
@@ -162,6 +183,9 @@ const activeAlerts = [
     type: "route_deviation",
     truck: "TRK-009",
     driver: "Anil Gaikwad",
+    driverPhone: "+919876543215",
+    vendorName: "City Fleet Services",
+    vendorPhone: "+919876543222",
     message: "Off-route for extended period (>500m deviation)",
     location: "18.5398, 73.9478",
     time: "52 min ago",
@@ -175,6 +199,9 @@ const activeAlerts = [
     type: "missed_pickup",
     truck: "TRK-003",
     driver: "Santosh Kulkarni",
+    driverPhone: "+919876543216",
+    vendorName: "Metro Logistics",
+    vendorPhone: "+919876543221",
     message: "Skipped 3 consecutive pickup points in residential area",
     location: "18.5567, 73.9289",
     time: "1 hr ago",
@@ -559,7 +586,17 @@ export default function Alerts() {
                               </span>
                             </div>
                           </div>
-                          <div className="flex-shrink-0 flex items-center">
+                          <div className="flex-shrink-0 flex items-center gap-2">
+                            <ActionDropdown
+                              truckId={alert.truck}
+                              driverName={alert.driver}
+                              driverPhone={alert.driverPhone}
+                              vendorName={alert.vendorName}
+                              vendorPhone={alert.vendorPhone}
+                              alertType={alert.type.replace(/_/g, " ").toUpperCase()}
+                              alertMessage={alert.message}
+                              size="sm"
+                            />
                             <Button variant="ghost" size="sm">
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -786,10 +823,21 @@ export default function Alerts() {
               </div>
             </div>
           )}
-          <DialogFooter className="flex gap-2">
+          <DialogFooter className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
               Close
             </Button>
+            {selectedAlert && (
+              <ActionDropdown
+                truckId={selectedAlert.truck}
+                driverName={selectedAlert.driver}
+                driverPhone={selectedAlert.driverPhone}
+                vendorName={selectedAlert.vendorName}
+                vendorPhone={selectedAlert.vendorPhone}
+                alertType={selectedAlert.type.replace(/_/g, " ").toUpperCase()}
+                alertMessage={selectedAlert.message}
+              />
+            )}
             <Button variant="secondary">
               <CheckCircle className="h-4 w-4 mr-2" />
               Acknowledge
