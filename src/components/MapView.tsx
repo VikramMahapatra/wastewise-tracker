@@ -73,12 +73,18 @@ const containerStyle = {
   height: '100%'
 };
 
+interface LatLngLiteral {
+  lat: number;
+  lng: number;
+}
+
 const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [selectedTruck, setSelectedTruck] = useState<string | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [currentPath, setCurrentPath] = useState<google.maps.LatLngLiteral[]>([]);
+  const [currentPath, setCurrentPath] = useState<LatLngLiteral[]>([]);
   const [geofences, setGeofences] = useState<Record<string, GeofencePath>>({});
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   const colorIndexRef = useRef(0);
 
@@ -163,6 +169,7 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+    setIsMapLoaded(true);
   }, []);
 
   // Use keyboard shortcut to finish drawing
@@ -179,6 +186,55 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDrawing, currentPath, handleMapDblClick]);
+
+  // Create marker icon only when map is loaded
+  const createTruckIcon = (status: string) => {
+    if (!isMapLoaded || typeof google === 'undefined') return undefined;
+    return {
+      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
+      fillColor: getStatusColor(status),
+      fillOpacity: 1,
+      strokeColor: "#ffffff",
+      strokeWeight: 2,
+      scale: 1.5,
+      anchor: new google.maps.Point(12, 22),
+    };
+  };
+
+  const createPathPointIcon = () => {
+    if (!isMapLoaded || typeof google === 'undefined') return undefined;
+    return {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 6,
+      fillColor: "#ef4444",
+      fillOpacity: 1,
+      strokeColor: "#ffffff",
+      strokeWeight: 2,
+    };
+  };
+
+  const createPolylineOptions = (color: string) => {
+    if (!isMapLoaded || typeof google === 'undefined') {
+      return {
+        strokeColor: color,
+        strokeOpacity: 0.8,
+        strokeWeight: 4,
+      };
+    }
+    return {
+      strokeColor: color,
+      strokeOpacity: 0.8,
+      strokeWeight: 4,
+      icons: [{
+        icon: {
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: 3,
+        },
+        offset: '100%',
+        repeat: '100px'
+      }]
+    };
+  };
 
   return (
     <Card className="overflow-hidden h-full">
@@ -242,30 +298,18 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
               }}
             >
               {/* Saved Geofence Paths */}
-              {Object.values(geofences).map((geofence) => (
+              {isMapLoaded && Object.values(geofences).map((geofence) => (
                 geofence.enabled && geofence.path.length > 0 && (
                   <Polyline
                     key={`geofence-${geofence.truckId}`}
                     path={geofence.path}
-                    options={{
-                      strokeColor: geofence.color,
-                      strokeOpacity: 0.8,
-                      strokeWeight: 4,
-                      icons: [{
-                        icon: {
-                          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                          scale: 3,
-                        },
-                        offset: '100%',
-                        repeat: '100px'
-                      }]
-                    }}
+                    options={createPolylineOptions(geofence.color)}
                   />
                 )
               ))}
 
               {/* Current Drawing Path */}
-              {isDrawing && currentPath.length > 0 && (
+              {isMapLoaded && isDrawing && currentPath.length > 0 && (
                 <>
                   <Polyline
                     path={currentPath}
@@ -280,36 +324,20 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
                     <Marker
                       key={`path-point-${index}`}
                       position={point}
-                      icon={{
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 6,
-                        fillColor: "#ef4444",
-                        fillOpacity: 1,
-                        strokeColor: "#ffffff",
-                        strokeWeight: 2,
-                      }}
+                      icon={createPathPointIcon()}
                     />
                   ))}
                 </>
               )}
 
               {/* Truck Markers */}
-              {trucks.map((truck) => (
-                <div key={truck.id}>
-                  <Marker
-                    position={truck.position}
-                    onClick={() => setSelectedMarker(truck.id)}
-                    icon={{
-                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
-                      fillColor: getStatusColor(truck.status),
-                      fillOpacity: 1,
-                      strokeColor: "#ffffff",
-                      strokeWeight: 2,
-                      scale: 1.5,
-                      anchor: new google.maps.Point(12, 22),
-                    }}
-                  />
-
+              {isMapLoaded && trucks.map((truck) => (
+                <Marker
+                  key={truck.id}
+                  position={truck.position}
+                  onClick={() => setSelectedMarker(truck.id)}
+                  icon={createTruckIcon(truck.status)}
+                >
                   {selectedMarker === truck.id && (
                     <InfoWindow
                       position={truck.position}
@@ -331,7 +359,7 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
                       </div>
                     </InfoWindow>
                   )}
-                </div>
+                </Marker>
               ))}
             </GoogleMap>
           </LoadScript>
