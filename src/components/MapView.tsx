@@ -3,71 +3,29 @@ import { GoogleMap, LoadScript, Marker, Polyline, InfoWindow } from "@react-goog
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "lucide-react";
-import GeofencePanel, { TruckData, GeofencePath } from "./GeofencePanel";
+import GeofencePanel, { GeofencePath } from "./GeofencePanel";
+import { trucks as fleetTrucks, GOOGLE_MAPS_API_KEY, KHARADI_CENTER } from "@/data/fleetData";
+import { createTruckMarkerIcon } from "./TruckIcon";
 
 interface MapViewProps {
   selectedTruck: string | null;
 }
-
-// Google Maps API Key
-const GOOGLE_MAPS_API_KEY = "AIzaSyBm6KoD4T-fdLkIHvxwqsQq3EPjz14V2Sw";
-
-// Pune Kharadi area center coordinates
-const KHARADI_CENTER = { lat: 18.5540, lng: 73.9425 };
 
 const GEOFENCE_COLORS = [
   "#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", 
   "#06b6d4", "#ec4899", "#14b8a6"
 ];
 
-// Mock trucks with route type
-const trucks: TruckData[] = [
-  { 
-    id: "TRK-001", 
-    position: { lat: 18.5520, lng: 73.9400 }, 
-    status: "moving",
-    driver: "Rajesh Kumar",
-    route: "Route A-12",
-    routeType: "primary",
-    speed: 25,
-  },
-  { 
-    id: "TRK-002", 
-    position: { lat: 18.5560, lng: 73.9450 }, 
-    status: "idle",
-    driver: "Amit Sharma",
-    route: "Route B-05",
-    routeType: "secondary",
-    speed: 0,
-  },
-  { 
-    id: "TRK-003", 
-    position: { lat: 18.5500, lng: 73.9380 }, 
-    status: "dumping",
-    driver: "Suresh Patil",
-    route: "Route C-08",
-    routeType: "primary",
-    speed: 0,
-  },
-  { 
-    id: "TRK-004", 
-    position: { lat: 18.5580, lng: 73.9500 }, 
-    status: "moving",
-    driver: "Vikram Singh",
-    route: "Route A-15",
-    routeType: "secondary",
-    speed: 30,
-  },
-  { 
-    id: "TRK-005", 
-    position: { lat: 18.5490, lng: 73.9350 }, 
-    status: "moving",
-    driver: "Deepak Jadhav",
-    route: "Route D-03",
-    routeType: "primary",
-    speed: 18,
-  },
-];
+// Transform fleet data for geofence panel compatibility
+const trucks = fleetTrucks.map(t => ({
+  id: t.id,
+  position: t.position,
+  status: t.status as "moving" | "idle" | "dumping",
+  driver: t.driver,
+  route: t.route,
+  routeType: t.truckType as "primary" | "secondary",
+  speed: t.speed,
+}));
 
 const containerStyle = {
   width: '100%',
@@ -337,7 +295,11 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
                   key={truck.id}
                   position={truck.position}
                   onClick={() => setSelectedMarker(truck.id)}
-                  icon={createTruckIcon(truck.status)}
+                  icon={{
+                    url: createTruckMarkerIcon(truck.status as any, truck.routeType as any),
+                    scaledSize: new google.maps.Size(40, 48),
+                    anchor: new google.maps.Point(20, 48),
+                  }}
                 >
                   {selectedMarker === truck.id && (
                     <InfoWindow
