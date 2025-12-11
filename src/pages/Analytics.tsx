@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { ActionDropdown } from "@/components/ActionDropdown";
 import {
   Brain,
   TrendingUp,
@@ -59,10 +60,10 @@ const overflowPredictions = [
 ];
 
 const anomalyAlerts = [
-  { id: 1, type: "idle_time", truck: "MH-12-AB-1234", description: "Unusual 45-min halt outside designated zone", severity: "high", time: "10:23 AM", aiSuggestion: "Verify driver activity - potential unauthorized break" },
-  { id: 2, type: "weight_drop", truck: "MH-12-CD-5678", description: "Unexpected 200kg weight reduction mid-route", severity: "critical", time: "09:45 AM", aiSuggestion: "Possible unauthorized dumping - review camera footage" },
-  { id: 3, type: "route_deviation", truck: "MH-12-EF-9012", description: "15km deviation from assigned route", severity: "medium", time: "11:30 AM", aiSuggestion: "Traffic avoidance detected - route seems optimal" },
-  { id: 4, type: "fuel_anomaly", truck: "MH-12-GH-3456", description: "Fuel consumption 40% higher than expected", severity: "high", time: "08:15 AM", aiSuggestion: "Check for fuel theft or vehicle maintenance issue" },
+  { id: 1, type: "idle_time", truck: "MH-12-AB-1234", driverName: "Ramesh Kumar", driverPhone: "+919876543210", vendorName: "FleetCo Transport", vendorPhone: "+919876543220", description: "Unusual 45-min halt outside designated zone", severity: "high", time: "10:23 AM", aiSuggestion: "Verify driver activity - potential unauthorized break" },
+  { id: 2, type: "weight_drop", truck: "MH-12-CD-5678", driverName: "Suresh Patil", driverPhone: "+919876543211", vendorName: "Metro Logistics", vendorPhone: "+919876543221", description: "Unexpected 200kg weight reduction mid-route", severity: "critical", time: "09:45 AM", aiSuggestion: "Possible unauthorized dumping - review camera footage" },
+  { id: 3, type: "route_deviation", truck: "MH-12-EF-9012", driverName: "Amit Singh", driverPhone: "+919876543212", vendorName: "City Fleet Services", vendorPhone: "+919876543222", description: "15km deviation from assigned route", severity: "medium", time: "11:30 AM", aiSuggestion: "Traffic avoidance detected - route seems optimal" },
+  { id: 4, type: "fuel_anomaly", truck: "MH-12-GH-3456", driverName: "Mahesh Jadhav", driverPhone: "+919876543213", vendorName: "FleetCo Transport", vendorPhone: "+919876543220", description: "Fuel consumption 40% higher than expected", severity: "high", time: "08:15 AM", aiSuggestion: "Check for fuel theft or vehicle maintenance issue" },
 ];
 
 const driverScores = [
@@ -395,6 +396,16 @@ export default function Analytics() {
                       <MapPin className="h-3 w-3" />
                       Track Live
                     </Button>
+                    <ActionDropdown
+                      truckId={alert.truck}
+                      driverName={alert.driverName}
+                      driverPhone={alert.driverPhone}
+                      vendorName={alert.vendorName}
+                      vendorPhone={alert.vendorPhone}
+                      alertType={alert.type.replace(/_/g, " ").toUpperCase()}
+                      alertMessage={alert.description}
+                      size="sm"
+                    />
                   </div>
                 </div>
               ))}
