@@ -8,7 +8,12 @@ import {
   MapPin,
   Users,
   BarChart3,
-  Twitter
+  Twitter,
+  Database,
+  Ticket,
+  User,
+  Building2,
+  Route
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 
@@ -34,8 +39,17 @@ const menuItems = [
   { title: 'Reports', url: '/reports', icon: FileText },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
   { title: 'Twitter Mentions', url: '/twitter', icon: Twitter },
+  { title: 'Tickets', url: '/tickets', icon: Ticket },
   { title: 'Users', url: '/users', icon: Users },
   { title: 'Settings', url: '/settings', icon: Settings },
+];
+
+const masterItems = [
+  { title: 'Drivers', url: '/master/drivers', icon: User },
+  { title: 'Vendors', url: '/master/vendors', icon: Building2 },
+  { title: 'Trucks', url: '/master/trucks', icon: Truck },
+  { title: 'Zones & Wards', url: '/master/zones-wards', icon: MapPin },
+  { title: 'Routes & Pickups', url: '/master/routes-pickups', icon: Route },
 ];
 
 export function AppSidebar() {
@@ -68,6 +82,30 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       end={item.url === '/'}
+                      className="flex items-center gap-3 hover:bg-muted/50 rounded-md"
+                      activeClassName="bg-muted text-primary font-medium"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel className="flex items-center gap-2">
+            <Database className="h-3 w-3" /> Master Entries
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {masterItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url}
                       className="flex items-center gap-3 hover:bg-muted/50 rounded-md"
                       activeClassName="bg-muted text-primary font-medium"
                     >
