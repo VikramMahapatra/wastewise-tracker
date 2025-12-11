@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Truck, MapPin, Calendar, Signal, Battery, AlertTriangle, 
-  CheckCircle, XCircle, Search, Filter, ChevronRight, Play
+  CheckCircle, XCircle, Search, Filter, ChevronRight, Play, Radio
 } from "lucide-react";
 import { 
   trucks, gcpLocations, finalDumpingSites, generateHistoricalPath,
@@ -16,6 +16,7 @@ import {
 } from "@/data/fleetData";
 import { createTruckMarkerIcon } from "@/components/TruckIcon";
 import { TruckJourneyReplayModal } from "@/components/TruckJourneyReplayModal";
+import { useTruckSimulation } from "@/hooks/useTruckSimulation";
 
 const containerStyle = { width: '100%', height: '100%' };
 
@@ -27,6 +28,7 @@ const statusConfig: Record<TruckStatus, { color: string; label: string; bgClass:
 };
 
 export default function Fleet() {
+  const { simulatedTrucks } = useTruckSimulation();
   const [selectedTruck, setSelectedTruck] = useState<TruckData | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
@@ -42,12 +44,18 @@ export default function Fleet() {
     setIsMapLoaded(true);
   }, []);
 
-  const filteredTrucks = trucks.filter(truck => {
+  // Use simulated trucks for filtering and display
+  const filteredTrucks = simulatedTrucks.filter(truck => {
     const matchesSearch = truck.truckNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          truck.driver.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || truck.truckType === filterType;
     return matchesSearch && matchesType;
   });
+
+  // Update selected truck data when simulation updates
+  const currentSelectedTruck = selectedTruck 
+    ? simulatedTrucks.find(t => t.id === selectedTruck.id) || selectedTruck
+    : null;
 
   const handleTruckSelect = (truck: TruckData) => {
     setSelectedTruck(truck);
@@ -98,7 +106,13 @@ export default function Fleet() {
 
       <Tabs defaultValue="map" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="map">Live Map</TabsTrigger>
+          <TabsTrigger value="map" className="gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+            </span>
+            Live Map
+          </TabsTrigger>
           <TabsTrigger value="list">Truck List</TabsTrigger>
           <TabsTrigger value="devices">GPS Devices Report</TabsTrigger>
         </TabsList>
@@ -274,14 +288,20 @@ export default function Fleet() {
           </div>
 
           {/* Selected Truck Details */}
-          {selectedTruck && (
+          {currentSelectedTruck && (
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
                     <Truck className="h-5 w-5" />
-                    {selectedTruck.truckNumber}
-                    <Badge variant="outline" className="ml-2 capitalize">{selectedTruck.truckType}</Badge>
+                    {currentSelectedTruck.truckNumber}
+                    <Badge variant="outline" className="ml-2 capitalize">{currentSelectedTruck.truckType}</Badge>
+                    <Badge className={`ml-2 ${statusConfig[currentSelectedTruck.status].bgClass}`}>
+                      {statusConfig[currentSelectedTruck.status].label}
+                    </Badge>
+                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                      {currentSelectedTruck.speed} km/h
+                    </span>
                   </CardTitle>
                   <div className="flex items-center gap-2">
                     <Input
@@ -306,33 +326,33 @@ export default function Fleet() {
                 <div className="grid md:grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Driver</p>
-                    <p className="font-medium">{selectedTruck.driver}</p>
-                    <p className="text-xs text-muted-foreground">{selectedTruck.driverId}</p>
+                    <p className="font-medium">{currentSelectedTruck.driver}</p>
+                    <p className="text-xs text-muted-foreground">{currentSelectedTruck.driverId}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Route</p>
-                    <p className="font-medium">{selectedTruck.route}</p>
-                    <p className="text-xs text-muted-foreground">Capacity: {selectedTruck.vehicleCapacity}</p>
+                    <p className="font-medium">{currentSelectedTruck.route}</p>
+                    <p className="text-xs text-muted-foreground">Capacity: {currentSelectedTruck.vehicleCapacity}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Trips Today</p>
-                    <p className="font-medium">{selectedTruck.tripsCompleted} / {selectedTruck.tripsAllowed}</p>
+                    <p className="font-medium">{currentSelectedTruck.tripsCompleted} / {currentSelectedTruck.tripsAllowed}</p>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-primary rounded-full"
-                        style={{ width: `${(selectedTruck.tripsCompleted / selectedTruck.tripsAllowed) * 100}%` }}
+                        style={{ width: `${(currentSelectedTruck.tripsCompleted / currentSelectedTruck.tripsAllowed) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">GPS Device</p>
                     <div className="flex items-center gap-2">
-                      <Signal className={`h-4 w-4 ${selectedTruck.gpsDevice.status === "online" ? "text-success" : "text-destructive"}`} />
-                      <span className="text-sm">{selectedTruck.gpsDevice.signalStrength}%</span>
-                      <Battery className={`h-4 w-4 ${selectedTruck.gpsDevice.batteryLevel > 20 ? "text-success" : "text-destructive"}`} />
-                      <span className="text-sm">{selectedTruck.gpsDevice.batteryLevel}%</span>
+                      <Signal className={`h-4 w-4 ${currentSelectedTruck.gpsDevice.status === "online" ? "text-success" : "text-destructive"}`} />
+                      <span className="text-sm">{currentSelectedTruck.gpsDevice.signalStrength}%</span>
+                      <Battery className={`h-4 w-4 ${currentSelectedTruck.gpsDevice.batteryLevel > 20 ? "text-success" : "text-destructive"}`} />
+                      <span className="text-sm">{currentSelectedTruck.gpsDevice.batteryLevel}%</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">IMEI: {selectedTruck.gpsDevice.imei}</p>
+                    <p className="text-xs text-muted-foreground">IMEI: {currentSelectedTruck.gpsDevice.imei}</p>
                   </div>
                 </div>
               </CardContent>
