@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker, Polyline, InfoWindow } from "@react-google-maps/api";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Navigation } from "lucide-react";
 import GeofencePanel, { TruckData, GeofencePath } from "./GeofencePanel";
 
@@ -115,8 +116,8 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
     }
   }, [isDrawing, selectedTruck]);
 
-  const handleMapDblClick = useCallback(() => {
-    if (!isDrawing || !selectedTruck || currentPath.length < 2) return;
+  const handleSaveGeofence = useCallback(() => {
+    if (!selectedTruck || currentPath.length < 2) return;
     
     // Save the geofence
     const color = geofences[selectedTruck]?.color || getNextColor();
@@ -132,7 +133,7 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
     
     setIsDrawing(false);
     setCurrentPath([]);
-  }, [isDrawing, selectedTruck, currentPath, geofences]);
+  }, [selectedTruck, currentPath, geofences]);
 
   const handleStartDrawing = (truckId: string) => {
     setSelectedTruck(truckId);
@@ -179,13 +180,13 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
         handleCancelDrawing();
       }
       if (e.key === "Enter" && isDrawing && currentPath.length >= 2) {
-        handleMapDblClick();
+        handleSaveGeofence();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isDrawing, currentPath, handleMapDblClick]);
+  }, [isDrawing, currentPath, handleSaveGeofence]);
 
   // Create marker icon only when map is loaded
   const createTruckIcon = (status: string) => {
@@ -269,8 +270,10 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
             geofences={geofences}
             selectedTruck={selectedTruck}
             isDrawing={isDrawing}
+            currentPathLength={currentPath.length}
             onSelectTruck={setSelectedTruck}
             onStartDrawing={handleStartDrawing}
+            onSaveGeofence={handleSaveGeofence}
             onCancelDrawing={handleCancelDrawing}
             onToggleGeofence={handleToggleGeofence}
             onDeleteGeofence={handleDeleteGeofence}
@@ -285,7 +288,6 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
               center={KHARADI_CENTER}
               zoom={15}
               onClick={handleMapClick}
-              onDblClick={handleMapDblClick}
               onLoad={onMapLoad}
               options={{
                 styles: [
@@ -293,7 +295,6 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
                 ],
                 streetViewControl: false,
                 mapTypeControl: true,
-                disableDoubleClickZoom: isDrawing,
                 draggableCursor: isDrawing ? "crosshair" : undefined,
               }}
             >
@@ -367,13 +368,33 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
           {/* Drawing Instructions Overlay */}
           {isDrawing && (
             <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm p-4 rounded-lg border border-primary shadow-lg">
-              <p className="text-sm font-medium text-primary">Drawing Mode Active</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Click on the map to add points. Double-click or press Enter to finish. Press Escape to cancel.
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-primary">Drawing Mode Active</p>
+                <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                  {currentPath.length} points
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Click on the map to add waypoints for the geofence path.
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Points added: {currentPath.length}
-              </p>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  onClick={handleSaveGeofence}
+                  disabled={currentPath.length < 2}
+                  className="flex-1"
+                >
+                  Save Geofence
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleCancelDrawing}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           )}
         </div>

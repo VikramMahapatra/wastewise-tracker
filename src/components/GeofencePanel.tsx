@@ -36,8 +36,10 @@ interface GeofencePanelProps {
   geofences: Record<string, GeofencePath>;
   selectedTruck: string | null;
   isDrawing: boolean;
+  currentPathLength: number;
   onSelectTruck: (truckId: string | null) => void;
   onStartDrawing: (truckId: string) => void;
+  onSaveGeofence: () => void;
   onCancelDrawing: () => void;
   onToggleGeofence: (truckId: string) => void;
   onDeleteGeofence: (truckId: string) => void;
@@ -48,8 +50,10 @@ const GeofencePanel = ({
   geofences,
   selectedTruck,
   isDrawing,
+  currentPathLength,
   onSelectTruck,
   onStartDrawing,
+  onSaveGeofence,
   onCancelDrawing,
   onToggleGeofence,
   onDeleteGeofence,
@@ -92,16 +96,27 @@ const GeofencePanel = ({
             Drawing geofence for {selectedTruck}
           </p>
           <p className="text-xs text-muted-foreground mb-2">
-            Click on the map to draw the route path. Double-click to finish.
+            Click on the map to add waypoints ({currentPathLength} points added)
           </p>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onCancelDrawing}
-            className="w-full"
-          >
-            Cancel Drawing
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={onSaveGeofence}
+              disabled={currentPathLength < 2}
+              className="flex-1"
+            >
+              Save Geofence
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onCancelDrawing}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       )}
 
