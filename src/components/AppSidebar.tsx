@@ -7,7 +7,8 @@ import {
   Settings,
   MapPin,
   Users,
-  BarChart3
+  BarChart3,
+  Twitter
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 
@@ -32,6 +33,7 @@ const menuItems = [
   { title: 'Alerts', url: '/alerts', icon: AlertTriangle },
   { title: 'Reports', url: '/reports', icon: FileText },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+  { title: 'Twitter Mentions', url: '/twitter', icon: Twitter },
   { title: 'Users', url: '/users', icon: Users },
   { title: 'Settings', url: '/settings', icon: Settings },
 ];
