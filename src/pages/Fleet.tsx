@@ -8,13 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Truck, MapPin, Calendar, Signal, Battery, AlertTriangle, 
-  CheckCircle, XCircle, Search, Filter, ChevronRight 
+  CheckCircle, XCircle, Search, Filter, ChevronRight, Play
 } from "lucide-react";
 import { 
   trucks, gcpLocations, finalDumpingSites, generateHistoricalPath,
   GOOGLE_MAPS_API_KEY, KHARADI_CENTER, TruckData, TruckStatus 
 } from "@/data/fleetData";
 import { createTruckMarkerIcon } from "@/components/TruckIcon";
+import { TruckJourneyReplayModal } from "@/components/TruckJourneyReplayModal";
 
 const containerStyle = { width: '100%', height: '100%' };
 
@@ -34,6 +35,8 @@ export default function Fleet() {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [historicalPath, setHistoricalPath] = useState<{ lat: number; lng: number }[]>([]);
   const [showHistorical, setShowHistorical] = useState(false);
+  const [replayModalOpen, setReplayModalOpen] = useState(false);
+  const [replayTruck, setReplayTruck] = useState<TruckData | null>(null);
 
   const onMapLoad = useCallback(() => {
     setIsMapLoaded(true);
@@ -57,6 +60,12 @@ export default function Fleet() {
       setHistoricalPath(history.path.map(p => ({ lat: p.lat, lng: p.lng })));
       setShowHistorical(true);
     }
+  };
+
+  const handleOpenReplay = (truck: TruckData) => {
+    setReplayTruck(truck);
+    setReplayModalOpen(true);
+    setSelectedMarker(null);
   };
 
   const offlineDevices = trucks.filter(t => t.gpsDevice.status === "offline");
@@ -224,7 +233,7 @@ export default function Fleet() {
                       >
                         {selectedMarker === truck.id && (
                           <InfoWindow onCloseClick={() => setSelectedMarker(null)}>
-                            <div className="p-2 min-w-[200px]">
+                            <div className="p-2 min-w-[220px]">
                               <h3 className="font-bold text-gray-900">{truck.truckNumber}</h3>
                               <p className="text-sm text-gray-600 capitalize">{truck.truckType} Truck</p>
                               <div className="mt-2 space-y-1 text-sm">
@@ -234,6 +243,13 @@ export default function Fleet() {
                                 <p><span className="font-medium">Trips:</span> {truck.tripsCompleted}/{truck.tripsAllowed}</p>
                                 {truck.assignedGCP && <p><span className="font-medium">GCP:</span> {truck.assignedGCP}</p>}
                               </div>
+                              <button
+                                onClick={() => handleOpenReplay(truck)}
+                                className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
+                              >
+                                <Play className="h-4 w-4" />
+                                View Journey Replay
+                              </button>
                             </div>
                           </InfoWindow>
                         )}
@@ -474,6 +490,14 @@ export default function Fleet() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Journey Replay Modal */}
+      <TruckJourneyReplayModal
+        truck={replayTruck}
+        isOpen={replayModalOpen}
+        onClose={() => setReplayModalOpen(false)}
+        selectedDate={selectedDate}
+      />
     </div>
   );
 }
