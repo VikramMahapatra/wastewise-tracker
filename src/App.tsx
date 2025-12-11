@@ -16,6 +16,12 @@ import Analytics from "./pages/Analytics";
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import TwitterMentions from "./pages/TwitterMentions";
+import Tickets from "./pages/Tickets";
+import MasterDrivers from "./pages/MasterDrivers";
+import MasterVendors from "./pages/MasterVendors";
+import MasterTrucks from "./pages/MasterTrucks";
+import MasterZonesWards from "./pages/MasterZonesWards";
+import MasterRoutesPickups from "./pages/MasterRoutesPickups";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +59,12 @@ const App = () => (
             <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/twitter" element={<ProtectedRoute><TwitterMentions /></ProtectedRoute>} />
+            <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+            <Route path="/master/drivers" element={<ProtectedRoute><MasterDrivers /></ProtectedRoute>} />
+            <Route path="/master/vendors" element={<ProtectedRoute><MasterVendors /></ProtectedRoute>} />
+            <Route path="/master/trucks" element={<ProtectedRoute><MasterTrucks /></ProtectedRoute>} />
+            <Route path="/master/zones-wards" element={<ProtectedRoute><MasterZonesWards /></ProtectedRoute>} />
+            <Route path="/master/routes-pickups" element={<ProtectedRoute><MasterRoutesPickups /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
