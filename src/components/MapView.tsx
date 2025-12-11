@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -17,11 +16,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Navigation, Settings, MapPin, Circle as CircleIcon, MoreVertical } from "lucide-react";
+import { Navigation, Settings, Circle as CircleIcon, MoreVertical } from "lucide-react";
 
 interface MapViewProps {
   selectedTruck: string | null;
 }
+
+// Google Maps API Key
+const GOOGLE_MAPS_API_KEY = "AIzaSyBm6KoD4T-fdLkIHvxwqsQq3EPjz14V2Sw";
 
 // Pune Kharadi area center coordinates
 const KHARADI_CENTER = { lat: 18.5540, lng: 73.9425 };
@@ -80,8 +82,7 @@ const containerStyle = {
   height: '500px'
 };
 
-// Separate component for the actual Google Map (only renders when API key is set)
-const GoogleMapContent = ({ selectedTruck, apiKey }: { selectedTruck: string | null; apiKey: string }) => {
+const MapView = ({ selectedTruck }: MapViewProps) => {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [truckGeofences, setTruckGeofences] = useState<Record<string, { enabled: boolean; radius: number }>>(
     trucks.reduce((acc, truck) => ({ ...acc, [truck.id]: truck.geofence }), {})
@@ -90,7 +91,7 @@ const GoogleMapContent = ({ selectedTruck, apiKey }: { selectedTruck: string | n
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: apiKey
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY
   });
 
   const getStatusColor = (status: string) => {
@@ -137,185 +138,19 @@ const GoogleMapContent = ({ selectedTruck, apiKey }: { selectedTruck: string | n
 
   if (loadError) {
     return (
-      <div className="p-8 flex flex-col items-center justify-center h-[500px]">
-        <p className="text-destructive">Error loading Google Maps. Please check your API key.</p>
-      </div>
+      <Card className="overflow-hidden">
+        <div className="p-8 flex flex-col items-center justify-center h-[500px]">
+          <p className="text-destructive">Error loading Google Maps. Please check your API key.</p>
+        </div>
+      </Card>
     );
   }
 
   if (!isLoaded) {
     return (
-      <div className="p-8 flex items-center justify-center h-[500px]">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative">
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={KHARADI_CENTER}
-        zoom={15}
-        onClick={onMapClick}
-        options={{
-          styles: [
-            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-          ],
-          streetViewControl: false,
-          mapTypeControl: true,
-        }}
-      >
-        {trucks.map((truck) => (
-          <div key={truck.id}>
-            {truckGeofences[truck.id]?.enabled && (
-              <Circle
-                center={truck.position}
-                radius={truckGeofences[truck.id].radius}
-                options={{
-                  fillColor: getStatusColor(truck.status),
-                  fillOpacity: 0.15,
-                  strokeColor: getStatusColor(truck.status),
-                  strokeOpacity: 0.5,
-                  strokeWeight: 2,
-                }}
-              />
-            )}
-            
-            <Marker
-              position={truck.position}
-              icon={getMarkerIcon(truck.status, selectedTruck === truck.id)}
-              onClick={() => setSelectedMarker(truck.id)}
-              animation={truck.status === "moving" ? google.maps.Animation.BOUNCE : undefined}
-            />
-
-            {selectedMarker === truck.id && (
-              <InfoWindow
-                position={truck.position}
-                onCloseClick={() => setSelectedMarker(null)}
-              >
-                <div className="p-2 min-w-[200px]">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold text-gray-900">{truck.id}</h3>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-1 hover:bg-gray-100 rounded">
-                          <MoreVertical className="h-4 w-4 text-gray-600" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleToggleGeofence(truck.id)}>
-                          <CircleIcon className="h-4 w-4 mr-2" />
-                          {truckGeofences[truck.id]?.enabled ? 'Disable' : 'Enable'} Geofence
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setEditingGeofence({ truckId: truck.id, radius: truckGeofences[truck.id]?.radius || 100 })}>
-                          <Settings className="h-4 w-4 mr-2" />
-                          Set Geofence Radius
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  <div className="space-y-1 text-sm text-gray-700">
-                    <p><span className="font-medium">Driver:</span> {truck.driver}</p>
-                    <p><span className="font-medium">Route:</span> {truck.route}</p>
-                    <p><span className="font-medium">Speed:</span> {truck.speed} km/h</p>
-                    <p><span className="font-medium">Status:</span> 
-                      <span className={`ml-1 capitalize ${truck.status === 'moving' ? 'text-green-600' : truck.status === 'idle' ? 'text-amber-600' : 'text-blue-600'}`}>
-                        {truck.status}
-                      </span>
-                    </p>
-                    <p><span className="font-medium">Geofence:</span> 
-                      <span className={`ml-1 ${truckGeofences[truck.id]?.enabled ? 'text-green-600' : 'text-gray-400'}`}>
-                        {truckGeofences[truck.id]?.enabled ? `${truckGeofences[truck.id].radius}m` : 'Disabled'}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </InfoWindow>
-            )}
-          </div>
-        ))}
-      </GoogleMap>
-
-      <Dialog open={!!editingGeofence} onOpenChange={() => setEditingGeofence(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Set Geofence Radius - {editingGeofence?.truckId}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div>
-              <Label>Radius (meters)</Label>
-              <Input
-                type="number"
-                min={20}
-                max={500}
-                value={editingGeofence?.radius || 100}
-                onChange={(e) => setEditingGeofence(prev => prev ? { ...prev, radius: parseInt(e.target.value) || 100 } : null)}
-                className="mt-2"
-              />
-              <p className="text-xs text-muted-foreground mt-1">Recommended: 20-50m for pickup points</p>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setEditingGeofence(null)}>Cancel</Button>
-              <Button onClick={() => editingGeofence && handleSetGeofenceRadius(editingGeofence.truckId, editingGeofence.radius)}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-// Main MapView component with API key management
-const MapView = ({ selectedTruck }: MapViewProps) => {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('googleMapsApiKey') || '');
-  const [tempApiKey, setTempApiKey] = useState('');
-
-  const handleSaveApiKey = () => {
-    localStorage.setItem('googleMapsApiKey', tempApiKey);
-    setApiKey(tempApiKey);
-    // Force page reload to reinitialize Google Maps with new key
-    window.location.reload();
-  };
-
-  const handleResetApiKey = () => {
-    localStorage.removeItem('googleMapsApiKey');
-    window.location.reload();
-  };
-
-  // Show API key input if not set
-  if (!apiKey) {
-    return (
       <Card className="overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/30">
-          <div className="flex items-center gap-2">
-            <Navigation className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">Live Fleet Map</h2>
-          </div>
-        </div>
-        <div className="p-8 flex flex-col items-center justify-center h-[500px] bg-muted/10">
-          <MapPin className="h-16 w-16 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Google Maps API Key Required</h3>
-          <p className="text-muted-foreground text-center mb-6 max-w-md">
-            Enter your Google Maps API key to display the live fleet map. You can get one from the 
-            <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-1">
-              Google Cloud Console
-            </a>
-          </p>
-          <div className="flex gap-2 w-full max-w-md">
-            <Input
-              type="password"
-              placeholder="Enter Google Maps API Key"
-              value={tempApiKey}
-              onChange={(e) => setTempApiKey(e.target.value)}
-              className="flex-1"
-            />
-            <Button onClick={handleSaveApiKey} disabled={!tempApiKey}>
-              Save Key
-            </Button>
-          </div>
+        <div className="p-8 flex items-center justify-center h-[500px]">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
         </div>
       </Card>
     );
@@ -329,57 +164,136 @@ const MapView = ({ selectedTruck }: MapViewProps) => {
             <Navigation className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">Live Fleet Map - Kharadi, Pune</h2>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                <span className="text-xs text-muted-foreground">Moving</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-warning" />
-                <span className="text-xs text-muted-foreground">Idle</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-chart-1" />
-                <span className="text-xs text-muted-foreground">Dumping</span>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+              <span className="text-xs text-muted-foreground">Moving</span>
             </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Map Settings</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 mt-4">
-                  <div>
-                    <Label>Google Maps API Key</Label>
-                    <p className="text-xs text-muted-foreground mb-2">Current key is saved. Enter a new key to update.</p>
-                    <div className="flex gap-2 mt-2">
-                      <Input
-                        type="password"
-                        value={tempApiKey}
-                        onChange={(e) => setTempApiKey(e.target.value)}
-                        placeholder="Enter new API Key"
-                      />
-                      <Button onClick={handleSaveApiKey} disabled={!tempApiKey}>Update</Button>
-                    </div>
-                  </div>
-                  <Button variant="destructive" size="sm" onClick={handleResetApiKey}>
-                    Reset API Key
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-warning" />
+              <span className="text-xs text-muted-foreground">Idle</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-chart-1" />
+              <span className="text-xs text-muted-foreground">Dumping</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <GoogleMapContent selectedTruck={selectedTruck} apiKey={apiKey} />
+      <div className="relative">
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={KHARADI_CENTER}
+          zoom={15}
+          onClick={onMapClick}
+          options={{
+            styles: [
+              { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
+            ],
+            streetViewControl: false,
+            mapTypeControl: true,
+          }}
+        >
+          {trucks.map((truck) => (
+            <div key={truck.id}>
+              {truckGeofences[truck.id]?.enabled && (
+                <Circle
+                  center={truck.position}
+                  radius={truckGeofences[truck.id].radius}
+                  options={{
+                    fillColor: getStatusColor(truck.status),
+                    fillOpacity: 0.15,
+                    strokeColor: getStatusColor(truck.status),
+                    strokeOpacity: 0.5,
+                    strokeWeight: 2,
+                  }}
+                />
+              )}
+              
+              <Marker
+                position={truck.position}
+                icon={getMarkerIcon(truck.status, selectedTruck === truck.id)}
+                onClick={() => setSelectedMarker(truck.id)}
+                animation={truck.status === "moving" ? google.maps.Animation.BOUNCE : undefined}
+              />
+
+              {selectedMarker === truck.id && (
+                <InfoWindow
+                  position={truck.position}
+                  onCloseClick={() => setSelectedMarker(null)}
+                >
+                  <div className="p-2 min-w-[200px]">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-gray-900">{truck.id}</h3>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-1 hover:bg-gray-100 rounded">
+                            <MoreVertical className="h-4 w-4 text-gray-600" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleToggleGeofence(truck.id)}>
+                            <CircleIcon className="h-4 w-4 mr-2" />
+                            {truckGeofences[truck.id]?.enabled ? 'Disable' : 'Enable'} Geofence
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditingGeofence({ truckId: truck.id, radius: truckGeofences[truck.id]?.radius || 100 })}>
+                            <Settings className="h-4 w-4 mr-2" />
+                            Set Geofence Radius
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <div className="space-y-1 text-sm text-gray-700">
+                      <p><span className="font-medium">Driver:</span> {truck.driver}</p>
+                      <p><span className="font-medium">Route:</span> {truck.route}</p>
+                      <p><span className="font-medium">Speed:</span> {truck.speed} km/h</p>
+                      <p><span className="font-medium">Status:</span> 
+                        <span className={`ml-1 capitalize ${truck.status === 'moving' ? 'text-green-600' : truck.status === 'idle' ? 'text-amber-600' : 'text-blue-600'}`}>
+                          {truck.status}
+                        </span>
+                      </p>
+                      <p><span className="font-medium">Geofence:</span> 
+                        <span className={`ml-1 ${truckGeofences[truck.id]?.enabled ? 'text-green-600' : 'text-gray-400'}`}>
+                          {truckGeofences[truck.id]?.enabled ? `${truckGeofences[truck.id].radius}m` : 'Disabled'}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </InfoWindow>
+              )}
+            </div>
+          ))}
+        </GoogleMap>
+
+        <Dialog open={!!editingGeofence} onOpenChange={() => setEditingGeofence(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Set Geofence Radius - {editingGeofence?.truckId}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label>Radius (meters)</Label>
+                <Input
+                  type="number"
+                  min={20}
+                  max={500}
+                  value={editingGeofence?.radius || 100}
+                  onChange={(e) => setEditingGeofence(prev => prev ? { ...prev, radius: parseInt(e.target.value) || 100 } : null)}
+                  className="mt-2"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Recommended: 20-50m for pickup points</p>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setEditingGeofence(null)}>Cancel</Button>
+                <Button onClick={() => editingGeofence && handleSetGeofenceRadius(editingGeofence.truckId, editingGeofence.radius)}>
+                  Save
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </Card>
   );
 };
