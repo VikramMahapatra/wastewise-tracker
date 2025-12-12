@@ -123,7 +123,7 @@ export function TruckJourneyReplayModal({
                 fullscreenControl: false,
               }}
             >
-              {isMapLoaded && (
+              {isMapLoaded && window.google && (
                 <>
                   {/* Start Marker */}
                   {pathData.length > 0 && (
@@ -136,7 +136,7 @@ export function TruckJourneyReplayModal({
                             <text x="12" y="16" text-anchor="middle" font-size="10" fill="white" font-weight="bold">S</text>
                           </svg>
                         `)}`,
-                        scaledSize: new google.maps.Size(24, 24),
+                        scaledSize: new window.google.maps.Size(24, 24),
                       }}
                       title="Start Point"
                     />
@@ -153,7 +153,7 @@ export function TruckJourneyReplayModal({
                             <text x="12" y="16" text-anchor="middle" font-size="10" fill="white" font-weight="bold">E</text>
                           </svg>
                         `)}`,
-                        scaledSize: new google.maps.Size(24, 24),
+                        scaledSize: new window.google.maps.Size(24, 24),
                       }}
                       title="End Point"
                     />
@@ -193,8 +193,8 @@ export function TruckJourneyReplayModal({
                     position={currentPosition}
                     icon={{
                       url: createTruckMarkerIcon("moving", truck.truckType),
-                      scaledSize: new google.maps.Size(48, 56),
-                      anchor: new google.maps.Point(24, 56),
+                      scaledSize: new window.google.maps.Size(48, 56),
+                      anchor: new window.google.maps.Point(24, 56),
                     }}
                   />
                 </>
