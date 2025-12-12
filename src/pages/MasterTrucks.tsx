@@ -205,10 +205,10 @@ export default function MasterTrucks() {
                   </div>
                   <div className="space-y-2">
                     <Label>Driver</Label>
-                    <Select value={formData.driverId || ''} onValueChange={(value) => setFormData({ ...formData, driverId: value })}>
+                    <Select value={formData.driverId || 'none'} onValueChange={(value) => setFormData({ ...formData, driverId: value === 'none' ? '' : value })}>
                       <SelectTrigger><SelectValue placeholder="Select driver" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Not Assigned</SelectItem>
+                        <SelectItem value="none">Not Assigned</SelectItem>
                         {mockDrivers.filter(d => d.status === 'active').map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
