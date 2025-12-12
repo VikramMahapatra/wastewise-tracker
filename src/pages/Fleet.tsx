@@ -198,7 +198,7 @@ export default function Fleet() {
                     }}
                   >
                     {/* GCP Markers */}
-                    {isMapLoaded && gcpLocations.map((gcp) => (
+                    {isMapLoaded && window.google && gcpLocations.map((gcp) => (
                       <Marker
                         key={gcp.id}
                         position={gcp.position}
@@ -209,14 +209,14 @@ export default function Fleet() {
                               <text x="12" y="16" text-anchor="middle" font-size="10" fill="white" font-weight="bold">G</text>
                             </svg>
                           `)}`,
-                          scaledSize: new google.maps.Size(24, 24),
+                          scaledSize: new window.google.maps.Size(24, 24),
                         }}
                         title={gcp.name}
                       />
                     ))}
 
                     {/* Final Dumping Sites */}
-                    {isMapLoaded && finalDumpingSites.map((site) => (
+                    {isMapLoaded && window.google && finalDumpingSites.map((site) => (
                       <Marker
                         key={site.id}
                         position={site.position}
@@ -227,22 +227,22 @@ export default function Fleet() {
                               <text x="14" y="18" text-anchor="middle" font-size="10" fill="white" font-weight="bold">FD</text>
                             </svg>
                           `)}`,
-                          scaledSize: new google.maps.Size(28, 28),
+                          scaledSize: new window.google.maps.Size(28, 28),
                         }}
                         title={site.name}
                       />
                     ))}
 
                     {/* Truck Markers */}
-                    {isMapLoaded && filteredTrucks.map((truck) => (
+                    {isMapLoaded && window.google && filteredTrucks.map((truck) => (
                       <Marker
                         key={truck.id}
                         position={truck.position}
                         onClick={() => setSelectedMarker(truck.id)}
                         icon={{
                           url: createTruckMarkerIcon(truck.status, truck.truckType),
-                          scaledSize: new google.maps.Size(40, 48),
-                          anchor: new google.maps.Point(20, 48),
+                          scaledSize: new window.google.maps.Size(40, 48),
+                          anchor: new window.google.maps.Point(20, 48),
                         }}
                       >
                         {selectedMarker === truck.id && (
@@ -271,7 +271,7 @@ export default function Fleet() {
                     ))}
 
                     {/* Historical Path */}
-                    {isMapLoaded && showHistorical && historicalPath.length > 0 && (
+                    {isMapLoaded && window.google && showHistorical && historicalPath.length > 0 && (
                       <Polyline
                         path={historicalPath}
                         options={{
