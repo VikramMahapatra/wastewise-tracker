@@ -18,7 +18,10 @@ import {
   Database,
   Save,
   RefreshCw,
-  MessageCircle
+  MessageCircle,
+  AlertTriangle,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 export default function Settings() {
@@ -43,6 +46,14 @@ export default function Settings() {
   const [idleTimeThreshold, setIdleTimeThreshold] = useState('10');
   const [deviationThreshold, setDeviationThreshold] = useState('200');
   const [gpsUpdateInterval, setGpsUpdateInterval] = useState('30');
+
+  // Escalation Settings
+  const [escalationLevels, setEscalationLevels] = useState([
+    { id: 1, name: 'Level 1 - Supervisor', timeThreshold: 15, email: '', enabled: true },
+    { id: 2, name: 'Level 2 - Manager', timeThreshold: 30, email: '', enabled: true },
+    { id: 3, name: 'Level 3 - Director', timeThreshold: 60, email: '', enabled: true },
+  ]);
+  const [autoEscalate, setAutoEscalate] = useState(true);
 
   // WhatsApp Templates
   const [driverTemplate, setDriverTemplate] = useState(`Dear Driver,
@@ -130,6 +141,33 @@ Municipal Fleet Management`);
     });
   };
 
+  const saveEscalationSettings = () => {
+    localStorage.setItem('escalationLevels', JSON.stringify(escalationLevels));
+    localStorage.setItem('autoEscalate', String(autoEscalate));
+    toast({
+      title: "Settings Saved",
+      description: "Escalation settings have been updated.",
+    });
+  };
+
+  const addEscalationLevel = () => {
+    const newId = Math.max(...escalationLevels.map(l => l.id), 0) + 1;
+    setEscalationLevels([
+      ...escalationLevels,
+      { id: newId, name: `Level ${newId}`, timeThreshold: 60, email: '', enabled: true }
+    ]);
+  };
+
+  const removeEscalationLevel = (id: number) => {
+    setEscalationLevels(escalationLevels.filter(l => l.id !== id));
+  };
+
+  const updateEscalationLevel = (id: number, field: string, value: string | number | boolean) => {
+    setEscalationLevels(escalationLevels.map(l => 
+      l.id === id ? { ...l, [field]: value } : l
+    ));
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <div>
@@ -162,6 +200,10 @@ Municipal Fleet Management`);
           <TabsTrigger value="whatsapp" className="flex items-center gap-2">
             <MessageCircle className="h-4 w-4" />
             WhatsApp
+          </TabsTrigger>
+          <TabsTrigger value="escalation" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            Escalation
           </TabsTrigger>
         </TabsList>
 
@@ -604,6 +646,164 @@ Municipal Fleet Management`);
                 <Button onClick={saveWhatsAppTemplates}>
                   <Save className="h-4 w-4 mr-2" />
                   Save Templates
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Escalation Settings */}
+        <TabsContent value="escalation">
+          <Card className="bg-card/50 border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+                Escalation Configuration
+              </CardTitle>
+              <CardDescription>
+                Configure escalation levels, time thresholds, and notification targets
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Auto-Escalation</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically escalate alerts when no response is received
+                  </p>
+                </div>
+                <Switch
+                  checked={autoEscalate}
+                  onCheckedChange={setAutoEscalate}
+                />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Escalation Levels</h4>
+                  <Button size="sm" variant="outline" onClick={addEscalationLevel}>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Level
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  {escalationLevels.map((level, index) => (
+                    <div key={level.id} className="p-4 border border-border/50 rounded-lg space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            Level {index + 1}
+                          </span>
+                          <Switch
+                            checked={level.enabled}
+                            onCheckedChange={(v) => updateEscalationLevel(level.id, 'enabled', v)}
+                          />
+                        </div>
+                        {escalationLevels.length > 1 && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => removeEscalationLevel(level.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label>Level Name</Label>
+                          <Input
+                            value={level.name}
+                            onChange={(e) => updateEscalationLevel(level.id, 'name', e.target.value)}
+                            placeholder="e.g., Supervisor"
+                            disabled={!level.enabled}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Time Threshold (minutes)</Label>
+                          <Input
+                            type="number"
+                            value={level.timeThreshold}
+                            onChange={(e) => updateEscalationLevel(level.id, 'timeThreshold', parseInt(e.target.value) || 0)}
+                            min={1}
+                            disabled={!level.enabled}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Escalate if no response after this time
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Email Address</Label>
+                          <Input
+                            type="email"
+                            value={level.email}
+                            onChange={(e) => updateEscalationLevel(level.id, 'email', e.target.value)}
+                            placeholder="escalation@example.com"
+                            disabled={!level.enabled}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Notification email for this level
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium">Escalation Triggers</h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Route Deviation Alerts</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Escalate when route deviation is unresolved
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Missed Pickup Alerts</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Escalate when pickups are missed
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Idle Time Violations</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Escalate extended idle time
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Device Offline Alerts</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Escalate when devices go offline
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={saveEscalationSettings}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Escalation Settings
                 </Button>
               </div>
             </CardContent>
