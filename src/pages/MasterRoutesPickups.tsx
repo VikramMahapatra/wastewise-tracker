@@ -175,9 +175,9 @@ export default function MasterRoutesPickups() {
                     </div>
                     <div className="space-y-2">
                       <Label>Assigned Truck</Label>
-                      <Select value={routeForm.assignedTruckId || ''} onValueChange={(v) => setRouteForm({ ...routeForm, assignedTruckId: v })}>
+                      <Select value={routeForm.assignedTruckId || 'none'} onValueChange={(v) => setRouteForm({ ...routeForm, assignedTruckId: v === 'none' ? '' : v })}>
                         <SelectTrigger><SelectValue placeholder="Select truck" /></SelectTrigger>
-                        <SelectContent><SelectItem value="">Not Assigned</SelectItem>{mockTrucks.filter(t => t.status === 'active').map(t => <SelectItem key={t.id} value={t.id}>{t.registrationNumber}</SelectItem>)}</SelectContent>
+                        <SelectContent><SelectItem value="none">Not Assigned</SelectItem>{mockTrucks.filter(t => t.status === 'active').map(t => <SelectItem key={t.id} value={t.id}>{t.registrationNumber}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                   </div>
