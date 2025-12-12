@@ -7,15 +7,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Phone, MessageCircle, MoreVertical, UserCircle, Building2 } from "lucide-react";
+import { Phone, MessageCircle, MoreVertical, UserCircle, Building2, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const getEmailTemplate = (type: "driver" | "vendor", alertType?: string, alertMessage?: string, truckId?: string): { subject: string; body: string } => {
+  const subject = `Alert: ${alertType || 'Issue'} - Vehicle ${truckId || 'N/A'}`;
+  
+  const driverBody = `Dear Driver,
+
+Alert for Vehicle: ${truckId || 'N/A'}
+Type: ${alertType || 'Alert'}
+Details: ${alertMessage || 'Please check the system for details.'}
+
+Please take immediate action and respond to this alert.
+
+Regards,
+Municipal Fleet Management`;
+
+  const vendorBody = `Dear Vendor,
+
+We are notifying you about an alert for your vehicle.
+
+Vehicle: ${truckId || 'N/A'}
+Alert Type: ${alertType || 'Alert'}
+Details: ${alertMessage || 'Please check the system for details.'}
+
+Please coordinate with the driver and take necessary action.
+
+Regards,
+Municipal Fleet Management`;
+
+  return { subject, body: type === 'driver' ? driverBody : vendorBody };
+};
 
 interface ActionDropdownProps {
   truckId: string;
   driverName?: string;
   driverPhone?: string;
+  driverEmail?: string;
   vendorName?: string;
   vendorPhone?: string;
+  vendorEmail?: string;
   alertType?: string;
   alertMessage?: string;
   variant?: "default" | "outline" | "ghost";
@@ -61,8 +93,10 @@ export function ActionDropdown({
   truckId,
   driverName = "Driver",
   driverPhone = "+919876543210",
+  driverEmail = "driver@example.com",
   vendorName = "Vendor",
   vendorPhone = "+919876543211",
+  vendorEmail = "vendor@example.com",
   alertType,
   alertMessage,
   variant = "outline",
@@ -70,6 +104,24 @@ export function ActionDropdown({
 }: ActionDropdownProps) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleEmailDriver = () => {
+    const { subject, body } = getEmailTemplate("driver", alertType, alertMessage, truckId);
+    window.open(`mailto:${driverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+    toast({
+      title: "Email Opened",
+      description: `Opening email client to contact ${driverName}`,
+    });
+  };
+
+  const handleEmailVendor = () => {
+    const { subject, body } = getEmailTemplate("vendor", alertType, alertMessage, truckId);
+    window.open(`mailto:${vendorEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+    toast({
+      title: "Email Opened",
+      description: `Opening email client to contact ${vendorName}`,
+    });
+  };
 
   const handleWhatsAppDriver = () => {
     const message = getWhatsAppTemplate("driver", alertType, alertMessage, truckId);
@@ -129,6 +181,10 @@ export function ActionDropdown({
           <Phone className="h-4 w-4 mr-2 text-blue-500" />
           Call Driver
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleEmailDriver} className="cursor-pointer">
+          <Mail className="h-4 w-4 mr-2 text-orange-500" />
+          Email Driver
+        </DropdownMenuItem>
         
         <DropdownMenuSeparator />
         
@@ -142,6 +198,10 @@ export function ActionDropdown({
         <DropdownMenuItem onClick={handleCallVendor} className="cursor-pointer">
           <Phone className="h-4 w-4 mr-2 text-blue-500" />
           Call Vendor
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleEmailVendor} className="cursor-pointer">
+          <Mail className="h-4 w-4 mr-2 text-orange-500" />
+          Email Vendor
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
