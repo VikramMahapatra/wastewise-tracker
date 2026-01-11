@@ -54,6 +54,7 @@ export interface RoutePoint {
   name: string;
   type: "pickup" | "gcp" | "dumping";
   order: number;
+  scheduledTime?: string; // Format: "HH:MM" (24-hour)
 }
 
 export interface RouteData {
@@ -273,10 +274,10 @@ export const routes: RouteData[] = [
     estimatedTime: "2h 30m",
     status: "active",
     points: [
-      { id: "RP-001", position: { lat: 18.5520, lng: 73.9400 }, name: "Starting Point", type: "pickup", order: 1 },
-      { id: "RP-002", position: { lat: 18.5535, lng: 73.9415 }, name: "Sector 22", type: "pickup", order: 2 },
-      { id: "RP-003", position: { lat: 18.5550, lng: 73.9430 }, name: "Sector 23", type: "pickup", order: 3 },
-      { id: "RP-004", position: { lat: 18.5580, lng: 73.9420 }, name: "Kharadi GCP North", type: "gcp", order: 4 },
+      { id: "RP-001", position: { lat: 18.5520, lng: 73.9400 }, name: "Starting Point", type: "pickup", order: 1, scheduledTime: "06:00" },
+      { id: "RP-002", position: { lat: 18.5535, lng: 73.9415 }, name: "Sector 22", type: "pickup", order: 2, scheduledTime: "06:45" },
+      { id: "RP-003", position: { lat: 18.5550, lng: 73.9430 }, name: "Sector 23", type: "pickup", order: 3, scheduledTime: "07:30" },
+      { id: "RP-004", position: { lat: 18.5580, lng: 73.9420 }, name: "Kharadi GCP North", type: "gcp", order: 4, scheduledTime: "08:30" },
     ]
   },
   {
@@ -288,8 +289,8 @@ export const routes: RouteData[] = [
     estimatedTime: "1h 45m",
     status: "active",
     points: [
-      { id: "RP-005", position: { lat: 18.5580, lng: 73.9420 }, name: "Kharadi GCP North", type: "gcp", order: 1 },
-      { id: "RP-006", position: { lat: 18.5050, lng: 73.9400 }, name: "Hadapsar Waste Processing Plant", type: "dumping", order: 2 },
+      { id: "RP-005", position: { lat: 18.5580, lng: 73.9420 }, name: "Kharadi GCP North", type: "gcp", order: 1, scheduledTime: "09:00" },
+      { id: "RP-006", position: { lat: 18.5050, lng: 73.9400 }, name: "Hadapsar Waste Processing Plant", type: "dumping", order: 2, scheduledTime: "10:30" },
     ]
   },
   {
@@ -301,9 +302,9 @@ export const routes: RouteData[] = [
     estimatedTime: "2h 15m",
     status: "active",
     points: [
-      { id: "RP-007", position: { lat: 18.5500, lng: 73.9380 }, name: "Starting Point B", type: "pickup", order: 1 },
-      { id: "RP-008", position: { lat: 18.5480, lng: 73.9360 }, name: "Sector 14", type: "pickup", order: 2 },
-      { id: "RP-009", position: { lat: 18.5480, lng: 73.9380 }, name: "Kharadi GCP South", type: "gcp", order: 3 },
+      { id: "RP-007", position: { lat: 18.5500, lng: 73.9380 }, name: "Starting Point B", type: "pickup", order: 1, scheduledTime: "07:00" },
+      { id: "RP-008", position: { lat: 18.5480, lng: 73.9360 }, name: "Sector 14", type: "pickup", order: 2, scheduledTime: "07:45" },
+      { id: "RP-009", position: { lat: 18.5480, lng: 73.9380 }, name: "Kharadi GCP South", type: "gcp", order: 3, scheduledTime: "09:15" },
     ]
   },
 ];
