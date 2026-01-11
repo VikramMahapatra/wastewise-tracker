@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   MapPin, Save, Trash2, X, Plus, GripVertical, 
-  Navigation, Target, CircleDot, Building2
+  Navigation, Target, CircleDot, Building2, Clock
 } from "lucide-react";
 import { toast } from "sonner";
 import { GOOGLE_MAPS_API_KEY, KHARADI_CENTER, gcpLocations, finalDumpingSites, RoutePoint, RouteData, TruckType } from "@/data/fleetData";
@@ -32,6 +32,7 @@ export default function RouteMapBuilder({ route, routeType, onSave, onCancel }: 
   const [isAddingPoint, setIsAddingPoint] = useState(false);
   const [newPointName, setNewPointName] = useState("");
   const [newPointType, setNewPointType] = useState<"pickup" | "gcp" | "dumping">("pickup");
+  const [newPointTime, setNewPointTime] = useState("07:00");
   const [tempMarker, setTempMarker] = useState<{ lat: number; lng: number } | null>(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -85,26 +86,48 @@ export default function RouteMapBuilder({ route, routeType, onSave, onCancel }: 
       name: newPointName,
       type: newPointType,
       order: points.length + 1,
+      scheduledTime: newPointTime,
     };
 
     setPoints([...points, newPoint]);
     setTempMarker(null);
     setNewPointName("");
+    setNewPointTime("07:00");
     setIsAddingPoint(false);
     toast.success("Point added to route");
   };
 
   // Add GCP/Dumping site from existing locations
   const addExistingLocation = (location: { id: string; name: string; position: { lat: number; lng: number } }, type: "gcp" | "dumping") => {
+    // Calculate suggested time based on previous point
+    const suggestedTime = points.length > 0 
+      ? calculateNextTime(points[points.length - 1].scheduledTime || "07:00", 30)
+      : "07:00";
+
     const newPoint: RoutePoint = {
       id: `RP-${Date.now()}`,
       position: location.position,
       name: location.name,
       type,
       order: points.length + 1,
+      scheduledTime: suggestedTime,
     };
     setPoints([...points, newPoint]);
     toast.success(`${location.name} added to route`);
+  };
+
+  // Calculate next time (add minutes to a time string)
+  const calculateNextTime = (time: string, addMinutes: number): string => {
+    const [hours, mins] = time.split(":").map(Number);
+    const totalMins = hours * 60 + mins + addMinutes;
+    const newHours = Math.floor(totalMins / 60) % 24;
+    const newMins = totalMins % 60;
+    return `${newHours.toString().padStart(2, "0")}:${newMins.toString().padStart(2, "0")}`;
+  };
+
+  // Update point time
+  const updatePointTime = (pointId: string, time: string) => {
+    setPoints(points.map(p => p.id === pointId ? { ...p, scheduledTime: time } : p));
   };
 
   // Remove point
@@ -326,6 +349,15 @@ export default function RouteMapBuilder({ route, routeType, onSave, onCancel }: 
                     <SelectItem value="dumping">Dumping Site</SelectItem>
                   </SelectContent>
                 </Select>
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="time"
+                    value={newPointTime}
+                    onChange={(e) => setNewPointTime(e.target.value)}
+                    className="h-8 flex-1"
+                  />
+                </div>
                 {tempMarker && (
                   <Button size="sm" className="w-full h-8" onClick={confirmAddPoint}>
                     Confirm Location
@@ -359,17 +391,30 @@ export default function RouteMapBuilder({ route, routeType, onSave, onCancel }: 
                     </button>
                   </div>
                   <div 
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
                     style={{ backgroundColor: getPointColor(point.type) }}
                   >
                     {point.order}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{point.name}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{point.type}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground capitalize">{point.type}</p>
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3 text-primary" />
+                        <input
+                          type="time"
+                          value={point.scheduledTime || "07:00"}
+                          onChange={(e) => { e.stopPropagation(); updatePointTime(point.id, e.target.value); }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs font-medium text-primary bg-transparent border-none p-0 w-14 focus:outline-none focus:ring-0"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <button 
-                    className="text-muted-foreground hover:text-destructive"
+                    className="text-muted-foreground hover:text-destructive shrink-0"
                     onClick={(e) => { e.stopPropagation(); removePoint(point.id); }}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -516,6 +561,11 @@ export default function RouteMapBuilder({ route, routeType, onSave, onCancel }: 
                     <p className="text-xs text-gray-600 capitalize">
                       {selectedPoint.type} Point #{selectedPoint.order}
                     </p>
+                    {selectedPoint.scheduledTime && (
+                      <p className="text-xs text-blue-600 font-medium mt-1">
+                        ⏰ Scheduled: {selectedPoint.scheduledTime}
+                      </p>
+                    )}
                     <p className="text-xs text-gray-500 mt-1">
                       {selectedPoint.position.lat.toFixed(6)}, {selectedPoint.position.lng.toFixed(6)}
                     </p>

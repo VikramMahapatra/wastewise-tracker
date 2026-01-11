@@ -209,6 +209,9 @@ export default function RouteListView({
                           {point.order}
                         </div>
                         <p className="text-xs mt-1 max-w-[80px] truncate text-center">{point.name}</p>
+                        {point.scheduledTime && (
+                          <p className="text-[10px] text-primary font-medium">⏰ {point.scheduledTime}</p>
+                        )}
                         <p className="text-[10px] text-muted-foreground capitalize">{point.type}</p>
                       </div>
                       {index < selectedRoute.points.length - 1 && (
@@ -233,7 +236,17 @@ export default function RouteListView({
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">{point.name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{point.type}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground capitalize">{point.type}</p>
+                        {point.scheduledTime && (
+                          <>
+                            <span className="text-xs text-muted-foreground">•</span>
+                            <p className="text-xs text-primary font-medium flex items-center gap-1">
+                              <Clock className="h-3 w-3" /> {point.scheduledTime}
+                            </p>
+                          </>
+                        )}
+                      </div>
                     </div>
                     <div className="text-xs text-muted-foreground text-right">
                       <p>{point.position.lat.toFixed(4)}</p>
