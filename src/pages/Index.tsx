@@ -3,6 +3,7 @@ import FleetStats from "@/components/FleetStats";
 import MapView from "@/components/MapView";
 import TruckList from "@/components/TruckList";
 import AlertsPanel from "@/components/AlertsPanel";
+import ExpiryAlerts from "@/components/ExpiryAlerts";
 
 const Index = () => {
   const [selectedTruck, setSelectedTruck] = useState<string | null>(null);
@@ -14,7 +15,10 @@ const Index = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <MapView selectedTruck={selectedTruck} />
-          <AlertsPanel />
+          <div className="grid md:grid-cols-2 gap-6">
+            <AlertsPanel />
+            <ExpiryAlerts />
+          </div>
         </div>
         
         <div>

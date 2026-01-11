@@ -25,8 +25,12 @@ import {
   Clock,
   Route,
   Trash2,
-  Building
+  Building,
+  Shield,
+  IdCard
 } from "lucide-react";
+import { mockTrucks, mockDrivers } from "@/data/masterData";
+import { differenceInDays, parseISO, format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 
 // Mock data for reports
@@ -129,10 +133,10 @@ export default function Reports() {
           <h1 className="text-3xl font-bold">Reports Center</h1>
           <p className="text-muted-foreground">Generate, filter and download comprehensive fleet reports</p>
         </div>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
             <FileText className="h-3 w-3 mr-1" />
-            7 Report Types
+            8 Report Types
           </Badge>
         </div>
       </div>
@@ -204,7 +208,7 @@ export default function Reports() {
 
       {/* Report Tabs */}
       <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList className="grid grid-cols-4 md:grid-cols-7 h-auto gap-1 bg-muted/50 p-1">
+        <TabsList className="grid grid-cols-4 md:grid-cols-8 h-auto gap-1 bg-muted/50 p-1">
           <TabsTrigger value="daily" className="flex items-center gap-1 text-xs md:text-sm">
             <Calendar className="h-3 w-3 md:h-4 md:w-4" />
             <span className="hidden md:inline">Daily</span> Collection
@@ -232,6 +236,10 @@ export default function Reports() {
           <TabsTrigger value="dumpyard" className="flex items-center gap-1 text-xs md:text-sm">
             <Building className="h-3 w-3 md:h-4 md:w-4" />
             Dump Yard
+          </TabsTrigger>
+          <TabsTrigger value="expiry" className="flex items-center gap-1 text-xs md:text-sm">
+            <Shield className="h-3 w-3 md:h-4 md:w-4" />
+            Expiry
           </TabsTrigger>
         </TabsList>
 
@@ -935,6 +943,193 @@ export default function Reports() {
                           </TableCell>
                         </TableRow>
                       ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Expiry Report */}
+        <TabsContent value="expiry" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Insurance & License Expiry Report
+                </CardTitle>
+                <CardDescription>Track truck insurance, fitness certificates, and driver license expiration dates</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleDownload("expiry_report", "csv")}>
+                  <FileSpreadsheet className="h-4 w-4 mr-1" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownload("expiry_report", "pdf")}>
+                  <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handlePrint("expiry_report")}>
+                  <Printer className="h-4 w-4 mr-1" /> Print
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Summary Cards */}
+              {(() => {
+                const today = new Date();
+                const truckInsuranceExpiring = mockTrucks.filter(t => {
+                  const days = differenceInDays(parseISO(t.insuranceExpiry), today);
+                  return days >= 0 && days <= 30;
+                }).length;
+                const truckInsuranceExpired = mockTrucks.filter(t => differenceInDays(parseISO(t.insuranceExpiry), today) < 0).length;
+                const truckFitnessExpiring = mockTrucks.filter(t => {
+                  const days = differenceInDays(parseISO(t.fitnessExpiry), today);
+                  return days >= 0 && days <= 30;
+                }).length;
+                const truckFitnessExpired = mockTrucks.filter(t => differenceInDays(parseISO(t.fitnessExpiry), today) < 0).length;
+                const driverLicenseExpiring = mockDrivers.filter(d => {
+                  const days = differenceInDays(parseISO(d.licenseExpiry), today);
+                  return days >= 0 && days <= 30;
+                }).length;
+                const driverLicenseExpired = mockDrivers.filter(d => differenceInDays(parseISO(d.licenseExpiry), today) < 0).length;
+
+                return (
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                    <Card className="bg-red-500/10 border-red-500/20">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold text-red-600">{truckInsuranceExpired}</p>
+                        <p className="text-xs text-muted-foreground">Insurance Expired</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-orange-500/10 border-orange-500/20">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold text-orange-600">{truckInsuranceExpiring}</p>
+                        <p className="text-xs text-muted-foreground">Insurance Expiring</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-red-500/10 border-red-500/20">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold text-red-600">{truckFitnessExpired}</p>
+                        <p className="text-xs text-muted-foreground">Fitness Expired</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-orange-500/10 border-orange-500/20">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold text-orange-600">{truckFitnessExpiring}</p>
+                        <p className="text-xs text-muted-foreground">Fitness Expiring</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-red-500/10 border-red-500/20">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold text-red-600">{driverLicenseExpired}</p>
+                        <p className="text-xs text-muted-foreground">License Expired</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-orange-500/10 border-orange-500/20">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold text-orange-600">{driverLicenseExpiring}</p>
+                        <p className="text-xs text-muted-foreground">License Expiring</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                );
+              })()}
+
+              {/* Truck Insurance & Fitness Table */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-primary" />
+                  Truck Insurance & Fitness Expiry
+                </h3>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead>Vehicle No.</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Vendor</TableHead>
+                        <TableHead>Insurance Expiry</TableHead>
+                        <TableHead>Insurance Status</TableHead>
+                        <TableHead>Fitness Expiry</TableHead>
+                        <TableHead>Fitness Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockTrucks.map((truck) => {
+                        const today = new Date();
+                        const insuranceDays = differenceInDays(parseISO(truck.insuranceExpiry), today);
+                        const fitnessDays = differenceInDays(parseISO(truck.fitnessExpiry), today);
+                        
+                        const getStatusBadge = (days: number) => {
+                          if (days < 0) return <Badge variant="destructive">Expired</Badge>;
+                          if (days <= 7) return <Badge className="bg-orange-500 text-white">Critical ({days}d)</Badge>;
+                          if (days <= 30) return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-700">Warning ({days}d)</Badge>;
+                          return <Badge variant="secondary" className="bg-green-500/20 text-green-700">Valid ({days}d)</Badge>;
+                        };
+
+                        return (
+                          <TableRow key={truck.id}>
+                            <TableCell className="font-mono font-medium">{truck.registrationNumber}</TableCell>
+                            <TableCell className="capitalize">{truck.type.replace('-', ' ')}</TableCell>
+                            <TableCell>{truck.vendorId}</TableCell>
+                            <TableCell>{format(parseISO(truck.insuranceExpiry), 'dd MMM yyyy')}</TableCell>
+                            <TableCell>{getStatusBadge(insuranceDays)}</TableCell>
+                            <TableCell>{format(parseISO(truck.fitnessExpiry), 'dd MMM yyyy')}</TableCell>
+                            <TableCell>{getStatusBadge(fitnessDays)}</TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* Driver License Table */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <IdCard className="h-5 w-5 text-primary" />
+                  Driver License Expiry
+                </h3>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead>Driver ID</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>License Number</TableHead>
+                        <TableHead>License Expiry</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Days Left</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockDrivers.map((driver) => {
+                        const today = new Date();
+                        const licenseDays = differenceInDays(parseISO(driver.licenseExpiry), today);
+                        
+                        const getStatusBadge = (days: number) => {
+                          if (days < 0) return <Badge variant="destructive">Expired</Badge>;
+                          if (days <= 7) return <Badge className="bg-orange-500 text-white">Critical</Badge>;
+                          if (days <= 30) return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-700">Warning</Badge>;
+                          return <Badge variant="secondary" className="bg-green-500/20 text-green-700">Valid</Badge>;
+                        };
+
+                        return (
+                          <TableRow key={driver.id}>
+                            <TableCell className="font-mono">{driver.id}</TableCell>
+                            <TableCell className="font-medium">{driver.name}</TableCell>
+                            <TableCell>{driver.phone}</TableCell>
+                            <TableCell className="font-mono text-xs">{driver.licenseNumber}</TableCell>
+                            <TableCell>{format(parseISO(driver.licenseExpiry), 'dd MMM yyyy')}</TableCell>
+                            <TableCell>{getStatusBadge(licenseDays)}</TableCell>
+                            <TableCell className={`font-medium ${licenseDays < 0 ? 'text-red-600' : licenseDays <= 7 ? 'text-orange-600' : licenseDays <= 30 ? 'text-yellow-600' : 'text-green-600'}`}>
+                              {licenseDays < 0 ? `${Math.abs(licenseDays)} days ago` : `${licenseDays} days`}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
