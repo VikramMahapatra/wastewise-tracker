@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +11,8 @@ import {
   Clock, 
   ChevronRight,
   Truck,
-  User
+  User,
+  FileWarning
 } from "lucide-react";
 import { mockTrucks, mockDrivers } from "@/data/masterData";
 import { differenceInDays, parseISO, format } from "date-fns";
@@ -38,7 +39,6 @@ const getExpiryItems = (): ExpiryItem[] => {
   const items: ExpiryItem[] = [];
   const today = new Date();
 
-  // Truck insurance expiries
   mockTrucks.forEach(truck => {
     const daysLeft = differenceInDays(parseISO(truck.insuranceExpiry), today);
     items.push({
@@ -53,7 +53,6 @@ const getExpiryItems = (): ExpiryItem[] => {
     });
   });
 
-  // Truck fitness expiries
   mockTrucks.forEach(truck => {
     const daysLeft = differenceInDays(parseISO(truck.fitnessExpiry), today);
     items.push({
@@ -68,7 +67,6 @@ const getExpiryItems = (): ExpiryItem[] => {
     });
   });
 
-  // Driver license expiries
   mockDrivers.forEach(driver => {
     const daysLeft = differenceInDays(parseISO(driver.licenseExpiry), today);
     items.push({
@@ -105,43 +103,60 @@ const ExpiryAlerts = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'expired':
-        return <Badge variant="destructive" className="text-xs">Expired</Badge>;
+        return <Badge variant="destructive" className="text-[10px]">Expired</Badge>;
       case 'critical':
-        return <Badge className="bg-orange-500 text-white text-xs">Critical</Badge>;
+        return <Badge className="bg-orange-500 text-white text-[10px]">Critical</Badge>;
       case 'warning':
-        return <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-700 text-xs">Warning</Badge>;
+        return <Badge className="bg-chart-4/80 text-white text-[10px]">Warning</Badge>;
       default:
-        return <Badge variant="secondary" className="text-xs">OK</Badge>;
+        return <Badge variant="secondary" className="text-[10px]">OK</Badge>;
     }
   };
 
   const getTypeIcon = (type: string, entity: string) => {
-    if (entity === 'driver') return <IdCard className="h-4 w-4 text-primary" />;
-    if (type === 'insurance') return <Shield className="h-4 w-4 text-chart-2" />;
-    return <Truck className="h-4 w-4 text-chart-3" />;
+    if (entity === 'driver') return <IdCard className="h-4 w-4" />;
+    if (type === 'insurance') return <Shield className="h-4 w-4" />;
+    return <Truck className="h-4 w-4" />;
+  };
+
+  const getStatusStyles = (status: string) => {
+    switch (status) {
+      case 'expired':
+        return { bg: 'bg-destructive/10', border: 'border-destructive/30', icon: 'text-destructive' };
+      case 'critical':
+        return { bg: 'bg-orange-500/10', border: 'border-orange-500/30', icon: 'text-orange-500' };
+      case 'warning':
+        return { bg: 'bg-chart-4/10', border: 'border-chart-4/30', icon: 'text-chart-4' };
+      default:
+        return { bg: 'bg-muted', border: 'border-border', icon: 'text-muted-foreground' };
+    }
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
+    <Card className="h-full flex flex-col overflow-hidden">
+      <CardHeader className="p-4 border-b border-border bg-muted/30">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-warning" />
-            Expiry Alerts
-          </CardTitle>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-2">
+            <FileWarning className="h-5 w-5 text-warning" />
+            <h2 className="text-lg font-semibold text-foreground">Expiry Alerts</h2>
+          </div>
+          <div className="flex gap-1.5">
             {expiredCount > 0 && (
-              <Badge variant="destructive" className="text-xs">{expiredCount} Expired</Badge>
+              <Badge variant="destructive" className="text-xs">{expiredCount}</Badge>
             )}
             {criticalCount > 0 && (
-              <Badge className="bg-orange-500 text-white text-xs">{criticalCount} Critical</Badge>
+              <Badge className="bg-orange-500 text-white text-xs">{criticalCount}</Badge>
+            )}
+            {warningCount > 0 && (
+              <Badge className="bg-chart-4/80 text-white text-xs">{warningCount}</Badge>
             )}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="px-4 pb-2">
+      
+      <CardContent className="p-0 flex-1 flex flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <div className="px-3 py-2 border-b border-border">
             <TabsList className="grid w-full grid-cols-4 h-8">
               <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
               <TabsTrigger value="insurance" className="text-xs">Insurance</TabsTrigger>
@@ -150,69 +165,69 @@ const ExpiryAlerts = () => {
             </TabsList>
           </div>
 
-          <ScrollArea className="h-[280px]">
-            <div className="px-4 pb-4 space-y-2">
+          <ScrollArea className="flex-1">
+            <div className="p-3 space-y-2">
               {filteredItems.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">No expiring items in this category</p>
                 </div>
               ) : (
-                filteredItems.map(item => (
-                  <div 
-                    key={item.id}
-                    className={`p-3 rounded-lg border transition-colors hover:bg-muted/50 ${
-                      item.status === 'expired' ? 'border-destructive/50 bg-destructive/5' :
-                      item.status === 'critical' ? 'border-orange-500/50 bg-orange-500/5' :
-                      'border-border'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${
-                          item.status === 'expired' ? 'bg-destructive/10' :
-                          item.status === 'critical' ? 'bg-orange-500/10' :
-                          'bg-muted'
-                        }`}>
-                          {getTypeIcon(item.type, item.entity)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">{item.name}</span>
-                            {item.entity === 'driver' && <User className="h-3 w-3 text-muted-foreground" />}
-                            {item.entity === 'truck' && <Truck className="h-3 w-3 text-muted-foreground" />}
+                filteredItems.map(item => {
+                  const styles = getStatusStyles(item.status);
+                  return (
+                    <div 
+                      key={item.id}
+                      className={`p-3 rounded-lg border ${styles.border} ${styles.bg} transition-all hover:shadow-sm`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`p-1.5 rounded-md ${styles.bg}`}>
+                            <span className={styles.icon}>
+                              {getTypeIcon(item.type, item.entity)}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="capitalize">{item.type}</span>
-                            <span>•</span>
-                            <span>{format(parseISO(item.expiryDate), 'dd MMM yyyy')}</span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium text-sm text-foreground truncate">{item.name}</span>
+                              {item.entity === 'driver' ? (
+                                <User className="h-3 w-3 text-muted-foreground shrink-0" />
+                              ) : (
+                                <Truck className="h-3 w-3 text-muted-foreground shrink-0" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <span className="capitalize">{item.type}</span>
+                              <span>•</span>
+                              <span>{format(parseISO(item.expiryDate), 'dd MMM yyyy')}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(item.status)}
-                        <span className={`text-xs font-medium ${
-                          item.daysLeft < 0 ? 'text-destructive' :
-                          item.daysLeft <= 7 ? 'text-orange-600' :
-                          'text-muted-foreground'
-                        }`}>
-                          {item.daysLeft < 0 
-                            ? `${Math.abs(item.daysLeft)}d ago` 
-                            : `${item.daysLeft}d left`}
-                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {getStatusBadge(item.status)}
+                          <span className={`text-xs font-semibold ${
+                            item.daysLeft < 0 ? 'text-destructive' :
+                            item.daysLeft <= 7 ? 'text-orange-600' :
+                            'text-muted-foreground'
+                          }`}>
+                            {item.daysLeft < 0 
+                              ? `${Math.abs(item.daysLeft)}d ago` 
+                              : `${item.daysLeft}d`}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </ScrollArea>
         </Tabs>
         
-        <div className="px-4 py-3 border-t">
-          <Button variant="ghost" className="w-full justify-between text-sm" asChild>
+        <div className="p-3 border-t border-border bg-muted/20">
+          <Button variant="ghost" className="w-full justify-between text-sm h-9" asChild>
             <a href="/reports">
-              View Full Expiry Report
+              View Full Report
               <ChevronRight className="h-4 w-4" />
             </a>
           </Button>

@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertTriangle, MapPinOff, Clock, Navigation } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, MapPinOff, Clock, Navigation, ChevronRight, Bell } from "lucide-react";
 
 const alerts = [
   {
@@ -52,73 +53,118 @@ const AlertsPanel = () => {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityStyles = (severity: string) => {
     switch (severity) {
       case "high":
-        return "bg-destructive/10 text-destructive border-destructive/20";
+        return {
+          badge: "bg-destructive text-destructive-foreground",
+          border: "border-l-destructive",
+          bg: "bg-destructive/5",
+          icon: "bg-destructive/10 text-destructive",
+        };
       case "medium":
-        return "bg-warning/10 text-warning border-warning/20";
+        return {
+          badge: "bg-warning text-warning-foreground",
+          border: "border-l-warning",
+          bg: "bg-warning/5",
+          icon: "bg-warning/10 text-warning",
+        };
       case "warning":
-        return "bg-chart-4/10 text-chart-4 border-chart-4/20";
+        return {
+          badge: "bg-chart-4/80 text-white",
+          border: "border-l-chart-4",
+          bg: "bg-chart-4/5",
+          icon: "bg-chart-4/10 text-chart-4",
+        };
       default:
-        return "bg-muted text-muted-foreground border-border";
+        return {
+          badge: "bg-muted text-muted-foreground",
+          border: "border-l-border",
+          bg: "",
+          icon: "bg-muted text-muted-foreground",
+        };
     }
   };
 
+  const highCount = alerts.filter(a => a.severity === "high").length;
+  const mediumCount = alerts.filter(a => a.severity === "medium").length;
+
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden h-full flex flex-col">
       <div className="p-4 border-b border-border bg-muted/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-warning" />
+            <div className="relative">
+              <Bell className="h-5 w-5 text-warning" />
+              {highCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive animate-pulse" />
+              )}
+            </div>
             <h2 className="text-lg font-semibold text-foreground">Active Alerts</h2>
           </div>
-          <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">
-            {alerts.length} Active
-          </Badge>
+          <div className="flex gap-1.5">
+            {highCount > 0 && (
+              <Badge variant="destructive" className="text-xs">
+                {highCount} Critical
+              </Badge>
+            )}
+            {mediumCount > 0 && (
+              <Badge className="bg-warning text-warning-foreground text-xs">
+                {mediumCount} Medium
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 
-      <ScrollArea className="h-[280px]">
-        <div className="p-4 space-y-3">
+      <ScrollArea className="flex-1">
+        <div className="p-3 space-y-2">
           {alerts.map((alert) => {
             const Icon = getAlertIcon(alert.type);
+            const styles = getSeverityStyles(alert.severity);
             return (
-              <Card
+              <div
                 key={alert.id}
-                className="p-4 border-l-4 border-l-warning/50 hover:shadow-md transition-shadow"
+                className={`p-3 rounded-lg border-l-4 ${styles.border} ${styles.bg} border border-border transition-all hover:shadow-sm`}
               >
                 <div className="flex gap-3">
-                  <div className="mt-1">
-                    <div className="h-8 w-8 rounded-lg bg-warning/10 flex items-center justify-center">
-                      <Icon className="h-4 w-4 text-warning" />
-                    </div>
+                  <div className={`h-8 w-8 rounded-lg ${styles.icon} flex items-center justify-center shrink-0`}>
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-semibold text-sm text-foreground">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm text-foreground">
                           {alert.truck}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {alert.message}
-                        </p>
+                        </span>
+                        <Badge className={`${styles.badge} text-[10px] uppercase tracking-wide`}>
+                          {alert.severity}
+                        </Badge>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={`${getSeverityColor(alert.severity)} capitalize whitespace-nowrap`}
-                      >
-                        {alert.severity}
-                      </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">{alert.time}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {alert.message}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1.5 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {alert.time}
+                    </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
       </ScrollArea>
+
+      <div className="p-3 border-t border-border bg-muted/20">
+        <Button variant="ghost" className="w-full justify-between text-sm h-9" asChild>
+          <a href="/alerts">
+            View All Alerts
+            <ChevronRight className="h-4 w-4" />
+          </a>
+        </Button>
+      </div>
     </Card>
   );
 };
