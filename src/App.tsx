@@ -22,6 +22,7 @@ import MasterVendors from "./pages/MasterVendors";
 import MasterTrucks from "./pages/MasterTrucks";
 import MasterZonesWards from "./pages/MasterZonesWards";
 import MasterRoutesPickups from "./pages/MasterRoutesPickups";
+import SpareVehicles from "./pages/SpareVehicles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/fleet" element={<ProtectedRoute><Fleet /></ProtectedRoute>} />
+            <Route path="/spare-vehicles" element={<ProtectedRoute><SpareVehicles /></ProtectedRoute>} />
             <Route path="/routes" element={<ProtectedRoute><RoutesPage /></ProtectedRoute>} />
             <Route path="/pickup-points" element={<ProtectedRoute><PickupPoints /></ProtectedRoute>} />
             <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />

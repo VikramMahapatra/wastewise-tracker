@@ -13,7 +13,8 @@ import {
   Ticket,
   User,
   Building2,
-  Route
+  Route,
+  Wrench
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 
@@ -33,6 +34,7 @@ import {
 const menuItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
   { title: 'Fleet', url: '/fleet', icon: Truck },
+  { title: 'Spare Vehicles', url: '/spare-vehicles', icon: Wrench },
   { title: 'Routes', url: '/routes', icon: Map },
   { title: 'Pickup Points', url: '/pickup-points', icon: MapPin },
   { title: 'Alerts', url: '/alerts', icon: AlertTriangle },
