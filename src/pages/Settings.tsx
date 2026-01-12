@@ -46,6 +46,12 @@ export default function Settings() {
   const [idleTimeThreshold, setIdleTimeThreshold] = useState('10');
   const [deviationThreshold, setDeviationThreshold] = useState('200');
   const [gpsUpdateInterval, setGpsUpdateInterval] = useState('30');
+  const [lateArrivalBuffer, setLateArrivalBuffer] = useState('10');
+  
+  // Driver Behavior Settings
+  const [speedLimit, setSpeedLimit] = useState('60');
+  const [harshBrakingThreshold, setHarshBrakingThreshold] = useState('8');
+  const [rapidAccelerationThreshold, setRapidAccelerationThreshold] = useState('8');
 
   // Escalation Settings
   const [escalationLevels, setEscalationLevels] = useState([
@@ -97,6 +103,28 @@ Municipal Fleet Management`);
     
     const savedVendorTemplate = localStorage.getItem('whatsappVendorTemplate');
     if (savedVendorTemplate) setVendorTemplate(savedVendorTemplate);
+
+    // Load Fleet settings
+    const savedIdleTime = localStorage.getItem('idleTimeThreshold');
+    if (savedIdleTime) setIdleTimeThreshold(savedIdleTime);
+    
+    const savedDeviation = localStorage.getItem('deviationThreshold');
+    if (savedDeviation) setDeviationThreshold(savedDeviation);
+    
+    const savedGpsInterval = localStorage.getItem('gpsUpdateInterval');
+    if (savedGpsInterval) setGpsUpdateInterval(savedGpsInterval);
+    
+    const savedLateBuffer = localStorage.getItem('lateArrivalBuffer');
+    if (savedLateBuffer) setLateArrivalBuffer(savedLateBuffer);
+    
+    const savedSpeedLimit = localStorage.getItem('speedLimit');
+    if (savedSpeedLimit) setSpeedLimit(savedSpeedLimit);
+    
+    const savedHarshBraking = localStorage.getItem('harshBrakingThreshold');
+    if (savedHarshBraking) setHarshBrakingThreshold(savedHarshBraking);
+    
+    const savedRapidAccel = localStorage.getItem('rapidAccelerationThreshold');
+    if (savedRapidAccel) setRapidAccelerationThreshold(savedRapidAccel);
   }, []);
 
   const saveWhatsAppTemplates = () => {
@@ -135,9 +163,16 @@ Municipal Fleet Management`);
   };
 
   const saveFleetSettings = () => {
+    localStorage.setItem('idleTimeThreshold', idleTimeThreshold);
+    localStorage.setItem('deviationThreshold', deviationThreshold);
+    localStorage.setItem('gpsUpdateInterval', gpsUpdateInterval);
+    localStorage.setItem('lateArrivalBuffer', lateArrivalBuffer);
+    localStorage.setItem('speedLimit', speedLimit);
+    localStorage.setItem('harshBrakingThreshold', harshBrakingThreshold);
+    localStorage.setItem('rapidAccelerationThreshold', rapidAccelerationThreshold);
     toast({
       title: "Settings Saved",
-      description: "Fleet tracking settings have been updated.",
+      description: "Fleet tracking and driver behavior settings have been updated.",
     });
   };
 
@@ -515,7 +550,68 @@ Municipal Fleet Management`);
                     How often to receive GPS updates from devices
                   </p>
                 </div>
+                <div className="space-y-2">
+                  <Label>Late Arrival Buffer (minutes)</Label>
+                  <Input
+                    type="number"
+                    value={lateArrivalBuffer}
+                    onChange={(e) => setLateArrivalBuffer(e.target.value)}
+                    min="0"
+                    max="60"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Allowed delay before marking truck as late to first pickup point
+                  </p>
+                </div>
               </div>
+
+              <Separator />
+
+              <div>
+                <h4 className="text-sm font-medium mb-4">Driver Behavior Thresholds</h4>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label>Speed Limit (km/h)</Label>
+                    <Input
+                      type="number"
+                      value={speedLimit}
+                      onChange={(e) => setSpeedLimit(e.target.value)}
+                      min="20"
+                      max="120"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Maximum allowed speed for fleet vehicles
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Harsh Braking Threshold (m/s²)</Label>
+                    <Input
+                      type="number"
+                      value={harshBrakingThreshold}
+                      onChange={(e) => setHarshBrakingThreshold(e.target.value)}
+                      min="3"
+                      max="15"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Deceleration rate considered as harsh braking
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Rapid Acceleration Threshold (m/s²)</Label>
+                    <Input
+                      type="number"
+                      value={rapidAccelerationThreshold}
+                      onChange={(e) => setRapidAccelerationThreshold(e.target.value)}
+                      min="3"
+                      max="15"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Acceleration rate considered as aggressive driving
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-end">
                 <Button onClick={saveFleetSettings}>
                   <Save className="h-4 w-4 mr-2" />
