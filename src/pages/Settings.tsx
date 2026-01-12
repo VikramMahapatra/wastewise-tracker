@@ -47,6 +47,7 @@ export default function Settings() {
   const [deviationThreshold, setDeviationThreshold] = useState('200');
   const [gpsUpdateInterval, setGpsUpdateInterval] = useState('30');
   const [lateArrivalBuffer, setLateArrivalBuffer] = useState('10');
+  const [spareTruckPercentage, setSpareTruckPercentage] = useState('10');
   
   // Driver Behavior Settings
   const [speedLimit, setSpeedLimit] = useState('60');
@@ -117,6 +118,9 @@ Municipal Fleet Management`);
     const savedLateBuffer = localStorage.getItem('lateArrivalBuffer');
     if (savedLateBuffer) setLateArrivalBuffer(savedLateBuffer);
     
+    const savedSparePercentage = localStorage.getItem('spareTruckPercentage');
+    if (savedSparePercentage) setSpareTruckPercentage(savedSparePercentage);
+    
     const savedSpeedLimit = localStorage.getItem('speedLimit');
     if (savedSpeedLimit) setSpeedLimit(savedSpeedLimit);
     
@@ -167,6 +171,7 @@ Municipal Fleet Management`);
     localStorage.setItem('deviationThreshold', deviationThreshold);
     localStorage.setItem('gpsUpdateInterval', gpsUpdateInterval);
     localStorage.setItem('lateArrivalBuffer', lateArrivalBuffer);
+    localStorage.setItem('spareTruckPercentage', spareTruckPercentage);
     localStorage.setItem('speedLimit', speedLimit);
     localStorage.setItem('harshBrakingThreshold', harshBrakingThreshold);
     localStorage.setItem('rapidAccelerationThreshold', rapidAccelerationThreshold);
@@ -561,6 +566,19 @@ Municipal Fleet Management`);
                   />
                   <p className="text-xs text-muted-foreground">
                     Allowed delay before marking truck as late to first pickup point
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Spare Truck Percentage (%)</Label>
+                  <Input
+                    type="number"
+                    value={spareTruckPercentage}
+                    onChange={(e) => setSpareTruckPercentage(e.target.value)}
+                    min="5"
+                    max="25"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Each vendor must maintain this percentage of total trucks as spare
                   </p>
                 </div>
               </div>

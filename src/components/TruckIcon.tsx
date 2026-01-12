@@ -12,6 +12,7 @@ const statusColors: Record<TruckStatus, string> = {
   idle: "#f59e0b",
   dumping: "#3b82f6",
   offline: "#6b7280",
+  breakdown: "#ef4444",
 };
 
 export const TruckIcon = ({ status, type, size = 32, className = "" }: TruckIconProps) => {

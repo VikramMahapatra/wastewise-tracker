@@ -26,6 +26,7 @@ export interface Vendor {
   contractEnd: string;
   status: 'active' | 'inactive' | 'suspended';
   trucksOwned: string[];
+  spareTrucks: string[]; // Spare trucks maintained by vendor
   supervisorName: string;
   supervisorPhone: string;
 }
@@ -180,6 +181,7 @@ export const mockVendors: Vendor[] = [
     contractEnd: '2025-12-31',
     status: 'active',
     trucksOwned: ['TRK001', 'TRK002', 'TRK003'],
+    spareTrucks: ['TRK-SPR-001'],
     supervisorName: 'Mahesh Kulkarni',
     supervisorPhone: '+91 9888777667'
   },
@@ -195,6 +197,7 @@ export const mockVendors: Vendor[] = [
     contractEnd: '2024-05-31',
     status: 'active',
     trucksOwned: ['TRK004', 'TRK005'],
+    spareTrucks: ['TRK-SPR-002'],
     supervisorName: 'Ramesh Gaikwad',
     supervisorPhone: '+91 9777666556'
   },
@@ -210,6 +213,7 @@ export const mockVendors: Vendor[] = [
     contractEnd: '2026-02-28',
     status: 'active',
     trucksOwned: ['TRK006', 'TRK007', 'TRK008'],
+    spareTrucks: [],
     supervisorName: 'Sunil Pawar',
     supervisorPhone: '+91 9666555445'
   }

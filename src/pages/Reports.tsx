@@ -31,7 +31,9 @@ import {
   Gauge,
   XCircle,
   WifiOff,
-  Zap
+  Zap,
+  ArrowRightLeft,
+  Wrench
 } from "lucide-react";
 import { mockTrucks, mockDrivers } from "@/data/masterData";
 import { differenceInDays, parseISO, format } from "date-fns";
@@ -145,6 +147,80 @@ const vehicleStatusData = [
   { id: "TRK-009", truck: "MH-12-QR-7788", type: "secondary", driver: "Anil Sharma", status: "inactive", gpsStatus: "offline", lastUpdate: "1 hour ago", batteryLevel: 5, signalStrength: 0, route: "Route H-02" },
 ];
 
+// Spare Truck Usage Report Data
+const spareUsageData = [
+  { 
+    id: 1, 
+    date: "2024-01-15", 
+    spareTruck: "MH-12-SP-1001", 
+    originalTruck: "MH-12-AB-1234", 
+    driver: "Spare Driver 1",
+    route: "Route A-12", 
+    vendor: "Mahesh Fleet Services", 
+    breakdownReason: "Engine failure", 
+    activatedAt: "07:30", 
+    releasedAt: "14:45", 
+    duration: "7h 15m",
+    status: "completed" 
+  },
+  { 
+    id: 2, 
+    date: "2024-01-15", 
+    spareTruck: "MH-12-SP-2001", 
+    originalTruck: "MH-12-GH-3456", 
+    driver: "Spare Driver 2",
+    route: "Route A-15", 
+    vendor: "Green Transport Solutions", 
+    breakdownReason: "Tire puncture", 
+    activatedAt: "09:15", 
+    releasedAt: "12:30", 
+    duration: "3h 15m",
+    status: "completed" 
+  },
+  { 
+    id: 3, 
+    date: "2024-01-14", 
+    spareTruck: "MH-12-SP-1001", 
+    originalTruck: "MH-12-EF-9012", 
+    driver: "Spare Driver 1",
+    route: "Route C-08", 
+    vendor: "Mahesh Fleet Services", 
+    breakdownReason: "Brake issue", 
+    activatedAt: "06:45", 
+    releasedAt: "16:00", 
+    duration: "9h 15m",
+    status: "completed" 
+  },
+  { 
+    id: 4, 
+    date: "2024-01-14", 
+    spareTruck: "MH-12-SP-2001", 
+    originalTruck: "MH-12-IJ-7890", 
+    driver: "Spare Driver 2",
+    route: "Route D-03", 
+    vendor: "Green Transport Solutions", 
+    breakdownReason: "Starter motor failure", 
+    activatedAt: "08:00", 
+    releasedAt: null, 
+    duration: "Active",
+    status: "active" 
+  },
+  { 
+    id: 5, 
+    date: "2024-01-13", 
+    spareTruck: "MH-12-SP-1001", 
+    originalTruck: "MH-12-CD-5678", 
+    driver: "Spare Driver 1",
+    route: "Route B-05", 
+    vendor: "Mahesh Fleet Services", 
+    breakdownReason: "GPS device failure", 
+    activatedAt: "10:30", 
+    releasedAt: "15:45", 
+    duration: "5h 15m",
+    status: "completed" 
+  },
+];
+
 export default function Reports() {
   const [dateFrom, setDateFrom] = useState("2024-01-15");
   const [dateTo, setDateTo] = useState("2024-01-15");
@@ -175,7 +251,7 @@ export default function Reports() {
       <div className="flex items-center gap-2">
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
             <FileText className="h-3 w-3 mr-1" />
-            8 Report Types
+            12 Report Types
           </Badge>
         </div>
       </div>
@@ -247,7 +323,7 @@ export default function Reports() {
 
       {/* Report Tabs */}
       <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList className="grid grid-cols-4 md:grid-cols-11 h-auto gap-1 bg-muted/50 p-1">
+        <TabsList className="grid grid-cols-4 md:grid-cols-12 h-auto gap-1 bg-muted/50 p-1">
           <TabsTrigger value="daily" className="flex items-center gap-1 text-xs md:text-sm">
             <Calendar className="h-3 w-3 md:h-4 md:w-4" />
             <span className="hidden md:inline">Daily</span> Collection
@@ -279,6 +355,10 @@ export default function Reports() {
           <TabsTrigger value="vehicle-status" className="flex items-center gap-1 text-xs md:text-sm">
             <WifiOff className="h-3 w-3 md:h-4 md:w-4" />
             Vehicle Status
+          </TabsTrigger>
+          <TabsTrigger value="spare-usage" className="flex items-center gap-1 text-xs md:text-sm">
+            <ArrowRightLeft className="h-3 w-3 md:h-4 md:w-4" />
+            Spare Usage
           </TabsTrigger>
           <TabsTrigger value="complaints" className="flex items-center gap-1 text-xs md:text-sm">
             <AlertTriangle className="h-3 w-3 md:h-4 md:w-4" />
@@ -1540,6 +1620,107 @@ export default function Reports() {
                     </TableBody>
                   </Table>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Spare Truck Usage Report */}
+        <TabsContent value="spare-usage" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <ArrowRightLeft className="h-5 w-5 text-primary" />
+                  Spare Truck Usage Report
+                </CardTitle>
+                <CardDescription>Track spare truck deployments and breakdown replacements</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleDownload("spare_usage", "csv")}>
+                  <FileSpreadsheet className="h-4 w-4 mr-1" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownload("spare_usage", "pdf")}>
+                  <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Summary Cards */}
+              <div className="grid gap-4 md:grid-cols-4 mb-6">
+                <Card className="bg-primary/10 border-primary/30">
+                  <CardContent className="pt-4">
+                    <div className="text-2xl font-bold text-primary">{spareUsageData.length}</div>
+                    <p className="text-sm text-muted-foreground">Total Deployments</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-success/10 border-success/30">
+                  <CardContent className="pt-4">
+                    <div className="text-2xl font-bold text-success">{spareUsageData.filter(s => s.status === "completed").length}</div>
+                    <p className="text-sm text-muted-foreground">Completed</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-warning/10 border-warning/30">
+                  <CardContent className="pt-4">
+                    <div className="text-2xl font-bold text-warning">{spareUsageData.filter(s => s.status === "active").length}</div>
+                    <p className="text-sm text-muted-foreground">Currently Active</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-muted">
+                  <CardContent className="pt-4">
+                    <div className="text-2xl font-bold">~5.5h</div>
+                    <p className="text-sm text-muted-foreground">Avg Duration</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead>Date</TableHead>
+                      <TableHead>Spare Truck</TableHead>
+                      <TableHead>Original Truck</TableHead>
+                      <TableHead>Route</TableHead>
+                      <TableHead>Vendor</TableHead>
+                      <TableHead>Breakdown Reason</TableHead>
+                      <TableHead>Activated</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {spareUsageData.map((record) => (
+                      <TableRow key={record.id}>
+                        <TableCell>{record.date}</TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">SPARE</Badge>
+                            {record.spareTruck}
+                          </div>
+                        </TableCell>
+                        <TableCell>{record.originalTruck}</TableCell>
+                        <TableCell>{record.route}</TableCell>
+                        <TableCell className="text-sm">{record.vendor}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Wrench className="h-3 w-3 text-muted-foreground" />
+                            {record.breakdownReason}
+                          </div>
+                        </TableCell>
+                        <TableCell>{record.activatedAt}</TableCell>
+                        <TableCell className="font-medium">{record.duration}</TableCell>
+                        <TableCell>
+                          {record.status === "active" ? (
+                            <Badge className="bg-warning/20 text-warning">Active</Badge>
+                          ) : (
+                            <Badge className="bg-success/20 text-success">Completed</Badge>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             </CardContent>
           </Card>

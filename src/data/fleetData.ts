@@ -1,7 +1,7 @@
 // Shared fleet data types and mock data
 
 export type TruckType = "primary" | "secondary";
-export type TruckStatus = "moving" | "idle" | "dumping" | "offline";
+export type TruckStatus = "moving" | "idle" | "dumping" | "offline" | "breakdown";
 export type DeviceStatus = "online" | "offline" | "warning";
 
 export interface GCPLocation {
@@ -46,6 +46,13 @@ export interface TruckData {
   gpsDevice: GPSDevice;
   vehicleCapacity: string;
   lastUpdate: string;
+  vendorId?: string;
+  // Spare truck fields
+  isSpare?: boolean;
+  replacingTruckId?: string; // If this spare is currently replacing another truck
+  replacedBySpareId?: string; // If this truck has been replaced by a spare
+  breakdownTime?: string; // When the truck broke down
+  breakdownReason?: string; // Reason for breakdown
 }
 
 export interface RoutePoint {
@@ -66,6 +73,10 @@ export interface RouteData {
   distance: string;
   estimatedTime: string;
   status: "active" | "inactive";
+  // Spare truck fields
+  usesSpare?: boolean;
+  originalTruckId?: string; // Original truck that was replaced
+  spareActivatedAt?: string; // When spare truck was activated
 }
 
 export interface HistoricalPath {
@@ -259,6 +270,59 @@ export const trucks: TruckData[] = [
       lastPing: "2024-01-15 10:31:00",
       signalStrength: 80,
       batteryLevel: 70,
+    },
+    vendorId: "VND001",
+  },
+  // Spare trucks
+  { 
+    id: "TRK-SPR-001", 
+    truckNumber: "MH-12-SP-1001",
+    truckType: "primary",
+    position: { lat: 18.5450, lng: 73.9350 }, 
+    status: "idle",
+    driver: "Spare Driver 1",
+    driverId: "DRV-SPR-001",
+    route: "Unassigned",
+    routeId: "",
+    speed: 0,
+    tripsCompleted: 0,
+    tripsAllowed: 5,
+    vehicleCapacity: "8 tons",
+    lastUpdate: "Available",
+    vendorId: "VND001",
+    isSpare: true,
+    gpsDevice: {
+      imei: "359881234567897",
+      status: "online",
+      lastPing: "2024-01-15 10:30:00",
+      signalStrength: 90,
+      batteryLevel: 100,
+    }
+  },
+  { 
+    id: "TRK-SPR-002", 
+    truckNumber: "MH-12-SP-2001",
+    truckType: "secondary",
+    position: { lat: 18.5480, lng: 73.9320 }, 
+    status: "idle",
+    driver: "Spare Driver 2",
+    driverId: "DRV-SPR-002",
+    route: "Unassigned",
+    routeId: "",
+    speed: 0,
+    assignedDumpingSite: "FDS-001",
+    tripsCompleted: 0,
+    tripsAllowed: 4,
+    vehicleCapacity: "15 tons",
+    lastUpdate: "Available",
+    vendorId: "VND002",
+    isSpare: true,
+    gpsDevice: {
+      imei: "359881234567898",
+      status: "online",
+      lastPing: "2024-01-15 10:30:00",
+      signalStrength: 88,
+      batteryLevel: 95,
     }
   },
 ];
