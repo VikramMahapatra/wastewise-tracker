@@ -25,6 +25,7 @@ const statusConfig: Record<TruckStatus, { color: string; label: string; bgClass:
   idle: { color: "#f59e0b", label: "Idle", bgClass: "bg-warning" },
   dumping: { color: "#3b82f6", label: "Dumping", bgClass: "bg-chart-1" },
   offline: { color: "#6b7280", label: "Offline", bgClass: "bg-muted-foreground" },
+  breakdown: { color: "#ef4444", label: "Breakdown", bgClass: "bg-destructive" },
 };
 
 export default function Fleet() {
