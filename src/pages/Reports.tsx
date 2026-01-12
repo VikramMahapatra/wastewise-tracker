@@ -27,7 +27,11 @@ import {
   Trash2,
   Building,
   Shield,
-  IdCard
+  IdCard,
+  Gauge,
+  XCircle,
+  WifiOff,
+  Zap
 } from "lucide-react";
 import { mockTrucks, mockDrivers } from "@/data/masterData";
 import { differenceInDays, parseISO, format } from "date-fns";
@@ -104,6 +108,41 @@ const zoneWiseData = [
   { name: "Zone B", value: 28, color: "hsl(var(--chart-2))" },
   { name: "Zone C", value: 22, color: "hsl(var(--chart-3))" },
   { name: "Zone D", value: 15, color: "hsl(var(--chart-4))" },
+];
+
+// Late Arrival Report Data
+const lateArrivalData = [
+  { id: 1, date: "2024-01-15", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", route: "Route A-12", scheduledTime: "06:00", actualTime: "06:25", delay: 25, reason: "Traffic congestion", status: "late" },
+  { id: 2, date: "2024-01-15", truck: "MH-12-CD-5678", driver: "Amit Singh", route: "Route B-05", scheduledTime: "06:30", actualTime: "06:35", delay: 5, reason: "", status: "on-time" },
+  { id: 3, date: "2024-01-15", truck: "MH-12-EF-9012", driver: "Suresh Patil", route: "Route C-08", scheduledTime: "07:00", actualTime: "07:45", delay: 45, reason: "Vehicle breakdown", status: "late" },
+  { id: 4, date: "2024-01-15", truck: "MH-12-GH-3456", driver: "Vikram Singh", route: "Route A-15", scheduledTime: "06:15", actualTime: "06:18", delay: 3, reason: "", status: "on-time" },
+  { id: 5, date: "2024-01-14", truck: "MH-12-IJ-7890", driver: "Deepak Jadhav", route: "Route D-03", scheduledTime: "06:00", actualTime: "06:32", delay: 32, reason: "Driver reported late", status: "late" },
+  { id: 6, date: "2024-01-14", truck: "MH-12-KL-1122", driver: "Manoj Patil", route: "Route E-02", scheduledTime: "05:30", actualTime: "05:28", delay: -2, reason: "", status: "on-time" },
+  { id: 7, date: "2024-01-14", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", route: "Route F-01", scheduledTime: "06:45", actualTime: "07:15", delay: 30, reason: "Fuel filling", status: "late" },
+];
+
+// Driver Behavior Report Data
+const driverBehaviorData = [
+  { id: 1, date: "2024-01-15", time: "08:45", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", driverId: "DRV001", incidentType: "Overspeeding", value: "72 km/h", limit: "60 km/h", location: "Kharadi Main Road", severity: "medium" },
+  { id: 2, date: "2024-01-15", time: "09:12", truck: "MH-12-EF-9012", driver: "Suresh Patil", driverId: "DRV003", incidentType: "Harsh Braking", value: "9.2 m/s²", limit: "8 m/s²", location: "Viman Nagar Junction", severity: "low" },
+  { id: 3, date: "2024-01-15", time: "10:30", truck: "MH-12-GH-3456", driver: "Vikram Singh", driverId: "DRV004", incidentType: "Overspeeding", value: "85 km/h", limit: "60 km/h", location: "Highway Section", severity: "high" },
+  { id: 4, date: "2024-01-15", time: "11:05", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", driverId: "DRV007", incidentType: "Rapid Acceleration", value: "10.5 m/s²", limit: "8 m/s²", location: "Sector 22", severity: "medium" },
+  { id: 5, date: "2024-01-14", time: "14:22", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", driverId: "DRV001", incidentType: "Overspeeding", value: "68 km/h", limit: "60 km/h", location: "Wadgaon Sheri", severity: "low" },
+  { id: 6, date: "2024-01-14", time: "16:45", truck: "MH-12-CD-5678", driver: "Amit Singh", driverId: "DRV002", incidentType: "Harsh Braking", value: "11.2 m/s²", limit: "8 m/s²", location: "Kalyani Nagar", severity: "high" },
+  { id: 7, date: "2024-01-13", time: "07:30", truck: "MH-12-IJ-7890", driver: "Deepak Jadhav", driverId: "DRV005", incidentType: "Rapid Acceleration", value: "9.8 m/s²", limit: "8 m/s²", location: "Starting Point", severity: "medium" },
+];
+
+// Vehicle Status Report Data
+const vehicleStatusData = [
+  { id: "TRK-001", truck: "MH-12-AB-1234", type: "primary", driver: "Rajesh Kumar", status: "active", gpsStatus: "online", lastUpdate: "2 mins ago", batteryLevel: 92, signalStrength: 85, route: "Route A-12" },
+  { id: "TRK-002", truck: "MH-12-CD-5678", type: "secondary", driver: "Amit Singh", status: "active", gpsStatus: "online", lastUpdate: "5 mins ago", batteryLevel: 78, signalStrength: 72, route: "Route B-05" },
+  { id: "TRK-003", truck: "MH-12-EF-9012", type: "primary", driver: "Suresh Patil", status: "active", gpsStatus: "online", lastUpdate: "1 min ago", batteryLevel: 65, signalStrength: 90, route: "Route C-08" },
+  { id: "TRK-004", truck: "MH-12-GH-3456", type: "secondary", driver: "Vikram Singh", status: "active", gpsStatus: "online", lastUpdate: "Just now", batteryLevel: 88, signalStrength: 95, route: "Route A-15" },
+  { id: "TRK-005", truck: "MH-12-IJ-7890", type: "primary", driver: "Deepak Jadhav", status: "warning", gpsStatus: "warning", lastUpdate: "8 mins ago", batteryLevel: 25, signalStrength: 45, route: "Route D-03" },
+  { id: "TRK-006", truck: "MH-12-KL-1122", type: "primary", driver: "Manoj Patil", status: "inactive", gpsStatus: "offline", lastUpdate: "45 mins ago", batteryLevel: 12, signalStrength: 0, route: "Route E-02" },
+  { id: "TRK-007", truck: "MH-12-MN-3344", type: "secondary", driver: "Ravi Deshmukh", status: "active", gpsStatus: "online", lastUpdate: "1 min ago", batteryLevel: 70, signalStrength: 80, route: "Route F-01" },
+  { id: "TRK-008", truck: "MH-12-OP-5566", type: "primary", driver: "Sunil Yadav", status: "failed", gpsStatus: "offline", lastUpdate: "2 hours ago", batteryLevel: 0, signalStrength: 0, route: "Route G-04" },
+  { id: "TRK-009", truck: "MH-12-QR-7788", type: "secondary", driver: "Anil Sharma", status: "inactive", gpsStatus: "offline", lastUpdate: "1 hour ago", batteryLevel: 5, signalStrength: 0, route: "Route H-02" },
 ];
 
 export default function Reports() {
@@ -208,7 +247,7 @@ export default function Reports() {
 
       {/* Report Tabs */}
       <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList className="grid grid-cols-4 md:grid-cols-8 h-auto gap-1 bg-muted/50 p-1">
+        <TabsList className="grid grid-cols-4 md:grid-cols-11 h-auto gap-1 bg-muted/50 p-1">
           <TabsTrigger value="daily" className="flex items-center gap-1 text-xs md:text-sm">
             <Calendar className="h-3 w-3 md:h-4 md:w-4" />
             <span className="hidden md:inline">Daily</span> Collection
@@ -228,6 +267,18 @@ export default function Reports() {
           <TabsTrigger value="driver" className="flex items-center gap-1 text-xs md:text-sm">
             <Users className="h-3 w-3 md:h-4 md:w-4" />
             Driver
+          </TabsTrigger>
+          <TabsTrigger value="late-arrival" className="flex items-center gap-1 text-xs md:text-sm">
+            <Clock className="h-3 w-3 md:h-4 md:w-4" />
+            Late Arrival
+          </TabsTrigger>
+          <TabsTrigger value="behavior" className="flex items-center gap-1 text-xs md:text-sm">
+            <Gauge className="h-3 w-3 md:h-4 md:w-4" />
+            Behavior
+          </TabsTrigger>
+          <TabsTrigger value="vehicle-status" className="flex items-center gap-1 text-xs md:text-sm">
+            <WifiOff className="h-3 w-3 md:h-4 md:w-4" />
+            Vehicle Status
           </TabsTrigger>
           <TabsTrigger value="complaints" className="flex items-center gap-1 text-xs md:text-sm">
             <AlertTriangle className="h-3 w-3 md:h-4 md:w-4" />
@@ -745,6 +796,362 @@ export default function Reports() {
                   </TableBody>
                 </Table>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Late Arrival Report */}
+        <TabsContent value="late-arrival" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  Late Arrival Report
+                </CardTitle>
+                <CardDescription>Trucks that did not reach first pickup point on time (Buffer: {localStorage.getItem('lateArrivalBuffer') || '10'} min)</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleDownload("late_arrival", "csv")}>
+                  <FileSpreadsheet className="h-4 w-4 mr-1" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownload("late_arrival", "pdf")}>
+                  <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {(() => {
+                const buffer = parseInt(localStorage.getItem('lateArrivalBuffer') || '10');
+                const lateCount = lateArrivalData.filter(d => d.delay > buffer).length;
+                const onTimeCount = lateArrivalData.filter(d => d.delay <= buffer).length;
+                const avgDelay = Math.round(lateArrivalData.filter(d => d.delay > buffer).reduce((sum, d) => sum + d.delay, 0) / Math.max(lateCount, 1));
+
+                return (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="bg-green-500/10 border-green-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-green-600">{onTimeCount}</p>
+                          <p className="text-xs text-muted-foreground">On Time</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-red-500/10 border-red-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-red-600">{lateCount}</p>
+                          <p className="text-xs text-muted-foreground">Late Arrivals</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-orange-500/10 border-orange-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-orange-600">{avgDelay} min</p>
+                          <p className="text-xs text-muted-foreground">Avg Delay</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-primary/10 border-primary/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-primary">{Math.round((onTimeCount / lateArrivalData.length) * 100)}%</p>
+                          <p className="text-xs text-muted-foreground">On-Time Rate</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead>Date</TableHead>
+                            <TableHead>Truck</TableHead>
+                            <TableHead>Driver</TableHead>
+                            <TableHead>Route</TableHead>
+                            <TableHead className="text-center">Scheduled</TableHead>
+                            <TableHead className="text-center">Actual</TableHead>
+                            <TableHead className="text-center">Delay</TableHead>
+                            <TableHead>Reason</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {lateArrivalData.map((row) => {
+                            const isLate = row.delay > buffer;
+                            return (
+                              <TableRow key={row.id} className={isLate ? "bg-red-500/5" : ""}>
+                                <TableCell className="font-medium">{row.date}</TableCell>
+                                <TableCell className="font-mono text-xs">{row.truck}</TableCell>
+                                <TableCell>{row.driver}</TableCell>
+                                <TableCell>{row.route}</TableCell>
+                                <TableCell className="text-center">{row.scheduledTime}</TableCell>
+                                <TableCell className="text-center">{row.actualTime}</TableCell>
+                                <TableCell className="text-center">
+                                  <span className={`font-medium ${isLate ? "text-red-600" : row.delay <= 0 ? "text-green-600" : "text-yellow-600"}`}>
+                                    {row.delay > 0 ? `+${row.delay}` : row.delay} min
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-xs text-muted-foreground">{row.reason || "-"}</TableCell>
+                                <TableCell>
+                                  <Badge className={isLate ? "bg-red-500/20 text-red-700 border-red-500/30" : "bg-green-500/20 text-green-700 border-green-500/30"}>
+                                    {isLate ? "Late" : "On Time"}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Driver Behavior Report */}
+        <TabsContent value="behavior" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Gauge className="h-5 w-5 text-primary" />
+                  Driver Behavior Report
+                </CardTitle>
+                <CardDescription>Overspeeding, harsh braking, and rapid acceleration incidents</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleDownload("driver_behavior", "csv")}>
+                  <FileSpreadsheet className="h-4 w-4 mr-1" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownload("driver_behavior", "pdf")}>
+                  <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {(() => {
+                const overspeedCount = driverBehaviorData.filter(d => d.incidentType === "Overspeeding").length;
+                const harshBrakingCount = driverBehaviorData.filter(d => d.incidentType === "Harsh Braking").length;
+                const rapidAccelCount = driverBehaviorData.filter(d => d.incidentType === "Rapid Acceleration").length;
+                const highSeverityCount = driverBehaviorData.filter(d => d.severity === "high").length;
+
+                return (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="bg-red-500/10 border-red-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-red-600">{overspeedCount}</p>
+                          <p className="text-xs text-muted-foreground">Overspeeding</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-orange-500/10 border-orange-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-orange-600">{harshBrakingCount}</p>
+                          <p className="text-xs text-muted-foreground">Harsh Braking</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-yellow-500/10 border-yellow-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-yellow-600">{rapidAccelCount}</p>
+                          <p className="text-xs text-muted-foreground">Rapid Acceleration</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-purple-500/10 border-purple-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-purple-600">{highSeverityCount}</p>
+                          <p className="text-xs text-muted-foreground">High Severity</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead>Date</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead>Truck</TableHead>
+                            <TableHead>Driver</TableHead>
+                            <TableHead>Incident Type</TableHead>
+                            <TableHead className="text-center">Recorded</TableHead>
+                            <TableHead className="text-center">Limit</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead>Severity</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {driverBehaviorData.map((row) => (
+                            <TableRow key={row.id} className={row.severity === "high" ? "bg-red-500/5" : ""}>
+                              <TableCell className="font-medium">{row.date}</TableCell>
+                              <TableCell>{row.time}</TableCell>
+                              <TableCell className="font-mono text-xs">{row.truck}</TableCell>
+                              <TableCell>{row.driver}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="gap-1">
+                                  {row.incidentType === "Overspeeding" && <Zap className="h-3 w-3" />}
+                                  {row.incidentType === "Harsh Braking" && <AlertTriangle className="h-3 w-3" />}
+                                  {row.incidentType === "Rapid Acceleration" && <TrendingUp className="h-3 w-3" />}
+                                  {row.incidentType}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-center text-red-600 font-medium">{row.value}</TableCell>
+                              <TableCell className="text-center text-muted-foreground">{row.limit}</TableCell>
+                              <TableCell className="text-xs">{row.location}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  className={
+                                    row.severity === "high" 
+                                      ? "bg-red-500/20 text-red-700 border-red-500/30"
+                                      : row.severity === "medium"
+                                      ? "bg-orange-500/20 text-orange-700 border-orange-500/30"
+                                      : "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"
+                                  }
+                                >
+                                  {row.severity}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
+                );
+              })()}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Vehicle Status Report */}
+        <TabsContent value="vehicle-status" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <WifiOff className="h-5 w-5 text-primary" />
+                  Vehicle Status Report
+                </CardTitle>
+                <CardDescription>Live status of all vehicles including inactive and failed devices</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleDownload("vehicle_status", "csv")}>
+                  <FileSpreadsheet className="h-4 w-4 mr-1" /> CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownload("vehicle_status", "pdf")}>
+                  <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {(() => {
+                const activeCount = vehicleStatusData.filter(d => d.status === "active").length;
+                const inactiveCount = vehicleStatusData.filter(d => d.status === "inactive").length;
+                const warningCount = vehicleStatusData.filter(d => d.status === "warning").length;
+                const failedCount = vehicleStatusData.filter(d => d.status === "failed").length;
+
+                return (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="bg-green-500/10 border-green-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-green-600">{activeCount}</p>
+                          <p className="text-xs text-muted-foreground">Active</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-yellow-500/10 border-yellow-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-yellow-600">{warningCount}</p>
+                          <p className="text-xs text-muted-foreground">Warning</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-gray-500/10 border-gray-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-gray-600">{inactiveCount}</p>
+                          <p className="text-xs text-muted-foreground">Inactive</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-red-500/10 border-red-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-red-600">{failedCount}</p>
+                          <p className="text-xs text-muted-foreground">Failed</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead>Truck</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Driver</TableHead>
+                            <TableHead>Route</TableHead>
+                            <TableHead>GPS Status</TableHead>
+                            <TableHead className="text-center">Battery</TableHead>
+                            <TableHead className="text-center">Signal</TableHead>
+                            <TableHead>Last Update</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {vehicleStatusData.map((row) => (
+                            <TableRow key={row.id} className={row.status === "failed" || row.status === "inactive" ? "bg-red-500/5" : ""}>
+                              <TableCell className="font-mono text-xs font-medium">{row.truck}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="capitalize">{row.type}</Badge>
+                              </TableCell>
+                              <TableCell>{row.driver}</TableCell>
+                              <TableCell>{row.route}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  className={
+                                    row.gpsStatus === "online"
+                                      ? "bg-green-500/20 text-green-700 border-green-500/30"
+                                      : row.gpsStatus === "warning"
+                                      ? "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"
+                                      : "bg-red-500/20 text-red-700 border-red-500/30"
+                                  }
+                                >
+                                  {row.gpsStatus === "online" ? "Online" : row.gpsStatus === "warning" ? "Weak Signal" : "Offline"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <div className="flex items-center justify-center gap-1">
+                                  <Progress value={row.batteryLevel} className="h-2 w-12" />
+                                  <span className={`text-xs font-medium ${row.batteryLevel < 20 ? "text-red-600" : row.batteryLevel < 50 ? "text-yellow-600" : "text-green-600"}`}>
+                                    {row.batteryLevel}%
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <span className={`font-medium ${row.signalStrength < 30 ? "text-red-600" : row.signalStrength < 60 ? "text-yellow-600" : "text-green-600"}`}>
+                                  {row.signalStrength}%
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-xs text-muted-foreground">{row.lastUpdate}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  className={
+                                    row.status === "active"
+                                      ? "bg-green-500/20 text-green-700 border-green-500/30"
+                                      : row.status === "warning"
+                                      ? "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"
+                                      : row.status === "inactive"
+                                      ? "bg-gray-500/20 text-gray-700 border-gray-500/30"
+                                      : "bg-red-500/20 text-red-700 border-red-500/30"
+                                  }
+                                >
+                                  {row.status === "failed" && <XCircle className="h-3 w-3 mr-1" />}
+                                  {row.status === "inactive" && <WifiOff className="h-3 w-3 mr-1" />}
+                                  {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
