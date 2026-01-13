@@ -319,13 +319,19 @@ export default function Reports() {
     const totalPages = getTotalPages(totalItems);
     if (totalPages <= 1) return null;
 
+    const handlePageChange = (e: React.MouseEvent, newPage: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setPage(newPage);
+    };
+
     return (
       <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t">
         <Pagination>
           <PaginationContent className="gap-1">
             <PaginationItem>
               <PaginationPrevious 
-                onClick={() => setPage(Math.max(1, currentPage - 1))}
+                onClick={(e) => handlePageChange(e, Math.max(1, currentPage - 1))}
                 className={`h-8 text-xs px-2 ${currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
               />
             </PaginationItem>
@@ -343,7 +349,7 @@ export default function Reports() {
               return (
                 <PaginationItem key={pageNum}>
                   <PaginationLink
-                    onClick={() => setPage(pageNum)}
+                    onClick={(e) => handlePageChange(e, pageNum)}
                     isActive={currentPage === pageNum}
                     className="h-8 w-8 text-xs cursor-pointer"
                   >
@@ -354,7 +360,7 @@ export default function Reports() {
             })}
             <PaginationItem>
               <PaginationNext 
-                onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                onClick={(e) => handlePageChange(e, Math.min(totalPages, currentPage + 1))}
                 className={`h-8 text-xs px-2 ${currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
               />
             </PaginationItem>
