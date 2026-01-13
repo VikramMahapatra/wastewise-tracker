@@ -118,4 +118,17 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Prevent scroll position jumping on dynamic content updates */
+  html, body {
+    overflow-anchor: none;
+    scroll-behavior: auto;
+  }
+
+  /* Stable scrolling for all scrollable containers */
+  [class*="overflow-auto"],
+  [class*="overflow-y-auto"],
+  [class*="overflow-x-auto"] {
+    overflow-anchor: none;
+  }
 }
