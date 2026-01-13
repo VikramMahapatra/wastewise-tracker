@@ -257,6 +257,20 @@ export default function Reports() {
   const [dumpYardPage, setDumpYardPage] = useState(1);
   const [expiryTruckPage, setExpiryTruckPage] = useState(1);
   const [expiryDriverPage, setExpiryDriverPage] = useState(1);
+
+  // Filter states for each report
+  const [dailyStatusFilter, setDailyStatusFilter] = useState("all");
+  const [routeEfficiencyFilter, setRouteEfficiencyFilter] = useState("all");
+  const [truckTypeFilter, setTruckTypeFilter] = useState("all");
+  const [fuelAnomalyFilter, setFuelAnomalyFilter] = useState("all");
+  const [driverOnTimeFilter, setDriverOnTimeFilter] = useState("all");
+  const [lateStatusFilter, setLateStatusFilter] = useState("all");
+  const [behaviorTypeFilter, setBehaviorTypeFilter] = useState("all");
+  const [behaviorSeverityFilter, setBehaviorSeverityFilter] = useState("all");
+  const [vehicleStatusFilter, setVehicleStatusFilter] = useState("all");
+  const [spareStatusFilter, setSpareStatusFilter] = useState("all");
+  const [complaintsStatusFilter, setComplaintsStatusFilter] = useState("all");
+  const [expiryStatusFilter, setExpiryStatusFilter] = useState("all");
   
   // Sync with URL param
   useEffect(() => {
@@ -498,6 +512,23 @@ export default function Reports() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Filter by Status:</span>
+                <div className="flex gap-1">
+                  {["all", "completed", "partial"].map((status) => (
+                    <Badge
+                      key={status}
+                      variant={dailyStatusFilter === status ? "default" : "outline"}
+                      className={`cursor-pointer capitalize ${dailyStatusFilter === status ? "" : "hover:bg-muted"}`}
+                      onClick={() => { setDailyStatusFilter(status); setDailyPage(1); }}
+                    >
+                      {status === "all" ? "All" : status}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
               {/* Summary Cards */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <Card className="bg-emerald-500/10 border-emerald-500/20">
@@ -563,29 +594,39 @@ export default function Reports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginate(dailyCollectionData, dailyPage).map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell className="font-medium">{row.date}</TableCell>
-                        <TableCell>{row.ward}</TableCell>
-                        <TableCell>{row.zone}</TableCell>
-                        <TableCell className="font-mono text-xs">{row.truck}</TableCell>
-                        <TableCell>{row.driver}</TableCell>
-                        <TableCell className="text-center">{row.totalBins}</TableCell>
-                        <TableCell className="text-center text-green-600 font-medium">{row.collected}</TableCell>
-                        <TableCell className="text-center text-red-600 font-medium">{row.missed}</TableCell>
-                        <TableCell className="text-right">{row.weight}</TableCell>
-                        <TableCell>
-                          <Badge variant={row.status === "completed" ? "default" : "secondary"} 
-                                 className={row.status === "completed" ? "bg-green-500/20 text-green-700 border-green-500/30" : "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"}>
-                            {row.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {(() => {
+                      const filteredData = dailyStatusFilter === "all" 
+                        ? dailyCollectionData 
+                        : dailyCollectionData.filter(d => d.status === dailyStatusFilter);
+                      return paginate(filteredData, dailyPage).map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-medium">{row.date}</TableCell>
+                          <TableCell>{row.ward}</TableCell>
+                          <TableCell>{row.zone}</TableCell>
+                          <TableCell className="font-mono text-xs">{row.truck}</TableCell>
+                          <TableCell>{row.driver}</TableCell>
+                          <TableCell className="text-center">{row.totalBins}</TableCell>
+                          <TableCell className="text-center text-green-600 font-medium">{row.collected}</TableCell>
+                          <TableCell className="text-center text-red-600 font-medium">{row.missed}</TableCell>
+                          <TableCell className="text-right">{row.weight}</TableCell>
+                          <TableCell>
+                            <Badge variant={row.status === "completed" ? "default" : "secondary"} 
+                                   className={row.status === "completed" ? "bg-green-500/20 text-green-700 border-green-500/30" : "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"}>
+                              {row.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ));
+                    })()}
                   </TableBody>
                 </Table>
               </div>
-              {renderPagination(dailyPage, dailyCollectionData.length, setDailyPage)}
+              {(() => {
+                const filteredData = dailyStatusFilter === "all" 
+                  ? dailyCollectionData 
+                  : dailyCollectionData.filter(d => d.status === dailyStatusFilter);
+                return renderPagination(dailyPage, filteredData.length, setDailyPage);
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
@@ -611,6 +652,28 @@ export default function Reports() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Filter by Efficiency:</span>
+                <div className="flex gap-1">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "high", label: "High (≥90%)" },
+                    { key: "medium", label: "Medium (80-89%)" },
+                    { key: "low", label: "Low (<80%)" }
+                  ].map((filter) => (
+                    <Badge
+                      key={filter.key}
+                      variant={routeEfficiencyFilter === filter.key ? "default" : "outline"}
+                      className={`cursor-pointer ${routeEfficiencyFilter === filter.key ? "" : "hover:bg-muted"}`}
+                      onClick={() => { setRouteEfficiencyFilter(filter.key); setRoutePage(1); }}
+                    >
+                      {filter.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card className="bg-primary/10 border-primary/20">
                   <CardContent className="p-4 text-center">
@@ -650,34 +713,51 @@ export default function Reports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {routePerformanceData.map((row, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">{row.route}</TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center gap-2 justify-center">
-                            <span className={row.completion >= 95 ? "text-green-600" : row.completion >= 90 ? "text-yellow-600" : "text-red-600"}>
-                              {row.completion}%
-                            </span>
-                            {row.completion >= 95 ? <TrendingUp className="h-4 w-4 text-green-600" /> : <TrendingDown className="h-4 w-4 text-red-600" />}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">{row.avgTime}</TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant={row.deviations === 0 ? "default" : "destructive"} className={row.deviations === 0 ? "bg-green-500/20 text-green-700" : ""}>
-                            {row.deviations}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={row.efficiency} className="h-2 w-20" />
-                            <span className="text-sm font-medium">{row.efficiency}%</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {(() => {
+                      const filteredData = routePerformanceData.filter(row => {
+                        if (routeEfficiencyFilter === "all") return true;
+                        if (routeEfficiencyFilter === "high") return row.efficiency >= 90;
+                        if (routeEfficiencyFilter === "medium") return row.efficiency >= 80 && row.efficiency < 90;
+                        return row.efficiency < 80;
+                      });
+                      return paginate(filteredData, routePage).map((row, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="font-medium">{row.route}</TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex items-center gap-2 justify-center">
+                              <span className={row.completion >= 95 ? "text-green-600" : row.completion >= 90 ? "text-yellow-600" : "text-red-600"}>
+                                {row.completion}%
+                              </span>
+                              {row.completion >= 95 ? <TrendingUp className="h-4 w-4 text-green-600" /> : <TrendingDown className="h-4 w-4 text-red-600" />}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">{row.avgTime}</TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant={row.deviations === 0 ? "default" : "destructive"} className={row.deviations === 0 ? "bg-green-500/20 text-green-700" : ""}>
+                              {row.deviations}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Progress value={row.efficiency} className="h-2 w-20" />
+                              <span className="text-sm font-medium">{row.efficiency}%</span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ));
+                    })()}
                   </TableBody>
                 </Table>
               </div>
+              {(() => {
+                const filteredData = routePerformanceData.filter(row => {
+                  if (routeEfficiencyFilter === "all") return true;
+                  if (routeEfficiencyFilter === "high") return row.efficiency >= 90;
+                  if (routeEfficiencyFilter === "medium") return row.efficiency >= 80 && row.efficiency < 90;
+                  return row.efficiency < 80;
+                });
+                return renderPagination(routePage, filteredData.length, setRoutePage);
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
@@ -703,6 +783,23 @@ export default function Reports() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Filter by Type:</span>
+                <div className="flex gap-1">
+                  {["all", "Compactor", "Mini Truck", "Dumper", "Open Truck"].map((type) => (
+                    <Badge
+                      key={type}
+                      variant={truckTypeFilter === type ? "default" : "outline"}
+                      className={`cursor-pointer ${truckTypeFilter === type ? "" : "hover:bg-muted"}`}
+                      onClick={() => { setTruckTypeFilter(type); setTruckPage(1); }}
+                    >
+                      {type === "all" ? "All Types" : type}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card className="bg-primary/10 border-primary/20">
                   <CardContent className="p-4 text-center">
@@ -744,33 +841,44 @@ export default function Reports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {truckUtilizationData.map((row, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-mono text-xs font-medium">{row.truck}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{row.type}</Badge>
-                        </TableCell>
-                        <TableCell className="text-center">{row.trips}</TableCell>
-                        <TableCell className="text-center">{row.operatingHours}</TableCell>
-                        <TableCell className="text-center">
-                          <span className={row.idleTime > 1.5 ? "text-red-600" : "text-green-600"}>
-                            {row.idleTime} hrs
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center">{row.distance}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={row.utilization} className="h-2 w-20" />
-                            <span className={`text-sm font-medium ${row.utilization >= 90 ? "text-green-600" : row.utilization >= 80 ? "text-yellow-600" : "text-red-600"}`}>
-                              {row.utilization}%
+                    {(() => {
+                      const filteredData = truckTypeFilter === "all" 
+                        ? truckUtilizationData 
+                        : truckUtilizationData.filter(d => d.type === truckTypeFilter);
+                      return paginate(filteredData, truckPage).map((row, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="font-mono text-xs font-medium">{row.truck}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{row.type}</Badge>
+                          </TableCell>
+                          <TableCell className="text-center">{row.trips}</TableCell>
+                          <TableCell className="text-center">{row.operatingHours}</TableCell>
+                          <TableCell className="text-center">
+                            <span className={row.idleTime > 1.5 ? "text-red-600" : "text-green-600"}>
+                              {row.idleTime} hrs
                             </span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                          <TableCell className="text-center">{row.distance}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Progress value={row.utilization} className="h-2 w-20" />
+                              <span className={`text-sm font-medium ${row.utilization >= 90 ? "text-green-600" : row.utilization >= 80 ? "text-yellow-600" : "text-red-600"}`}>
+                                {row.utilization}%
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ));
+                    })()}
                   </TableBody>
                 </Table>
               </div>
+              {(() => {
+                const filteredData = truckTypeFilter === "all" 
+                  ? truckUtilizationData 
+                  : truckUtilizationData.filter(d => d.type === truckTypeFilter);
+                return renderPagination(truckPage, filteredData.length, setTruckPage);
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
@@ -796,6 +904,27 @@ export default function Reports() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Filter by Status:</span>
+                <div className="flex gap-1">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "normal", label: "Normal" },
+                    { key: "anomaly", label: "Anomalies" }
+                  ].map((filter) => (
+                    <Badge
+                      key={filter.key}
+                      variant={fuelAnomalyFilter === filter.key ? "default" : "outline"}
+                      className={`cursor-pointer ${fuelAnomalyFilter === filter.key ? "" : "hover:bg-muted"}`}
+                      onClick={() => { setFuelAnomalyFilter(filter.key); setFuelPage(1); }}
+                    >
+                      {filter.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <Card className="bg-primary/10 border-primary/20">
                   <CardContent className="p-4 text-center">
@@ -843,39 +972,54 @@ export default function Reports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {fuelConsumptionData.map((row, idx) => (
-                      <TableRow key={idx} className={row.anomaly ? "bg-red-500/5" : ""}>
-                        <TableCell className="font-mono text-xs font-medium">{row.truck}</TableCell>
-                        <TableCell className="text-center">{row.fuelUsed}</TableCell>
-                        <TableCell className="text-center">{row.distance}</TableCell>
-                        <TableCell className="text-center">
-                          <span className={row.efficiency >= 2.0 ? "text-green-600" : "text-red-600"}>
-                            {row.efficiency.toFixed(2)}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">₹{row.cost.toLocaleString()}</TableCell>
-                        <TableCell className="text-center">
-                          {row.anomaly ? (
-                            <Badge variant="destructive" className="gap-1">
-                              <AlertTriangle className="h-3 w-3" /> Detected
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">Normal</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={row.score} className="h-2 w-16" />
-                            <span className={`text-sm font-medium ${row.score >= 80 ? "text-green-600" : row.score >= 60 ? "text-yellow-600" : "text-red-600"}`}>
-                              {row.score}
+                    {(() => {
+                      const filteredData = fuelConsumptionData.filter(row => {
+                        if (fuelAnomalyFilter === "all") return true;
+                        if (fuelAnomalyFilter === "anomaly") return row.anomaly;
+                        return !row.anomaly;
+                      });
+                      return paginate(filteredData, fuelPage).map((row, idx) => (
+                        <TableRow key={idx} className={row.anomaly ? "bg-red-500/5" : ""}>
+                          <TableCell className="font-mono text-xs font-medium">{row.truck}</TableCell>
+                          <TableCell className="text-center">{row.fuelUsed}</TableCell>
+                          <TableCell className="text-center">{row.distance}</TableCell>
+                          <TableCell className="text-center">
+                            <span className={row.efficiency >= 2.0 ? "text-green-600" : "text-red-600"}>
+                              {row.efficiency.toFixed(2)}
                             </span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                          <TableCell className="text-right">₹{row.cost.toLocaleString()}</TableCell>
+                          <TableCell className="text-center">
+                            {row.anomaly ? (
+                              <Badge variant="destructive" className="gap-1">
+                                <AlertTriangle className="h-3 w-3" /> Detected
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-green-500/20 text-green-700 border-green-500/30">Normal</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Progress value={row.score} className="h-2 w-16" />
+                              <span className={`text-sm font-medium ${row.score >= 80 ? "text-green-600" : row.score >= 60 ? "text-yellow-600" : "text-red-600"}`}>
+                                {row.score}
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ));
+                    })()}
                   </TableBody>
                 </Table>
               </div>
+              {(() => {
+                const filteredData = fuelConsumptionData.filter(row => {
+                  if (fuelAnomalyFilter === "all") return true;
+                  if (fuelAnomalyFilter === "anomaly") return row.anomaly;
+                  return !row.anomaly;
+                });
+                return renderPagination(fuelPage, filteredData.length, setFuelPage);
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
@@ -901,6 +1045,27 @@ export default function Reports() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Filter by Attendance:</span>
+                <div className="flex gap-1">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "on-time", label: "On Time" },
+                    { key: "late", label: "Late" }
+                  ].map((filter) => (
+                    <Badge
+                      key={filter.key}
+                      variant={driverOnTimeFilter === filter.key ? "default" : "outline"}
+                      className={`cursor-pointer ${driverOnTimeFilter === filter.key ? "" : "hover:bg-muted"}`}
+                      onClick={() => { setDriverOnTimeFilter(filter.key); setDriverPage(1); }}
+                    >
+                      {filter.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card className="bg-primary/10 border-primary/20">
                   <CardContent className="p-4 text-center">
@@ -944,39 +1109,54 @@ export default function Reports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {driverAttendanceData.map((row, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">{row.driver}</TableCell>
-                        <TableCell className="font-mono text-xs">{row.id}</TableCell>
-                        <TableCell className="text-center">{row.shiftStart}</TableCell>
-                        <TableCell className="text-center">{row.shiftEnd}</TableCell>
-                        <TableCell className="text-center">{row.hoursWorked}</TableCell>
-                        <TableCell className="text-center">{row.routes}</TableCell>
-                        <TableCell className="text-center">
-                          {row.onTime ? (
-                            <Badge className="bg-green-500/20 text-green-700 border-green-500/30">Yes</Badge>
-                          ) : (
-                            <Badge variant="destructive">Late</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className={row.violations > 0 ? "text-red-600 font-medium" : "text-green-600"}>
-                            {row.violations}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={row.score} className="h-2 w-16" />
-                            <span className={`text-sm font-medium ${row.score >= 90 ? "text-green-600" : row.score >= 75 ? "text-yellow-600" : "text-red-600"}`}>
-                              {row.score}
+                    {(() => {
+                      const filteredData = driverAttendanceData.filter(row => {
+                        if (driverOnTimeFilter === "all") return true;
+                        if (driverOnTimeFilter === "on-time") return row.onTime;
+                        return !row.onTime;
+                      });
+                      return paginate(filteredData, driverPage).map((row, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="font-medium">{row.driver}</TableCell>
+                          <TableCell className="font-mono text-xs">{row.id}</TableCell>
+                          <TableCell className="text-center">{row.shiftStart}</TableCell>
+                          <TableCell className="text-center">{row.shiftEnd}</TableCell>
+                          <TableCell className="text-center">{row.hoursWorked}</TableCell>
+                          <TableCell className="text-center">{row.routes}</TableCell>
+                          <TableCell className="text-center">
+                            {row.onTime ? (
+                              <Badge className="bg-green-500/20 text-green-700 border-green-500/30">Yes</Badge>
+                            ) : (
+                              <Badge variant="destructive">Late</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className={row.violations > 0 ? "text-red-600 font-medium" : "text-green-600"}>
+                              {row.violations}
                             </span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Progress value={row.score} className="h-2 w-16" />
+                              <span className={`text-sm font-medium ${row.score >= 90 ? "text-green-600" : row.score >= 75 ? "text-yellow-600" : "text-red-600"}`}>
+                                {row.score}
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ));
+                    })()}
                   </TableBody>
                 </Table>
               </div>
+              {(() => {
+                const filteredData = driverAttendanceData.filter(row => {
+                  if (driverOnTimeFilter === "all") return true;
+                  if (driverOnTimeFilter === "on-time") return row.onTime;
+                  return !row.onTime;
+                });
+                return renderPagination(driverPage, filteredData.length, setDriverPage);
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
@@ -1004,12 +1184,40 @@ export default function Reports() {
             <CardContent className="space-y-6">
               {(() => {
                 const buffer = parseInt(localStorage.getItem('lateArrivalBuffer') || '10');
-                const lateCount = lateArrivalData.filter(d => d.delay > buffer).length;
-                const onTimeCount = lateArrivalData.filter(d => d.delay <= buffer).length;
-                const avgDelay = Math.round(lateArrivalData.filter(d => d.delay > buffer).reduce((sum, d) => sum + d.delay, 0) / Math.max(lateCount, 1));
+                const allData = lateArrivalData;
+                const filteredByStatus = allData.filter(row => {
+                  if (lateStatusFilter === "all") return true;
+                  const isLate = row.delay > buffer;
+                  if (lateStatusFilter === "late") return isLate;
+                  return !isLate;
+                });
+                const lateCount = allData.filter(d => d.delay > buffer).length;
+                const onTimeCount = allData.filter(d => d.delay <= buffer).length;
+                const avgDelay = Math.round(allData.filter(d => d.delay > buffer).reduce((sum, d) => sum + d.delay, 0) / Math.max(lateCount, 1));
 
                 return (
                   <>
+                    {/* Filter Tabs */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium text-muted-foreground">Filter by Status:</span>
+                      <div className="flex gap-1">
+                        {[
+                          { key: "all", label: "All" },
+                          { key: "on-time", label: "On Time" },
+                          { key: "late", label: "Late" }
+                        ].map((filter) => (
+                          <Badge
+                            key={filter.key}
+                            variant={lateStatusFilter === filter.key ? "default" : "outline"}
+                            className={`cursor-pointer ${lateStatusFilter === filter.key ? "" : "hover:bg-muted"}`}
+                            onClick={() => { setLateStatusFilter(filter.key); setLateArrivalPage(1); }}
+                          >
+                            {filter.label}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <Card className="bg-green-500/10 border-green-500/20">
                         <CardContent className="p-4 text-center">
@@ -1031,7 +1239,7 @@ export default function Reports() {
                       </Card>
                       <Card className="bg-primary/10 border-primary/20">
                         <CardContent className="p-4 text-center">
-                          <p className="text-2xl font-bold text-primary">{Math.round((onTimeCount / lateArrivalData.length) * 100)}%</p>
+                          <p className="text-2xl font-bold text-primary">{Math.round((onTimeCount / allData.length) * 100)}%</p>
                           <p className="text-xs text-muted-foreground">On-Time Rate</p>
                         </CardContent>
                       </Card>
@@ -1053,7 +1261,7 @@ export default function Reports() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {lateArrivalData.map((row) => {
+                          {paginate(filteredByStatus, lateArrivalPage).map((row) => {
                             const isLate = row.delay > buffer;
                             return (
                               <TableRow key={row.id} className={isLate ? "bg-red-500/5" : ""}>
@@ -1080,6 +1288,7 @@ export default function Reports() {
                         </TableBody>
                       </Table>
                     </div>
+                    {renderPagination(lateArrivalPage, filteredByStatus.length, setLateArrivalPage)}
                   </>
                 );
               })()}
