@@ -42,8 +42,19 @@ import {
   WifiOff,
   Zap,
   ArrowRightLeft,
-  Wrench
+  Wrench,
+  Mail,
+  Send
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { mockTrucks, mockDrivers } from "@/data/masterData";
 import { differenceInDays, parseISO, format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
@@ -230,11 +241,12 @@ const spareUsageData = [
   },
 ];
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 
 export default function Reports() {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") || "daily";
+  const { toast } = useToast();
   
   const [activeTab, setActiveTab] = useState(initialTab);
   const [dateFrom, setDateFrom] = useState("2024-01-15");
@@ -242,6 +254,12 @@ export default function Reports() {
   const [selectedZone, setSelectedZone] = useState("all");
   const [selectedWard, setSelectedWard] = useState("all");
   const [selectedTruck, setSelectedTruck] = useState("all");
+  
+  // Email export dialog state
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
+  const [emailReportType, setEmailReportType] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
   
   // Pagination states for each report
   const [dailyPage, setDailyPage] = useState(1);
@@ -270,7 +288,9 @@ export default function Reports() {
   const [vehicleStatusFilter, setVehicleStatusFilter] = useState("all");
   const [spareStatusFilter, setSpareStatusFilter] = useState("all");
   const [complaintsStatusFilter, setComplaintsStatusFilter] = useState("all");
+  const [complaintsTypeFilter, setComplaintsTypeFilter] = useState("all");
   const [expiryStatusFilter, setExpiryStatusFilter] = useState("all");
+  const [dumpYardSiteFilter, setDumpYardSiteFilter] = useState("all");
   
   // Sync with URL param
   useEffect(() => {
@@ -343,19 +363,95 @@ export default function Reports() {
   };
 
   const handleDownload = (reportType: string, format: string) => {
-    // Simulate download
-    const link = document.createElement('a');
-    link.href = '#';
-    link.download = `${reportType}_${dateFrom}_${dateTo}.${format}`;
-    alert(`Downloading ${reportType} report as ${format.toUpperCase()}`);
+    toast({
+      title: "Download Started",
+      description: `Downloading ${reportType.replace(/_/g, ' ')} report as ${format.toUpperCase()} (with current filters applied)`,
+    });
   };
 
   const handlePrint = (reportType: string) => {
     window.print();
   };
+  
+  const handleEmailExport = (reportType: string) => {
+    setEmailReportType(reportType);
+    setEmailDialogOpen(true);
+  };
+  
+  const sendEmailReport = async () => {
+    if (!emailAddress || !emailAddress.includes('@')) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSendingEmail(true);
+    // Simulate sending email
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setSendingEmail(false);
+    setEmailDialogOpen(false);
+    setEmailAddress("");
+    
+    toast({
+      title: "Email Sent Successfully",
+      description: `${emailReportType.replace(/_/g, ' ')} report has been sent to ${emailAddress} with current filters applied`,
+    });
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
+      {/* Email Export Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Email Report
+            </DialogTitle>
+            <DialogDescription>
+              Send the {emailReportType.replace(/_/g, ' ')} report with current filters to an email address.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email Address</label>
+              <Input
+                type="email"
+                placeholder="Enter email address"
+                value={emailAddress}
+                onChange={(e) => setEmailAddress(e.target.value)}
+              />
+            </div>
+            <div className="text-sm text-muted-foreground">
+              <p>Report will include:</p>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>Current filter selections applied</li>
+                <li>Date range: {dateFrom} to {dateTo}</li>
+                <li>Format: PDF attachment</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={sendEmailReport} disabled={sendingEmail}>
+              {sendingEmail ? (
+                <>Sending...</>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send Email
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -505,6 +601,9 @@ export default function Reports() {
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleDownload("daily_collection", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Daily Collection")}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handlePrint("daily_collection")}>
                   <Printer className="h-4 w-4 mr-1" /> Print
@@ -1314,14 +1413,67 @@ export default function Reports() {
                 <Button variant="outline" size="sm" onClick={() => handleDownload("driver_behavior", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Driver Behavior")}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">Type:</span>
+                  <div className="flex gap-1">
+                    {[
+                      { key: "all", label: "All" },
+                      { key: "Overspeeding", label: "Overspeeding" },
+                      { key: "Harsh Braking", label: "Harsh Braking" },
+                      { key: "Rapid Acceleration", label: "Rapid Accel" }
+                    ].map((filter) => (
+                      <Badge
+                        key={filter.key}
+                        variant={behaviorTypeFilter === filter.key ? "default" : "outline"}
+                        className={`cursor-pointer ${behaviorTypeFilter === filter.key ? "" : "hover:bg-muted"}`}
+                        onClick={() => { setBehaviorTypeFilter(filter.key); setBehaviorPage(1); }}
+                      >
+                        {filter.label}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">Severity:</span>
+                  <div className="flex gap-1">
+                    {[
+                      { key: "all", label: "All" },
+                      { key: "high", label: "High" },
+                      { key: "medium", label: "Medium" },
+                      { key: "low", label: "Low" }
+                    ].map((filter) => (
+                      <Badge
+                        key={filter.key}
+                        variant={behaviorSeverityFilter === filter.key ? "default" : "outline"}
+                        className={`cursor-pointer ${behaviorSeverityFilter === filter.key ? "" : "hover:bg-muted"}`}
+                        onClick={() => { setBehaviorSeverityFilter(filter.key); setBehaviorPage(1); }}
+                      >
+                        {filter.label}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {(() => {
-                const overspeedCount = driverBehaviorData.filter(d => d.incidentType === "Overspeeding").length;
-                const harshBrakingCount = driverBehaviorData.filter(d => d.incidentType === "Harsh Braking").length;
-                const rapidAccelCount = driverBehaviorData.filter(d => d.incidentType === "Rapid Acceleration").length;
-                const highSeverityCount = driverBehaviorData.filter(d => d.severity === "high").length;
+                const filteredData = driverBehaviorData.filter(row => {
+                  const typeMatch = behaviorTypeFilter === "all" || row.incidentType === behaviorTypeFilter;
+                  const severityMatch = behaviorSeverityFilter === "all" || row.severity === behaviorSeverityFilter;
+                  return typeMatch && severityMatch;
+                });
+                
+                const overspeedCount = filteredData.filter(d => d.incidentType === "Overspeeding").length;
+                const harshBrakingCount = filteredData.filter(d => d.incidentType === "Harsh Braking").length;
+                const rapidAccelCount = filteredData.filter(d => d.incidentType === "Rapid Acceleration").length;
+                const highSeverityCount = filteredData.filter(d => d.severity === "high").length;
 
                 return (
                   <>
@@ -1368,7 +1520,7 @@ export default function Reports() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {driverBehaviorData.map((row) => (
+                          {paginate(filteredData, behaviorPage).map((row) => (
                             <TableRow key={row.id} className={row.severity === "high" ? "bg-red-500/5" : ""}>
                               <TableCell className="font-medium">{row.date}</TableCell>
                               <TableCell>{row.time}</TableCell>
@@ -1403,6 +1555,7 @@ export default function Reports() {
                         </TableBody>
                       </Table>
                     </div>
+                    {renderPagination(behaviorPage, filteredData.length, setBehaviorPage)}
                   </>
                 );
               })()}
@@ -1428,14 +1581,44 @@ export default function Reports() {
                 <Button variant="outline" size="sm" onClick={() => handleDownload("vehicle_status", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Vehicle Status")}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Filter by Status:</span>
+                <div className="flex gap-1">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "active", label: "Active" },
+                    { key: "warning", label: "Warning" },
+                    { key: "inactive", label: "Inactive" },
+                    { key: "failed", label: "Failed" }
+                  ].map((filter) => (
+                    <Badge
+                      key={filter.key}
+                      variant={vehicleStatusFilter === filter.key ? "default" : "outline"}
+                      className={`cursor-pointer ${vehicleStatusFilter === filter.key ? "" : "hover:bg-muted"}`}
+                      onClick={() => { setVehicleStatusFilter(filter.key); setVehicleStatusPage(1); }}
+                    >
+                      {filter.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
               {(() => {
-                const activeCount = vehicleStatusData.filter(d => d.status === "active").length;
-                const inactiveCount = vehicleStatusData.filter(d => d.status === "inactive").length;
-                const warningCount = vehicleStatusData.filter(d => d.status === "warning").length;
-                const failedCount = vehicleStatusData.filter(d => d.status === "failed").length;
+                const filteredData = vehicleStatusFilter === "all" 
+                  ? vehicleStatusData 
+                  : vehicleStatusData.filter(d => d.status === vehicleStatusFilter);
+                  
+                const activeCount = filteredData.filter(d => d.status === "active").length;
+                const inactiveCount = filteredData.filter(d => d.status === "inactive").length;
+                const warningCount = filteredData.filter(d => d.status === "warning").length;
+                const failedCount = filteredData.filter(d => d.status === "failed").length;
 
                 return (
                   <>
@@ -1482,7 +1665,7 @@ export default function Reports() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {vehicleStatusData.map((row) => (
+                          {paginate(filteredData, vehicleStatusPage).map((row) => (
                             <TableRow key={row.id} className={row.status === "failed" || row.status === "inactive" ? "bg-red-500/5" : ""}>
                               <TableCell className="font-mono text-xs font-medium">{row.truck}</TableCell>
                               <TableCell>
@@ -1539,6 +1722,7 @@ export default function Reports() {
                         </TableBody>
                       </Table>
                     </div>
+                    {renderPagination(vehicleStatusPage, filteredData.length, setVehicleStatusPage)}
                   </>
                 );
               })()}
@@ -1564,78 +1748,138 @@ export default function Reports() {
                 <Button variant="outline" size="sm" onClick={() => handleDownload("complaints", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Complaints")}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card className="bg-primary/10 border-primary/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-primary">5</p>
-                    <p className="text-xs text-muted-foreground">Total Complaints</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-green-500/10 border-green-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-green-600">3</p>
-                    <p className="text-xs text-muted-foreground">Resolved</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-yellow-500/10 border-yellow-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-yellow-600">1</p>
-                    <p className="text-xs text-muted-foreground">In Progress</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-red-500/10 border-red-500/20">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-red-600">1</p>
-                    <p className="text-xs text-muted-foreground">Pending</p>
-                  </CardContent>
-                </Card>
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">Status:</span>
+                  <div className="flex gap-1">
+                    {[
+                      { key: "all", label: "All" },
+                      { key: "resolved", label: "Resolved" },
+                      { key: "in-progress", label: "In Progress" },
+                      { key: "pending", label: "Pending" }
+                    ].map((filter) => (
+                      <Badge
+                        key={filter.key}
+                        variant={complaintsStatusFilter === filter.key ? "default" : "outline"}
+                        className={`cursor-pointer ${complaintsStatusFilter === filter.key ? "" : "hover:bg-muted"}`}
+                        onClick={() => { setComplaintsStatusFilter(filter.key); setComplaintsPage(1); }}
+                      >
+                        {filter.label}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">Type:</span>
+                  <div className="flex gap-1">
+                    {[
+                      { key: "all", label: "All" },
+                      { key: "Missed Pickup", label: "Missed Pickup" },
+                      { key: "Overflow Bin", label: "Overflow" },
+                      { key: "Spillage", label: "Spillage" }
+                    ].map((filter) => (
+                      <Badge
+                        key={filter.key}
+                        variant={complaintsTypeFilter === filter.key ? "default" : "outline"}
+                        className={`cursor-pointer ${complaintsTypeFilter === filter.key ? "" : "hover:bg-muted"}`}
+                        onClick={() => { setComplaintsTypeFilter(filter.key); setComplaintsPage(1); }}
+                      >
+                        {filter.label}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead>ID</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Ward</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Truck</TableHead>
-                      <TableHead className="text-center">Response Time</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {complaintsData.map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell className="font-mono text-xs font-medium">{row.id}</TableCell>
-                        <TableCell>{row.date}</TableCell>
-                        <TableCell>{row.ward}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{row.type}</Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">{row.truck}</TableCell>
-                        <TableCell className="text-center">{row.responseTime}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            className={
-                              row.status === "resolved" 
-                                ? "bg-green-500/20 text-green-700 border-green-500/30" 
-                                : row.status === "in-progress" 
-                                ? "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"
-                                : "bg-red-500/20 text-red-700 border-red-500/30"
-                            }
-                          >
-                            {row.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              {(() => {
+                const filteredData = complaintsData.filter(row => {
+                  const statusMatch = complaintsStatusFilter === "all" || row.status === complaintsStatusFilter;
+                  const typeMatch = complaintsTypeFilter === "all" || row.type === complaintsTypeFilter;
+                  return statusMatch && typeMatch;
+                });
+                
+                return (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="bg-primary/10 border-primary/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-primary">{filteredData.length}</p>
+                          <p className="text-xs text-muted-foreground">Total Complaints</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-green-500/10 border-green-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-green-600">{filteredData.filter(d => d.status === "resolved").length}</p>
+                          <p className="text-xs text-muted-foreground">Resolved</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-yellow-500/10 border-yellow-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-yellow-600">{filteredData.filter(d => d.status === "in-progress").length}</p>
+                          <p className="text-xs text-muted-foreground">In Progress</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-red-500/10 border-red-500/20">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-2xl font-bold text-red-600">{filteredData.filter(d => d.status === "pending").length}</p>
+                          <p className="text-xs text-muted-foreground">Pending</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead>ID</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Ward</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Truck</TableHead>
+                            <TableHead className="text-center">Response Time</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paginate(filteredData, complaintsPage).map((row) => (
+                            <TableRow key={row.id}>
+                              <TableCell className="font-mono text-xs font-medium">{row.id}</TableCell>
+                              <TableCell>{row.date}</TableCell>
+                              <TableCell>{row.ward}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{row.type}</Badge>
+                              </TableCell>
+                              <TableCell className="font-mono text-xs">{row.truck}</TableCell>
+                              <TableCell className="text-center">{row.responseTime}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  className={
+                                    row.status === "resolved" 
+                                      ? "bg-green-500/20 text-green-700 border-green-500/30" 
+                                      : row.status === "in-progress" 
+                                      ? "bg-yellow-500/20 text-yellow-700 border-yellow-500/30"
+                                      : "bg-red-500/20 text-red-700 border-red-500/30"
+                                  }
+                                >
+                                  {row.status}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {renderPagination(complaintsPage, filteredData.length, setComplaintsPage)}
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
@@ -1657,6 +1901,9 @@ export default function Reports() {
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleDownload("dumpyard_log", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Dump Yard")}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
                 </Button>
               </div>
             </CardHeader>
@@ -1765,6 +2012,9 @@ export default function Reports() {
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleDownload("expiry_report", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Expiry Report")}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handlePrint("expiry_report")}>
                   <Printer className="h-4 w-4 mr-1" /> Print
@@ -1965,85 +2215,120 @@ export default function Reports() {
                 <Button variant="outline" size="sm" onClick={() => handleDownload("spare_usage", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Spare Usage")}>
+                  <Mail className="h-4 w-4 mr-1" /> Email
+                </Button>
               </div>
             </CardHeader>
-            <CardContent>
-              {/* Summary Cards */}
-              <div className="grid gap-4 md:grid-cols-4 mb-6">
-                <Card className="bg-primary/10 border-primary/30">
-                  <CardContent className="pt-4">
-                    <div className="text-2xl font-bold text-primary">{spareUsageData.length}</div>
-                    <p className="text-sm text-muted-foreground">Total Deployments</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-success/10 border-success/30">
-                  <CardContent className="pt-4">
-                    <div className="text-2xl font-bold text-success">{spareUsageData.filter(s => s.status === "completed").length}</div>
-                    <p className="text-sm text-muted-foreground">Completed</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-warning/10 border-warning/30">
-                  <CardContent className="pt-4">
-                    <div className="text-2xl font-bold text-warning">{spareUsageData.filter(s => s.status === "active").length}</div>
-                    <p className="text-sm text-muted-foreground">Currently Active</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-muted">
-                  <CardContent className="pt-4">
-                    <div className="text-2xl font-bold">~5.5h</div>
-                    <p className="text-sm text-muted-foreground">Avg Duration</p>
-                  </CardContent>
-                </Card>
+            <CardContent className="space-y-6">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Filter by Status:</span>
+                <div className="flex gap-1">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "active", label: "Active" },
+                    { key: "completed", label: "Completed" }
+                  ].map((filter) => (
+                    <Badge
+                      key={filter.key}
+                      variant={spareStatusFilter === filter.key ? "default" : "outline"}
+                      className={`cursor-pointer ${spareStatusFilter === filter.key ? "" : "hover:bg-muted"}`}
+                      onClick={() => { setSpareStatusFilter(filter.key); setSpareUsagePage(1); }}
+                    >
+                      {filter.label}
+                    </Badge>
+                  ))}
+                </div>
               </div>
 
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead>Date</TableHead>
-                      <TableHead>Spare Truck</TableHead>
-                      <TableHead>Original Truck</TableHead>
-                      <TableHead>Route</TableHead>
-                      <TableHead>Vendor</TableHead>
-                      <TableHead>Breakdown Reason</TableHead>
-                      <TableHead>Activated</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {spareUsageData.map((record) => (
-                      <TableRow key={record.id}>
-                        <TableCell>{record.date}</TableCell>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">SPARE</Badge>
-                            {record.spareTruck}
-                          </div>
-                        </TableCell>
-                        <TableCell>{record.originalTruck}</TableCell>
-                        <TableCell>{record.route}</TableCell>
-                        <TableCell className="text-sm">{record.vendor}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Wrench className="h-3 w-3 text-muted-foreground" />
-                            {record.breakdownReason}
-                          </div>
-                        </TableCell>
-                        <TableCell>{record.activatedAt}</TableCell>
-                        <TableCell className="font-medium">{record.duration}</TableCell>
-                        <TableCell>
-                          {record.status === "active" ? (
-                            <Badge className="bg-warning/20 text-warning">Active</Badge>
-                          ) : (
-                            <Badge className="bg-success/20 text-success">Completed</Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              {(() => {
+                const filteredData = spareStatusFilter === "all" 
+                  ? spareUsageData 
+                  : spareUsageData.filter(d => d.status === spareStatusFilter);
+                  
+                return (
+                  <>
+                    {/* Summary Cards */}
+                    <div className="grid gap-4 md:grid-cols-4">
+                      <Card className="bg-primary/10 border-primary/30">
+                        <CardContent className="pt-4">
+                          <div className="text-2xl font-bold text-primary">{filteredData.length}</div>
+                          <p className="text-sm text-muted-foreground">Total Deployments</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-green-500/10 border-green-500/30">
+                        <CardContent className="pt-4">
+                          <div className="text-2xl font-bold text-green-600">{filteredData.filter(s => s.status === "completed").length}</div>
+                          <p className="text-sm text-muted-foreground">Completed</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-yellow-500/10 border-yellow-500/30">
+                        <CardContent className="pt-4">
+                          <div className="text-2xl font-bold text-yellow-600">{filteredData.filter(s => s.status === "active").length}</div>
+                          <p className="text-sm text-muted-foreground">Currently Active</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-muted">
+                        <CardContent className="pt-4">
+                          <div className="text-2xl font-bold">~5.5h</div>
+                          <p className="text-sm text-muted-foreground">Avg Duration</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead>Date</TableHead>
+                            <TableHead>Spare Truck</TableHead>
+                            <TableHead>Original Truck</TableHead>
+                            <TableHead>Route</TableHead>
+                            <TableHead>Vendor</TableHead>
+                            <TableHead>Breakdown Reason</TableHead>
+                            <TableHead>Activated</TableHead>
+                            <TableHead>Duration</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paginate(filteredData, spareUsagePage).map((record) => (
+                            <TableRow key={record.id}>
+                              <TableCell>{record.date}</TableCell>
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-2">
+                                  <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">SPARE</Badge>
+                                  {record.spareTruck}
+                                </div>
+                              </TableCell>
+                              <TableCell>{record.originalTruck}</TableCell>
+                              <TableCell>{record.route}</TableCell>
+                              <TableCell className="text-sm">{record.vendor}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Wrench className="h-3 w-3 text-muted-foreground" />
+                                  {record.breakdownReason}
+                                </div>
+                              </TableCell>
+                              <TableCell>{record.activatedAt}</TableCell>
+                              <TableCell className="font-medium">{record.duration}</TableCell>
+                              <TableCell>
+                                {record.status === "active" ? (
+                                  <Badge className="bg-yellow-500/20 text-yellow-700">Active</Badge>
+                                ) : (
+                                  <Badge className="bg-green-500/20 text-green-700">Completed</Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {renderPagination(spareUsagePage, filteredData.length, setSpareUsagePage)}
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
