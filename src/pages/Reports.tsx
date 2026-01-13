@@ -66,6 +66,13 @@ const dailyCollectionData = [
   { id: 3, date: "2024-01-15", ward: "Viman Nagar", zone: "Zone B", truck: "MH-12-EF-9012", driver: "Suresh Patil", totalBins: 38, collected: 35, missed: 3, weight: 1.9, status: "partial" },
   { id: 4, date: "2024-01-15", ward: "Kalyani Nagar", zone: "Zone B", truck: "MH-12-GH-3456", driver: "Mahesh Yadav", totalBins: 41, collected: 41, missed: 0, weight: 2.2, status: "completed" },
   { id: 5, date: "2024-01-15", ward: "Wadgaon Sheri", zone: "Zone C", truck: "MH-12-IJ-7890", driver: "Ravi Sharma", totalBins: 35, collected: 30, missed: 5, weight: 1.6, status: "partial" },
+  { id: 6, date: "2024-01-14", ward: "Hadapsar", zone: "Zone C", truck: "MH-12-KL-1122", driver: "Manoj Patil", totalBins: 48, collected: 47, missed: 1, weight: 2.5, status: "completed" },
+  { id: 7, date: "2024-01-14", ward: "Magarpatta", zone: "Zone D", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", totalBins: 55, collected: 50, missed: 5, weight: 2.7, status: "partial" },
+  { id: 8, date: "2024-01-14", ward: "Koregaon Park", zone: "Zone A", truck: "MH-12-OP-5566", driver: "Sunil Yadav", totalBins: 42, collected: 42, missed: 0, weight: 2.3, status: "completed" },
+  { id: 9, date: "2024-01-14", ward: "Mundhwa", zone: "Zone B", truck: "MH-12-QR-7788", driver: "Anil Sharma", totalBins: 39, collected: 37, missed: 2, weight: 2.0, status: "completed" },
+  { id: 10, date: "2024-01-14", ward: "Keshav Nagar", zone: "Zone C", truck: "MH-12-ST-9900", driver: "Deepak Jadhav", totalBins: 44, collected: 40, missed: 4, weight: 2.1, status: "partial" },
+  { id: 11, date: "2024-01-13", ward: "Wagholi", zone: "Zone D", truck: "MH-12-UV-1212", driver: "Vikram Singh", totalBins: 50, collected: 50, missed: 0, weight: 2.6, status: "completed" },
+  { id: 12, date: "2024-01-13", ward: "Lohegaon", zone: "Zone A", truck: "MH-12-WX-3434", driver: "Prakash Rane", totalBins: 36, collected: 34, missed: 2, weight: 1.8, status: "completed" },
 ];
 
 const routePerformanceData = [
@@ -74,6 +81,13 @@ const routePerformanceData = [
   { route: "Route B1", completion: 100, avgTime: "4.5 hrs", deviations: 0, efficiency: 99 },
   { route: "Route B2", completion: 88, avgTime: "5.1 hrs", deviations: 8, efficiency: 82 },
   { route: "Route C1", completion: 92, avgTime: "4.0 hrs", deviations: 4, efficiency: 88 },
+  { route: "Route C2", completion: 97, avgTime: "3.9 hrs", deviations: 1, efficiency: 95 },
+  { route: "Route D1", completion: 85, avgTime: "5.5 hrs", deviations: 10, efficiency: 75 },
+  { route: "Route D2", completion: 94, avgTime: "4.1 hrs", deviations: 3, efficiency: 90 },
+  { route: "Route E1", completion: 99, avgTime: "3.7 hrs", deviations: 1, efficiency: 98 },
+  { route: "Route E2", completion: 91, avgTime: "4.4 hrs", deviations: 6, efficiency: 85 },
+  { route: "Route F1", completion: 96, avgTime: "4.0 hrs", deviations: 2, efficiency: 93 },
+  { route: "Route F2", completion: 89, avgTime: "4.8 hrs", deviations: 7, efficiency: 80 },
 ];
 
 const truckUtilizationData = [
@@ -82,6 +96,13 @@ const truckUtilizationData = [
   { truck: "MH-12-EF-9012", type: "Dumper", trips: 2, operatingHours: 7.2, idleTime: 2.1, distance: 38, utilization: 78 },
   { truck: "MH-12-GH-3456", type: "Open Truck", trips: 3, operatingHours: 8.0, idleTime: 1.5, distance: 41, utilization: 85 },
   { truck: "MH-12-IJ-7890", type: "Compactor", trips: 3, operatingHours: 8.8, idleTime: 0.5, distance: 48, utilization: 96 },
+  { truck: "MH-12-KL-1122", type: "Mini Truck", trips: 5, operatingHours: 9.5, idleTime: 0.3, distance: 58, utilization: 98 },
+  { truck: "MH-12-MN-3344", type: "Dumper", trips: 2, operatingHours: 6.5, idleTime: 2.5, distance: 32, utilization: 72 },
+  { truck: "MH-12-OP-5566", type: "Compactor", trips: 4, operatingHours: 8.2, idleTime: 1.0, distance: 50, utilization: 91 },
+  { truck: "MH-12-QR-7788", type: "Open Truck", trips: 3, operatingHours: 7.8, idleTime: 1.8, distance: 42, utilization: 82 },
+  { truck: "MH-12-ST-9900", type: "Mini Truck", trips: 4, operatingHours: 8.6, idleTime: 0.9, distance: 54, utilization: 93 },
+  { truck: "MH-12-UV-1212", type: "Compactor", trips: 3, operatingHours: 7.5, idleTime: 1.6, distance: 40, utilization: 83 },
+  { truck: "MH-12-WX-3434", type: "Dumper", trips: 2, operatingHours: 6.8, idleTime: 2.3, distance: 35, utilization: 75 },
 ];
 
 const fuelConsumptionData = [
@@ -90,6 +111,13 @@ const fuelConsumptionData = [
   { truck: "MH-12-EF-9012", fuelUsed: 28.5, distance: 38, efficiency: 1.33, cost: 2850, anomaly: true, score: 45 },
   { truck: "MH-12-GH-3456", fuelUsed: 16.8, distance: 41, efficiency: 2.44, cost: 1680, anomaly: false, score: 94 },
   { truck: "MH-12-IJ-7890", fuelUsed: 19.2, distance: 48, efficiency: 2.50, cost: 1920, anomaly: false, score: 97 },
+  { truck: "MH-12-KL-1122", fuelUsed: 20.5, distance: 58, efficiency: 2.83, cost: 2050, anomaly: false, score: 99 },
+  { truck: "MH-12-MN-3344", fuelUsed: 25.0, distance: 32, efficiency: 1.28, cost: 2500, anomaly: true, score: 40 },
+  { truck: "MH-12-OP-5566", fuelUsed: 19.8, distance: 50, efficiency: 2.53, cost: 1980, anomaly: false, score: 96 },
+  { truck: "MH-12-QR-7788", fuelUsed: 17.5, distance: 42, efficiency: 2.40, cost: 1750, anomaly: false, score: 93 },
+  { truck: "MH-12-ST-9900", fuelUsed: 21.2, distance: 54, efficiency: 2.55, cost: 2120, anomaly: false, score: 95 },
+  { truck: "MH-12-UV-1212", fuelUsed: 18.0, distance: 40, efficiency: 2.22, cost: 1800, anomaly: false, score: 88 },
+  { truck: "MH-12-WX-3434", fuelUsed: 26.5, distance: 35, efficiency: 1.32, cost: 2650, anomaly: true, score: 42 },
 ];
 
 const driverAttendanceData = [
@@ -98,6 +126,13 @@ const driverAttendanceData = [
   { driver: "Suresh Patil", id: "DRV003", shiftStart: "06:45", shiftEnd: "14:00", hoursWorked: 7.25, routes: 1, onTime: false, violations: 2, score: 72 },
   { driver: "Mahesh Yadav", id: "DRV004", shiftStart: "06:00", shiftEnd: "14:15", hoursWorked: 8.25, routes: 2, onTime: true, violations: 0, score: 98 },
   { driver: "Ravi Sharma", id: "DRV005", shiftStart: "06:30", shiftEnd: "14:45", hoursWorked: 8.25, routes: 2, onTime: false, violations: 1, score: 82 },
+  { driver: "Manoj Patil", id: "DRV006", shiftStart: "06:00", shiftEnd: "14:00", hoursWorked: 8.0, routes: 2, onTime: true, violations: 0, score: 92 },
+  { driver: "Ravi Deshmukh", id: "DRV007", shiftStart: "06:20", shiftEnd: "14:40", hoursWorked: 8.33, routes: 2, onTime: false, violations: 1, score: 85 },
+  { driver: "Sunil Yadav", id: "DRV008", shiftStart: "06:00", shiftEnd: "14:30", hoursWorked: 8.5, routes: 2, onTime: true, violations: 0, score: 96 },
+  { driver: "Anil Sharma", id: "DRV009", shiftStart: "06:10", shiftEnd: "14:20", hoursWorked: 8.17, routes: 2, onTime: true, violations: 0, score: 94 },
+  { driver: "Deepak Jadhav", id: "DRV010", shiftStart: "07:00", shiftEnd: "15:00", hoursWorked: 8.0, routes: 1, onTime: false, violations: 3, score: 68 },
+  { driver: "Vikram Singh", id: "DRV011", shiftStart: "06:05", shiftEnd: "14:35", hoursWorked: 8.5, routes: 2, onTime: true, violations: 1, score: 90 },
+  { driver: "Prakash Rane", id: "DRV012", shiftStart: "06:00", shiftEnd: "14:00", hoursWorked: 8.0, routes: 2, onTime: true, violations: 0, score: 97 },
 ];
 
 const complaintsData = [
@@ -106,6 +141,13 @@ const complaintsData = [
   { id: "CMP003", date: "2024-01-14", ward: "Kalyani Nagar", type: "Irregular Timing", status: "resolved", truck: "MH-12-GH-3456", responseTime: "4 hrs" },
   { id: "CMP004", date: "2024-01-14", ward: "Wadgaon Sheri", type: "Missed Pickup", status: "in-progress", truck: "MH-12-IJ-7890", responseTime: "1 hr" },
   { id: "CMP005", date: "2024-01-13", ward: "Kharadi West", type: "Spillage", status: "resolved", truck: "MH-12-CD-5678", responseTime: "3 hrs" },
+  { id: "CMP006", date: "2024-01-13", ward: "Hadapsar", type: "Missed Pickup", status: "pending", truck: "MH-12-KL-1122", responseTime: "-" },
+  { id: "CMP007", date: "2024-01-12", ward: "Magarpatta", type: "Overflow Bin", status: "resolved", truck: "MH-12-MN-3344", responseTime: "1.5 hrs" },
+  { id: "CMP008", date: "2024-01-12", ward: "Koregaon Park", type: "Spillage", status: "in-progress", truck: "MH-12-OP-5566", responseTime: "30 min" },
+  { id: "CMP009", date: "2024-01-11", ward: "Mundhwa", type: "Irregular Timing", status: "resolved", truck: "MH-12-QR-7788", responseTime: "2.5 hrs" },
+  { id: "CMP010", date: "2024-01-11", ward: "Keshav Nagar", type: "Missed Pickup", status: "pending", truck: "MH-12-ST-9900", responseTime: "-" },
+  { id: "CMP011", date: "2024-01-10", ward: "Wagholi", type: "Overflow Bin", status: "resolved", truck: "MH-12-UV-1212", responseTime: "3.5 hrs" },
+  { id: "CMP012", date: "2024-01-10", ward: "Lohegaon", type: "Spillage", status: "in-progress", truck: "MH-12-WX-3434", responseTime: "45 min" },
 ];
 
 const dumpYardData = [
@@ -113,6 +155,14 @@ const dumpYardData = [
   { site: "GCP Viman Nagar", entries: 38, totalWeight: 89.2, avgWeight: 2.35, peakHour: "11:00-12:00", capacity: 65 },
   { site: "Dump Site Alpha", entries: 22, totalWeight: 198.0, avgWeight: 9.0, peakHour: "14:00-15:00", capacity: 45 },
   { site: "Dump Site Beta", entries: 18, totalWeight: 162.0, avgWeight: 9.0, peakHour: "15:00-16:00", capacity: 38 },
+  { site: "GCP Hadapsar", entries: 52, totalWeight: 130.0, avgWeight: 2.5, peakHour: "09:00-10:00", capacity: 82 },
+  { site: "GCP Koregaon Park", entries: 35, totalWeight: 82.5, avgWeight: 2.36, peakHour: "10:30-11:30", capacity: 55 },
+  { site: "Dump Site Gamma", entries: 28, totalWeight: 252.0, avgWeight: 9.0, peakHour: "13:00-14:00", capacity: 52 },
+  { site: "GCP Magarpatta", entries: 40, totalWeight: 96.0, avgWeight: 2.4, peakHour: "11:00-12:00", capacity: 72 },
+  { site: "Dump Site Delta", entries: 15, totalWeight: 135.0, avgWeight: 9.0, peakHour: "16:00-17:00", capacity: 30 },
+  { site: "GCP Mundhwa", entries: 32, totalWeight: 76.8, avgWeight: 2.4, peakHour: "08:00-09:00", capacity: 60 },
+  { site: "GCP Wagholi", entries: 28, totalWeight: 67.2, avgWeight: 2.4, peakHour: "09:30-10:30", capacity: 48 },
+  { site: "Dump Site Epsilon", entries: 20, totalWeight: 180.0, avgWeight: 9.0, peakHour: "15:30-16:30", capacity: 42 },
 ];
 
 const weeklyTrendData = [
@@ -141,6 +191,11 @@ const lateArrivalData = [
   { id: 5, date: "2024-01-14", truck: "MH-12-IJ-7890", driver: "Deepak Jadhav", route: "Route D-03", scheduledTime: "06:00", actualTime: "06:32", delay: 32, reason: "Driver reported late", status: "late" },
   { id: 6, date: "2024-01-14", truck: "MH-12-KL-1122", driver: "Manoj Patil", route: "Route E-02", scheduledTime: "05:30", actualTime: "05:28", delay: -2, reason: "", status: "on-time" },
   { id: 7, date: "2024-01-14", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", route: "Route F-01", scheduledTime: "06:45", actualTime: "07:15", delay: 30, reason: "Fuel filling", status: "late" },
+  { id: 8, date: "2024-01-13", truck: "MH-12-OP-5566", driver: "Sunil Yadav", route: "Route G-04", scheduledTime: "06:00", actualTime: "06:05", delay: 5, reason: "", status: "on-time" },
+  { id: 9, date: "2024-01-13", truck: "MH-12-QR-7788", driver: "Anil Sharma", route: "Route H-02", scheduledTime: "06:30", actualTime: "07:00", delay: 30, reason: "Road construction", status: "late" },
+  { id: 10, date: "2024-01-13", truck: "MH-12-ST-9900", driver: "Prakash Rane", route: "Route I-01", scheduledTime: "06:15", actualTime: "06:12", delay: -3, reason: "", status: "on-time" },
+  { id: 11, date: "2024-01-12", truck: "MH-12-UV-1212", driver: "Mahesh Yadav", route: "Route J-03", scheduledTime: "06:00", actualTime: "06:40", delay: 40, reason: "Personal emergency", status: "late" },
+  { id: 12, date: "2024-01-12", truck: "MH-12-WX-3434", driver: "Ravi Sharma", route: "Route K-02", scheduledTime: "06:45", actualTime: "06:50", delay: 5, reason: "", status: "on-time" },
 ];
 
 // Driver Behavior Report Data
@@ -152,6 +207,11 @@ const driverBehaviorData = [
   { id: 5, date: "2024-01-14", time: "14:22", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", driverId: "DRV001", incidentType: "Overspeeding", value: "68 km/h", limit: "60 km/h", location: "Wadgaon Sheri", severity: "low" },
   { id: 6, date: "2024-01-14", time: "16:45", truck: "MH-12-CD-5678", driver: "Amit Singh", driverId: "DRV002", incidentType: "Harsh Braking", value: "11.2 m/s²", limit: "8 m/s²", location: "Kalyani Nagar", severity: "high" },
   { id: 7, date: "2024-01-13", time: "07:30", truck: "MH-12-IJ-7890", driver: "Deepak Jadhav", driverId: "DRV005", incidentType: "Rapid Acceleration", value: "9.8 m/s²", limit: "8 m/s²", location: "Starting Point", severity: "medium" },
+  { id: 8, date: "2024-01-13", time: "09:15", truck: "MH-12-OP-5566", driver: "Sunil Yadav", driverId: "DRV008", incidentType: "Overspeeding", value: "75 km/h", limit: "60 km/h", location: "Hadapsar Ring Road", severity: "medium" },
+  { id: 9, date: "2024-01-13", time: "11:30", truck: "MH-12-QR-7788", driver: "Anil Sharma", driverId: "DRV009", incidentType: "Harsh Braking", value: "10.1 m/s²", limit: "8 m/s²", location: "Magarpatta Junction", severity: "medium" },
+  { id: 10, date: "2024-01-12", time: "08:00", truck: "MH-12-ST-9900", driver: "Prakash Rane", driverId: "DRV012", incidentType: "Rapid Acceleration", value: "9.5 m/s²", limit: "8 m/s²", location: "Koregaon Park", severity: "low" },
+  { id: 11, date: "2024-01-12", time: "13:45", truck: "MH-12-UV-1212", driver: "Mahesh Yadav", driverId: "DRV004", incidentType: "Overspeeding", value: "90 km/h", limit: "60 km/h", location: "Expressway", severity: "high" },
+  { id: 12, date: "2024-01-12", time: "15:20", truck: "MH-12-WX-3434", driver: "Ravi Sharma", driverId: "DRV005", incidentType: "Harsh Braking", value: "12.5 m/s²", limit: "8 m/s²", location: "Mundhwa Bridge", severity: "high" },
 ];
 
 // Vehicle Status Report Data
@@ -165,80 +225,25 @@ const vehicleStatusData = [
   { id: "TRK-007", truck: "MH-12-MN-3344", type: "secondary", driver: "Ravi Deshmukh", status: "active", gpsStatus: "online", lastUpdate: "1 min ago", batteryLevel: 70, signalStrength: 80, route: "Route F-01" },
   { id: "TRK-008", truck: "MH-12-OP-5566", type: "primary", driver: "Sunil Yadav", status: "failed", gpsStatus: "offline", lastUpdate: "2 hours ago", batteryLevel: 0, signalStrength: 0, route: "Route G-04" },
   { id: "TRK-009", truck: "MH-12-QR-7788", type: "secondary", driver: "Anil Sharma", status: "inactive", gpsStatus: "offline", lastUpdate: "1 hour ago", batteryLevel: 5, signalStrength: 0, route: "Route H-02" },
+  { id: "TRK-010", truck: "MH-12-ST-9900", type: "primary", driver: "Prakash Rane", status: "active", gpsStatus: "online", lastUpdate: "3 mins ago", batteryLevel: 85, signalStrength: 88, route: "Route I-01" },
+  { id: "TRK-011", truck: "MH-12-UV-1212", type: "secondary", driver: "Mahesh Yadav", status: "warning", gpsStatus: "warning", lastUpdate: "10 mins ago", batteryLevel: 30, signalStrength: 40, route: "Route J-03" },
+  { id: "TRK-012", truck: "MH-12-WX-3434", type: "primary", driver: "Ravi Sharma", status: "active", gpsStatus: "online", lastUpdate: "Just now", batteryLevel: 95, signalStrength: 92, route: "Route K-02" },
 ];
 
 // Spare Truck Usage Report Data
 const spareUsageData = [
-  { 
-    id: 1, 
-    date: "2024-01-15", 
-    spareTruck: "MH-12-SP-1001", 
-    originalTruck: "MH-12-AB-1234", 
-    driver: "Spare Driver 1",
-    route: "Route A-12", 
-    vendor: "Mahesh Fleet Services", 
-    breakdownReason: "Engine failure", 
-    activatedAt: "07:30", 
-    releasedAt: "14:45", 
-    duration: "7h 15m",
-    status: "completed" 
-  },
-  { 
-    id: 2, 
-    date: "2024-01-15", 
-    spareTruck: "MH-12-SP-2001", 
-    originalTruck: "MH-12-GH-3456", 
-    driver: "Spare Driver 2",
-    route: "Route A-15", 
-    vendor: "Green Transport Solutions", 
-    breakdownReason: "Tire puncture", 
-    activatedAt: "09:15", 
-    releasedAt: "12:30", 
-    duration: "3h 15m",
-    status: "completed" 
-  },
-  { 
-    id: 3, 
-    date: "2024-01-14", 
-    spareTruck: "MH-12-SP-1001", 
-    originalTruck: "MH-12-EF-9012", 
-    driver: "Spare Driver 1",
-    route: "Route C-08", 
-    vendor: "Mahesh Fleet Services", 
-    breakdownReason: "Brake issue", 
-    activatedAt: "06:45", 
-    releasedAt: "16:00", 
-    duration: "9h 15m",
-    status: "completed" 
-  },
-  { 
-    id: 4, 
-    date: "2024-01-14", 
-    spareTruck: "MH-12-SP-2001", 
-    originalTruck: "MH-12-IJ-7890", 
-    driver: "Spare Driver 2",
-    route: "Route D-03", 
-    vendor: "Green Transport Solutions", 
-    breakdownReason: "Starter motor failure", 
-    activatedAt: "08:00", 
-    releasedAt: null, 
-    duration: "Active",
-    status: "active" 
-  },
-  { 
-    id: 5, 
-    date: "2024-01-13", 
-    spareTruck: "MH-12-SP-1001", 
-    originalTruck: "MH-12-CD-5678", 
-    driver: "Spare Driver 1",
-    route: "Route B-05", 
-    vendor: "Mahesh Fleet Services", 
-    breakdownReason: "GPS device failure", 
-    activatedAt: "10:30", 
-    releasedAt: "15:45", 
-    duration: "5h 15m",
-    status: "completed" 
-  },
+  { id: 1, date: "2024-01-15", spareTruck: "MH-12-SP-1001", originalTruck: "MH-12-AB-1234", driver: "Spare Driver 1", route: "Route A-12", vendor: "Mahesh Fleet Services", breakdownReason: "Engine failure", activatedAt: "07:30", releasedAt: "14:45", duration: "7h 15m", status: "completed" },
+  { id: 2, date: "2024-01-15", spareTruck: "MH-12-SP-2001", originalTruck: "MH-12-GH-3456", driver: "Spare Driver 2", route: "Route A-15", vendor: "Green Transport Solutions", breakdownReason: "Tire puncture", activatedAt: "09:15", releasedAt: "12:30", duration: "3h 15m", status: "completed" },
+  { id: 3, date: "2024-01-14", spareTruck: "MH-12-SP-1001", originalTruck: "MH-12-EF-9012", driver: "Spare Driver 1", route: "Route C-08", vendor: "Mahesh Fleet Services", breakdownReason: "Brake issue", activatedAt: "06:45", releasedAt: "16:00", duration: "9h 15m", status: "completed" },
+  { id: 4, date: "2024-01-14", spareTruck: "MH-12-SP-2001", originalTruck: "MH-12-IJ-7890", driver: "Spare Driver 2", route: "Route D-03", vendor: "Green Transport Solutions", breakdownReason: "Starter motor failure", activatedAt: "08:00", releasedAt: null, duration: "Active", status: "active" },
+  { id: 5, date: "2024-01-13", spareTruck: "MH-12-SP-1001", originalTruck: "MH-12-CD-5678", driver: "Spare Driver 1", route: "Route B-05", vendor: "Mahesh Fleet Services", breakdownReason: "GPS device failure", activatedAt: "10:30", releasedAt: "15:45", duration: "5h 15m", status: "completed" },
+  { id: 6, date: "2024-01-13", spareTruck: "MH-12-SP-3001", originalTruck: "MH-12-KL-1122", driver: "Spare Driver 3", route: "Route E-02", vendor: "City Transport Co", breakdownReason: "Battery dead", activatedAt: "07:00", releasedAt: "10:30", duration: "3h 30m", status: "completed" },
+  { id: 7, date: "2024-01-12", spareTruck: "MH-12-SP-2001", originalTruck: "MH-12-MN-3344", driver: "Spare Driver 2", route: "Route F-01", vendor: "Green Transport Solutions", breakdownReason: "Clutch failure", activatedAt: "06:30", releasedAt: "15:00", duration: "8h 30m", status: "completed" },
+  { id: 8, date: "2024-01-12", spareTruck: "MH-12-SP-1001", originalTruck: "MH-12-OP-5566", driver: "Spare Driver 1", route: "Route G-04", vendor: "Mahesh Fleet Services", breakdownReason: "Hydraulic leak", activatedAt: "08:45", releasedAt: null, duration: "Active", status: "active" },
+  { id: 9, date: "2024-01-11", spareTruck: "MH-12-SP-3001", originalTruck: "MH-12-QR-7788", driver: "Spare Driver 3", route: "Route H-02", vendor: "City Transport Co", breakdownReason: "Fuel pump issue", activatedAt: "11:00", releasedAt: "16:30", duration: "5h 30m", status: "completed" },
+  { id: 10, date: "2024-01-11", spareTruck: "MH-12-SP-2001", originalTruck: "MH-12-ST-9900", driver: "Spare Driver 2", route: "Route I-01", vendor: "Green Transport Solutions", breakdownReason: "AC failure", activatedAt: "09:00", releasedAt: "14:00", duration: "5h 00m", status: "completed" },
+  { id: 11, date: "2024-01-10", spareTruck: "MH-12-SP-1001", originalTruck: "MH-12-UV-1212", driver: "Spare Driver 1", route: "Route J-03", vendor: "Mahesh Fleet Services", breakdownReason: "Radiator leak", activatedAt: "07:15", releasedAt: "13:45", duration: "6h 30m", status: "completed" },
+  { id: 12, date: "2024-01-10", spareTruck: "MH-12-SP-3001", originalTruck: "MH-12-WX-3434", driver: "Spare Driver 3", route: "Route K-02", vendor: "City Transport Co", breakdownReason: "Suspension issue", activatedAt: "10:00", releasedAt: "17:00", duration: "7h 00m", status: "completed" },
 ];
 
 const ITEMS_PER_PAGE = 5;
