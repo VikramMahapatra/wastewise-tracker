@@ -320,16 +320,13 @@ export default function Reports() {
     if (totalPages <= 1) return null;
 
     return (
-      <div className="flex items-center justify-between mt-4 pt-4 border-t">
-        <span className="text-sm text-muted-foreground">
-          Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, totalItems)}-{Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} of {totalItems} items
-        </span>
+      <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t">
         <Pagination>
-          <PaginationContent>
+          <PaginationContent className="gap-1">
             <PaginationItem>
               <PaginationPrevious 
                 onClick={() => setPage(Math.max(1, currentPage - 1))}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={`h-8 text-xs px-2 ${currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
               />
             </PaginationItem>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -348,7 +345,7 @@ export default function Reports() {
                   <PaginationLink
                     onClick={() => setPage(pageNum)}
                     isActive={currentPage === pageNum}
-                    className="cursor-pointer"
+                    className="h-8 w-8 text-xs cursor-pointer"
                   >
                     {pageNum}
                   </PaginationLink>
@@ -358,11 +355,14 @@ export default function Reports() {
             <PaginationItem>
               <PaginationNext 
                 onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={`h-8 text-xs px-2 ${currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
               />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, totalItems)}-{Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} of {totalItems} items
+        </span>
       </div>
     );
   };
