@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, MapPinOff, Clock, Navigation, ChevronRight, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const alerts = [
   {
@@ -37,9 +38,46 @@ const alerts = [
     time: "25 min ago",
     severity: "warning",
   },
+  {
+    id: 5,
+    type: "speed_violation",
+    truck: "TRK-009",
+    message: "Speed limit exceeded: 65 km/h in 40 km/h zone",
+    time: "32 min ago",
+    severity: "high",
+  },
+  {
+    id: 6,
+    type: "geofence_breach",
+    truck: "TRK-011",
+    message: "Exited designated collection zone",
+    time: "45 min ago",
+    severity: "medium",
+  },
+  {
+    id: 7,
+    type: "missed_pickup",
+    truck: "TRK-003",
+    message: "Skipped 2 consecutive pickup points",
+    time: "52 min ago",
+    severity: "high",
+  },
+  {
+    id: 8,
+    type: "device_tamper",
+    truck: "TRK-015",
+    message: "GPS device disconnection detected",
+    time: "1 hr ago",
+    severity: "high",
+  },
 ];
 
 const AlertsPanel = () => {
+  const navigate = useNavigate();
+  
+  // Only show top 6 alerts
+  const displayedAlerts = alerts.slice(0, 6);
+
   const getAlertIcon = (type: string) => {
     switch (type) {
       case "route_deviation":
@@ -101,6 +139,9 @@ const AlertsPanel = () => {
               )}
             </div>
             <h2 className="text-lg font-semibold text-foreground">Active Alerts</h2>
+            <Badge variant="secondary" className="ml-2 text-xs">
+              Top 6
+            </Badge>
           </div>
           <div className="flex gap-1.5">
             {highCount > 0 && (
@@ -119,7 +160,7 @@ const AlertsPanel = () => {
 
       <ScrollArea className="flex-1">
         <div className="p-3 space-y-2">
-          {alerts.map((alert) => {
+          {displayedAlerts.map((alert) => {
             const Icon = getAlertIcon(alert.type);
             const styles = getSeverityStyles(alert.severity);
             return (
@@ -158,11 +199,13 @@ const AlertsPanel = () => {
       </ScrollArea>
 
       <div className="p-3 border-t border-border bg-muted/20">
-        <Button variant="ghost" className="w-full justify-between text-sm h-9" asChild>
-          <a href="/alerts">
-            View All Alerts
-            <ChevronRight className="h-4 w-4" />
-          </a>
+        <Button 
+          variant="ghost" 
+          className="w-full justify-between text-sm h-9"
+          onClick={() => navigate("/alerts")}
+        >
+          View All Alerts ({alerts.length})
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </Card>

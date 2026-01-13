@@ -23,6 +23,10 @@ import MasterTrucks from "./pages/MasterTrucks";
 import MasterZonesWards from "./pages/MasterZonesWards";
 import MasterRoutesPickups from "./pages/MasterRoutesPickups";
 import SpareVehicles from "./pages/SpareVehicles";
+import ActiveTrucks from "./pages/ActiveTrucks";
+import TripsCompleted from "./pages/TripsCompleted";
+import ActiveAlertsDetail from "./pages/ActiveAlertsDetail";
+import CollectionRate from "./pages/CollectionRate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +71,10 @@ const App = () => (
             <Route path="/master/trucks" element={<ProtectedRoute><MasterTrucks /></ProtectedRoute>} />
             <Route path="/master/zones-wards" element={<ProtectedRoute><MasterZonesWards /></ProtectedRoute>} />
             <Route path="/master/routes-pickups" element={<ProtectedRoute><MasterRoutesPickups /></ProtectedRoute>} />
+            <Route path="/active-trucks" element={<ProtectedRoute><ActiveTrucks /></ProtectedRoute>} />
+            <Route path="/trips-completed" element={<ProtectedRoute><TripsCompleted /></ProtectedRoute>} />
+            <Route path="/active-alerts" element={<ProtectedRoute><ActiveAlertsDetail /></ProtectedRoute>} />
+            <Route path="/collection-rate" element={<ProtectedRoute><CollectionRate /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
