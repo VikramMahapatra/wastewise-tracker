@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,15 +87,19 @@ const getExpiryItems = (): ExpiryItem[] => {
 
 const ExpiryAlerts = () => {
   const [activeTab, setActiveTab] = useState("all");
+  const navigate = useNavigate();
   const expiryItems = getExpiryItems();
 
-  const filteredItems = expiryItems.filter(item => {
+  const allFilteredItems = expiryItems.filter(item => {
     if (activeTab === "all") return item.status !== 'ok';
     if (activeTab === "insurance") return item.type === 'insurance' && item.status !== 'ok';
     if (activeTab === "license") return item.type === 'license' && item.status !== 'ok';
     if (activeTab === "fitness") return item.type === 'fitness' && item.status !== 'ok';
     return false;
   });
+
+  // Show only top 6 items on dashboard
+  const filteredItems = allFilteredItems.slice(0, 6);
 
   const expiredCount = expiryItems.filter(i => i.status === 'expired').length;
   const criticalCount = expiryItems.filter(i => i.status === 'critical').length;
@@ -225,11 +230,20 @@ const ExpiryAlerts = () => {
         </Tabs>
         
         <div className="p-3 border-t border-border bg-muted/20">
-          <Button variant="ghost" className="w-full justify-between text-sm h-9" asChild>
-            <a href="/reports">
-              View Full Report
-              <ChevronRight className="h-4 w-4" />
-            </a>
+          <div className="flex items-center justify-between mb-2">
+            {allFilteredItems.length > 6 && (
+              <span className="text-xs text-muted-foreground">
+                Showing 6 of {allFilteredItems.length} alerts
+              </span>
+            )}
+          </div>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between text-sm h-9"
+            onClick={() => navigate("/reports?tab=expiry")}
+          >
+            View Full Report
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </CardContent>

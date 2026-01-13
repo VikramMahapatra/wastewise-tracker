@@ -1,6 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -221,12 +230,103 @@ const spareUsageData = [
   },
 ];
 
+const ITEMS_PER_PAGE = 10;
+
 export default function Reports() {
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "daily";
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [dateFrom, setDateFrom] = useState("2024-01-15");
   const [dateTo, setDateTo] = useState("2024-01-15");
   const [selectedZone, setSelectedZone] = useState("all");
   const [selectedWard, setSelectedWard] = useState("all");
   const [selectedTruck, setSelectedTruck] = useState("all");
+  
+  // Pagination states for each report
+  const [dailyPage, setDailyPage] = useState(1);
+  const [routePage, setRoutePage] = useState(1);
+  const [truckPage, setTruckPage] = useState(1);
+  const [fuelPage, setFuelPage] = useState(1);
+  const [driverPage, setDriverPage] = useState(1);
+  const [lateArrivalPage, setLateArrivalPage] = useState(1);
+  const [behaviorPage, setBehaviorPage] = useState(1);
+  const [vehicleStatusPage, setVehicleStatusPage] = useState(1);
+  const [spareUsagePage, setSpareUsagePage] = useState(1);
+  const [complaintsPage, setComplaintsPage] = useState(1);
+  const [dumpYardPage, setDumpYardPage] = useState(1);
+  const [expiryTruckPage, setExpiryTruckPage] = useState(1);
+  const [expiryDriverPage, setExpiryDriverPage] = useState(1);
+  
+  // Sync with URL param
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // Pagination helper
+  const paginate = <T,>(data: T[], page: number): T[] => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return data.slice(start, start + ITEMS_PER_PAGE);
+  };
+
+  const getTotalPages = (totalItems: number): number => {
+    return Math.ceil(totalItems / ITEMS_PER_PAGE);
+  };
+
+  const renderPagination = (currentPage: number, totalItems: number, setPage: (page: number) => void) => {
+    const totalPages = getTotalPages(totalItems);
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex items-center justify-between mt-4 pt-4 border-t">
+        <span className="text-sm text-muted-foreground">
+          Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, totalItems)}-{Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} of {totalItems} items
+        </span>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setPage(Math.max(1, currentPage - 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum: number;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              return (
+                <PaginationItem key={pageNum}>
+                  <PaginationLink
+                    onClick={() => setPage(pageNum)}
+                    isActive={currentPage === pageNum}
+                    className="cursor-pointer"
+                  >
+                    {pageNum}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    );
+  };
 
   const handleDownload = (reportType: string, format: string) => {
     // Simulate download
@@ -322,7 +422,7 @@ export default function Reports() {
       </Card>
 
       {/* Report Tabs */}
-      <Tabs defaultValue="daily" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-4 md:grid-cols-12 h-auto gap-1 bg-muted/50 p-1">
           <TabsTrigger value="daily" className="flex items-center gap-1 text-xs md:text-sm">
             <Calendar className="h-3 w-3 md:h-4 md:w-4" />
@@ -463,7 +563,7 @@ export default function Reports() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {dailyCollectionData.map((row) => (
+                    {paginate(dailyCollectionData, dailyPage).map((row) => (
                       <TableRow key={row.id}>
                         <TableCell className="font-medium">{row.date}</TableCell>
                         <TableCell>{row.ward}</TableCell>
@@ -485,6 +585,7 @@ export default function Reports() {
                   </TableBody>
                 </Table>
               </div>
+              {renderPagination(dailyPage, dailyCollectionData.length, setDailyPage)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -1525,10 +1626,15 @@ export default function Reports() {
 
               {/* Truck Insurance & Fitness Table */}
               <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-primary" />
-                  Truck Insurance & Fitness Expiry
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Truck className="h-5 w-5 text-primary" />
+                    Truck Insurance & Fitness Expiry
+                  </h3>
+                  <Badge variant="outline" className="text-xs">
+                    {mockTrucks.length} Trucks
+                  </Badge>
+                </div>
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
@@ -1543,7 +1649,7 @@ export default function Reports() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockTrucks.map((truck) => {
+                      {paginate(mockTrucks, expiryTruckPage).map((truck) => {
                         const today = new Date();
                         const insuranceDays = differenceInDays(parseISO(truck.insuranceExpiry), today);
                         const fitnessDays = differenceInDays(parseISO(truck.fitnessExpiry), today);
@@ -1570,14 +1676,20 @@ export default function Reports() {
                     </TableBody>
                   </Table>
                 </div>
+                {renderPagination(expiryTruckPage, mockTrucks.length, setExpiryTruckPage)}
               </div>
 
               {/* Driver License Table */}
               <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <IdCard className="h-5 w-5 text-primary" />
-                  Driver License Expiry
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <IdCard className="h-5 w-5 text-primary" />
+                    Driver License Expiry
+                  </h3>
+                  <Badge variant="outline" className="text-xs">
+                    {mockDrivers.length} Drivers
+                  </Badge>
+                </div>
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
@@ -1592,7 +1704,7 @@ export default function Reports() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockDrivers.map((driver) => {
+                      {paginate(mockDrivers, expiryDriverPage).map((driver) => {
                         const today = new Date();
                         const licenseDays = differenceInDays(parseISO(driver.licenseExpiry), today);
                         
@@ -1620,6 +1732,7 @@ export default function Reports() {
                     </TableBody>
                   </Table>
                 </div>
+                {renderPagination(expiryDriverPage, mockDrivers.length, setExpiryDriverPage)}
               </div>
             </CardContent>
           </Card>
