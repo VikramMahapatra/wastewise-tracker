@@ -1,5 +1,6 @@
 import { Truck, TrendingUp, AlertTriangle, CheckCircle2, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const stats = [
   {
@@ -13,6 +14,7 @@ const stats = [
     trend: "+2",
     trendUp: true,
     trendLabel: "from yesterday",
+    route: "/active-trucks",
   },
   {
     label: "Trips Completed",
@@ -25,6 +27,7 @@ const stats = [
     trend: "87%",
     trendUp: true,
     trendLabel: "of daily target",
+    route: "/trips-completed",
   },
   {
     label: "Active Alerts",
@@ -36,6 +39,7 @@ const stats = [
     trend: "-3",
     trendUp: false,
     trendLabel: "from 1hr ago",
+    route: "/active-alerts",
   },
   {
     label: "Collection Rate",
@@ -47,10 +51,13 @@ const stats = [
     trend: "+5%",
     trendUp: true,
     trendLabel: "vs last week",
+    route: "/collection-rate",
   },
 ];
 
 const FleetStats = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, index) => {
@@ -58,7 +65,8 @@ const FleetStats = () => {
         return (
           <Card
             key={index}
-            className={`p-5 hover:shadow-lg transition-all duration-300 border-l-4 ${stat.borderColor} bg-card/80 backdrop-blur-sm`}
+            className={`p-5 hover:shadow-lg transition-all duration-300 border-l-4 ${stat.borderColor} bg-card/80 backdrop-blur-sm cursor-pointer hover:scale-[1.02]`}
+            onClick={() => navigate(stat.route)}
           >
             <div className="flex items-start justify-between">
               <div className="space-y-3">
