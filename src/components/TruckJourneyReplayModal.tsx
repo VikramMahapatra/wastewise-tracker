@@ -167,9 +167,15 @@ export function TruckJourneyReplayModal({
       const path = generateRealisticPath(truck.id, selectedDate);
       setPathData(path);
       setIsPlaying(false);
+    }
+  }, [truck, selectedDate, isOpen]);
+
+  // Reset animation when path data changes
+  useEffect(() => {
+    if (pathData.length > 0) {
       reset();
     }
-  }, [truck, selectedDate, isOpen, reset]);
+  }, [pathData.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-pan map to follow truck
   useEffect(() => {

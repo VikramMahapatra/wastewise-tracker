@@ -138,18 +138,20 @@ export function useSmoothTruckAnimation(
 
   // Start/stop animation
   useEffect(() => {
-    if (isPlaying && pathData.length > 0) {
+    if (isPlaying && pathData.length > 0 && progressRef.current < 1) {
       lastTimeRef.current = null;
       animationRef.current = requestAnimationFrame(animate);
     } else {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
     }
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
     };
   }, [isPlaying, animate, pathData.length]);
