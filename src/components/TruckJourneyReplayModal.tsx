@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, RotateCcw, FastForward, Rewind, MapPin, Clock, Navigation } from "lucide-react";
+import { Play, Pause, RotateCcw, FastForward, Rewind, MapPin, Clock, Navigation, Gauge, Route, Timer, Maximize2, Minimize2 } from "lucide-react";
 import { TruckData, generateHistoricalPath, KHARADI_CENTER, gcpLocations, pickupPoints } from "@/data/fleetData";
 import { useSmoothTruckAnimation } from "@/hooks/useSmoothTruckAnimation";
 
@@ -16,6 +16,7 @@ interface TruckJourneyReplayModalProps {
 }
 
 const containerStyle = { width: '100%', height: '450px' };
+const expandedContainerStyle = { width: '100%', height: '70vh' };
 
 // Create a rotated truck icon for smooth animation
 function createAnimatedTruckIcon(bearing: number, truckType: string): string {
@@ -124,6 +125,9 @@ function generateRealisticPath(truckId: string, date: string): { lat: number; ln
   return path;
 }
 
+// Speed options for playback
+const SPEED_OPTIONS = [0.5, 1, 2, 4, 8];
+
 export function TruckJourneyReplayModal({ 
   truck, 
   isOpen, 
@@ -135,6 +139,7 @@ export function TruckJourneyReplayModal({
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [mapRef, setMapRef] = useState<google.maps.Map | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Route waypoints (pickup points + GCP)
   const routeWaypoints = useMemo(() => {
@@ -197,8 +202,14 @@ export function TruckJourneyReplayModal({
     setIsPlaying(false);
   };
 
-  const handleSpeedChange = () => {
-    setPlaybackSpeed((prev) => (prev >= 4 ? 0.5 : prev * 2));
+  const handleSpeedChange = (speed: number) => {
+    setPlaybackSpeed(speed);
+  };
+
+  const cycleSpeed = () => {
+    const currentIndex = SPEED_OPTIONS.indexOf(playbackSpeed);
+    const nextIndex = (currentIndex + 1) % SPEED_OPTIONS.length;
+    setPlaybackSpeed(SPEED_OPTIONS[nextIndex]);
   };
 
   const handleSkipBack = () => {
@@ -218,6 +229,7 @@ export function TruckJourneyReplayModal({
 
   const handleClose = () => {
     setIsPlaying(false);
+    setIsExpanded(false);
     reset();
     onClose();
   };
@@ -242,17 +254,70 @@ export function TruckJourneyReplayModal({
   const startTime = pathData[0]?.timestamp?.split(' ')[1] || '--:--';
   const endTime = pathData[pathData.length - 1]?.timestamp?.split(' ')[1] || '--:--';
 
+  // Calculate real-time stats
+  const calculateStats = () => {
+    // Calculate current speed based on segment distance and time
+    const baseSpeed = 25 + Math.random() * 15; // Simulated speed 25-40 km/h
+    const currentSpeed = isPlaying ? baseSpeed.toFixed(1) : '0.0';
+    
+    // Calculate total distance and traveled distance
+    const totalDistanceKm = 8.5; // Approximate total route distance
+    const traveledDistanceKm = (totalDistanceKm * progress).toFixed(2);
+    
+    // Calculate elapsed time based on timestamps
+    const parseTime = (timeStr: string) => {
+      const [h, m, s] = timeStr.split(':').map(Number);
+      return h * 60 + m + s / 60;
+    };
+    
+    const startMinutes = parseTime(startTime);
+    const currentMinutes = parseTime(currentTime);
+    const elapsedMinutes = currentMinutes - startMinutes;
+    const elapsedHours = Math.floor(elapsedMinutes / 60);
+    const elapsedMins = Math.floor(elapsedMinutes % 60);
+    
+    // Calculate wait time at pickup points (5 min each)
+    const visitedCount = visitedWaypoints.filter(Boolean).length;
+    const totalWaitTime = visitedCount * 5;
+    
+    // Calculate average speed
+    const avgSpeed = elapsedMinutes > 0 
+      ? ((parseFloat(traveledDistanceKm) / (elapsedMinutes / 60))).toFixed(1)
+      : '0.0';
+    
+    return {
+      currentSpeed,
+      traveledDistanceKm,
+      totalDistanceKm: totalDistanceKm.toFixed(2),
+      elapsedTime: `${elapsedHours}h ${elapsedMins}m`,
+      totalWaitTime: `${totalWaitTime} min`,
+      avgSpeed,
+      remainingDistance: (totalDistanceKm - parseFloat(traveledDistanceKm)).toFixed(2),
+    };
+  };
+
+  const stats = calculateStats();
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden">
+      <DialogContent className={`${isExpanded ? 'max-w-[95vw] max-h-[95vh]' : 'max-w-5xl max-h-[95vh]'} overflow-hidden transition-all duration-300`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <Navigation className="h-5 w-5 text-primary" />
             Journey Replay - {truck.truckNumber}
             <Badge variant="outline" className="capitalize ml-2">{truck.truckType}</Badge>
-            <Badge variant="secondary" className="ml-auto">
+            <Badge variant="secondary" className="ml-2">
               {(progress * 100).toFixed(0)}% Complete
             </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-auto"
+              onClick={() => setIsExpanded(!isExpanded)}
+              title={isExpanded ? "Minimize" : "Expand"}
+            >
+              {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
           </DialogTitle>
         </DialogHeader>
 
@@ -260,7 +325,7 @@ export function TruckJourneyReplayModal({
           {/* Map Container */}
           <div className="rounded-lg overflow-hidden border border-border relative">
             <GoogleMap
-              mapContainerStyle={containerStyle}
+              mapContainerStyle={isExpanded ? expandedContainerStyle : containerStyle}
               center={currentPosition.lat !== 0 ? currentPosition : KHARADI_CENTER}
               zoom={16}
               onLoad={onMapLoad}
@@ -270,7 +335,7 @@ export function TruckJourneyReplayModal({
                   { featureType: "transit", stylers: [{ visibility: "off" }] },
                 ],
                 streetViewControl: false,
-                fullscreenControl: false,
+                fullscreenControl: true,
                 mapTypeControl: false,
               }}
             >
@@ -376,11 +441,51 @@ export function TruckJourneyReplayModal({
               )}
             </GoogleMap>
 
-            {/* Speed indicator overlay */}
-            <div className="absolute top-3 right-3 bg-background/90 backdrop-blur rounded-lg px-3 py-2 shadow-lg">
+            {/* Stats overlay */}
+            <div className="absolute top-3 right-3 bg-background/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-border min-w-[180px]">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Gauge className="h-3.5 w-3.5" />
+                    <span>Speed</span>
+                  </div>
+                  <span className="font-mono font-bold text-primary">{stats.currentSpeed} km/h</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Route className="h-3.5 w-3.5" />
+                    <span>Distance</span>
+                  </div>
+                  <span className="font-mono text-sm">{stats.traveledDistanceKm}/{stats.totalDistanceKm} km</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Timer className="h-3.5 w-3.5" />
+                    <span>Elapsed</span>
+                  </div>
+                  <span className="font-mono text-sm">{stats.elapsedTime}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span>Wait Time</span>
+                  </div>
+                  <span className="font-mono text-sm text-amber-500">{stats.totalWaitTime}</span>
+                </div>
+                <div className="border-t border-border pt-2 mt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Avg Speed</span>
+                    <span className="font-mono text-sm text-green-500">{stats.avgSpeed} km/h</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Playback speed badge */}
+            <div className="absolute top-3 left-3 bg-background/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-border">
               <div className="flex items-center gap-2 text-sm">
                 <Navigation className="h-4 w-4 text-primary" style={{ transform: `rotate(${bearing}deg)` }} />
-                <span className="font-medium">{playbackSpeed}x Speed</span>
+                <span className="font-bold">{playbackSpeed}x</span>
               </div>
             </div>
           </div>
@@ -472,14 +577,20 @@ export function TruckJourneyReplayModal({
               <FastForward className="h-4 w-4" />
             </Button>
 
-            <Button
-              variant="outline"
-              onClick={handleSpeedChange}
-              className="min-w-[70px] font-mono"
-              title="Playback Speed"
-            >
-              {playbackSpeed}x
-            </Button>
+            {/* Speed selector buttons */}
+            <div className="flex items-center gap-1 ml-2 bg-muted rounded-lg p-1">
+              {SPEED_OPTIONS.map((speed) => (
+                <Button
+                  key={speed}
+                  variant={playbackSpeed === speed ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handleSpeedChange(speed)}
+                  className={`min-w-[45px] font-mono text-xs ${playbackSpeed === speed ? '' : 'hover:bg-background'}`}
+                >
+                  {speed}x
+                </Button>
+              ))}
+            </div>
           </div>
 
           {/* Journey Info */}
