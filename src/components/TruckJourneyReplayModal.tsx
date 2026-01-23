@@ -15,8 +15,11 @@ interface TruckJourneyReplayModalProps {
   selectedDate: string;
 }
 
-const containerStyle = { width: '100%', height: '450px' };
-const expandedContainerStyle = { width: '100%', height: '70vh' };
+const containerStyle = { width: '100%', height: '100%' };
+const expandedContainerStyle = { width: '100%', height: '100%' };
+
+// Number of trail points to show behind the truck
+const TRAIL_LENGTH = 8;
 
 // Create a rotated truck icon for smooth animation
 function createAnimatedTruckIcon(bearing: number, truckType: string): string {
@@ -298,10 +301,21 @@ export function TruckJourneyReplayModal({
 
   const stats = calculateStats();
 
+  // Generate trail points for visual effect
+  const trailPoints = useMemo(() => {
+    if (progressIndex < 1) return [];
+    const startIdx = Math.max(0, progressIndex - TRAIL_LENGTH);
+    return pathData.slice(startIdx, progressIndex).map((p, idx) => ({
+      lat: p.lat,
+      lng: p.lng,
+      opacity: (idx + 1) / TRAIL_LENGTH, // Fade effect
+    }));
+  }, [progressIndex, pathData]);
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={`${isExpanded ? 'max-w-[95vw] max-h-[95vh]' : 'max-w-5xl max-h-[95vh]'} overflow-hidden transition-all duration-300`}>
-        <DialogHeader>
+      <DialogContent className={`${isExpanded ? 'max-w-[95vw] h-[95vh]' : 'max-w-5xl h-[85vh]'} flex flex-col overflow-hidden transition-all duration-300`}>
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-3">
             <Navigation className="h-5 w-5 text-primary" />
             Journey Replay - {truck.truckNumber}
@@ -321,9 +335,9 @@ export function TruckJourneyReplayModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Map Container */}
-          <div className="rounded-lg overflow-hidden border border-border relative">
+        <div className="flex flex-col flex-1 min-h-0 gap-3">
+          {/* Map Container - Takes remaining space */}
+          <div className="flex-1 min-h-0 rounded-lg overflow-hidden border border-border relative">
             <GoogleMap
               mapContainerStyle={isExpanded ? expandedContainerStyle : containerStyle}
               center={currentPosition.lat !== 0 ? currentPosition : KHARADI_CENTER}
@@ -425,6 +439,24 @@ export function TruckJourneyReplayModal({
                     />
                   )}
 
+                  {/* Trail Effect - Fading circles behind truck */}
+                  {trailPoints.map((point, idx) => (
+                    <Marker
+                      key={`trail-${idx}`}
+                      position={{ lat: point.lat, lng: point.lng }}
+                      icon={{
+                        path: window.google.maps.SymbolPath.CIRCLE,
+                        scale: 4 + (point.opacity * 4),
+                        fillColor: truck.truckType === 'primary' ? '#22c55e' : '#3b82f6',
+                        fillOpacity: point.opacity * 0.6,
+                        strokeColor: 'white',
+                        strokeWeight: 1,
+                        strokeOpacity: point.opacity * 0.4,
+                      }}
+                      zIndex={5}
+                    />
+                  ))}
+
                   {/* Animated Truck Marker */}
                   {currentPosition.lat !== 0 && (
                     <Marker
@@ -490,44 +522,46 @@ export function TruckJourneyReplayModal({
             </div>
           </div>
 
-          {/* Time Display */}
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>{startTime}</span>
-            </div>
-            <div className="text-center">
-              <Badge variant="secondary" className="text-lg px-4 py-1 font-mono">
-                {currentTime}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <span>{endTime}</span>
-              <Clock className="h-4 w-4" />
-            </div>
-          </div>
-
-          {/* Progress Slider */}
-          <div className="px-2">
-            <Slider
-              value={[progress * 100]}
-              max={100}
-              step={0.5}
-              onValueChange={handleSliderChange}
-              className="cursor-pointer"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>Start</span>
-              <div className="flex gap-4">
-                {routeWaypoints.map((wp, idx) => (
-                  <span key={wp.id} className={visitedWaypoints[idx] ? 'text-green-500' : ''}>
-                    {wp.name.split(' ')[0]} {visitedWaypoints[idx] ? '✓' : '○'}
-                  </span>
-                ))}
+          {/* Controls Section - Fixed at bottom */}
+          <div className="flex-shrink-0 space-y-3">
+            {/* Time Display */}
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span>{startTime}</span>
               </div>
-              <span>GCP</span>
+              <div className="text-center">
+                <Badge variant="secondary" className="text-lg px-4 py-1 font-mono">
+                  {currentTime}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>{endTime}</span>
+                <Clock className="h-4 w-4" />
+              </div>
             </div>
-          </div>
+
+            {/* Progress Slider */}
+            <div className="px-2">
+              <Slider
+                value={[progress * 100]}
+                max={100}
+                step={0.5}
+                onValueChange={handleSliderChange}
+                className="cursor-pointer"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>Start</span>
+                <div className="flex gap-4">
+                  {routeWaypoints.map((wp, idx) => (
+                    <span key={wp.id} className={visitedWaypoints[idx] ? 'text-green-500' : ''}>
+                      {wp.name.split(' ')[0]} {visitedWaypoints[idx] ? '✓' : '○'}
+                    </span>
+                  ))}
+                </div>
+                <span>GCP</span>
+              </div>
+            </div>
 
           {/* Playback Controls */}
           <div className="flex items-center justify-center gap-3">
@@ -593,31 +627,32 @@ export function TruckJourneyReplayModal({
             </div>
           </div>
 
-          {/* Journey Info */}
-          <div className="grid grid-cols-5 gap-4 p-3 bg-muted/50 rounded-lg text-sm">
-            <div>
-              <p className="text-muted-foreground text-xs">Driver</p>
-              <p className="font-medium truncate">{truck.driver}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Route</p>
-              <p className="font-medium truncate">{truck.route}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Date</p>
-              <p className="font-medium">{selectedDate}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Pickups</p>
-              <p className="font-medium text-green-600">
-                {visitedWaypoints.filter(Boolean).length}/{routeWaypoints.length}
-              </p>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Status</p>
-              <Badge variant={isComplete ? "default" : isPlaying ? "secondary" : "outline"} className="text-xs">
-                {isComplete ? "Completed" : isPlaying ? "Playing" : "Paused"}
-              </Badge>
+            {/* Journey Info */}
+            <div className="grid grid-cols-5 gap-4 p-3 bg-muted/50 rounded-lg text-sm">
+              <div>
+                <p className="text-muted-foreground text-xs">Driver</p>
+                <p className="font-medium truncate">{truck.driver}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Route</p>
+                <p className="font-medium truncate">{truck.route}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Date</p>
+                <p className="font-medium">{selectedDate}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Pickups</p>
+                <p className="font-medium text-green-600">
+                  {visitedWaypoints.filter(Boolean).length}/{routeWaypoints.length}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Status</p>
+                <Badge variant={isComplete ? "default" : isPlaying ? "secondary" : "outline"} className="text-xs">
+                  {isComplete ? "Completed" : isPlaying ? "Playing" : "Paused"}
+                </Badge>
+              </div>
             </div>
           </div>
         </div>
