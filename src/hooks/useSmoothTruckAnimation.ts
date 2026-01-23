@@ -56,6 +56,12 @@ export function useSmoothTruckAnimation(
   const lastTimeRef = useRef<number | null>(null);
   const targetBearingRef = useRef(0);
   const currentBearingRef = useRef(0);
+  const playbackSpeedRef = useRef(playbackSpeed);
+  
+  // Keep playback speed ref updated
+  useEffect(() => {
+    playbackSpeedRef.current = playbackSpeed;
+  }, [playbackSpeed]);
 
   // Calculate interpolated position
   const getInterpolatedPosition = useCallback((progress: number) => {
@@ -106,7 +112,7 @@ export function useSmoothTruckAnimation(
 
     // Speed: complete entire journey in ~20 seconds at 1x speed
     const baseSpeed = 0.05; // 5% per second at 1x
-    const speed = baseSpeed * playbackSpeed;
+    const speed = baseSpeed * playbackSpeedRef.current;
 
     progressRef.current = Math.min(progressRef.current + speed * deltaTime, 1);
 
@@ -134,11 +140,16 @@ export function useSmoothTruckAnimation(
     }
 
     animationRef.current = requestAnimationFrame(animate);
-  }, [playbackSpeed, getInterpolatedPosition, smoothBearing, onComplete]);
+  }, [getInterpolatedPosition, smoothBearing, onComplete]);
 
   // Start/stop animation
   useEffect(() => {
-    if (isPlaying && pathData.length > 0 && progressRef.current < 1) {
+    if (isPlaying && pathData.length > 0) {
+      // If animation completed, don't restart automatically
+      // User must use reset or setProgress to restart
+      if (progressRef.current >= 1) {
+        return;
+      }
       lastTimeRef.current = null;
       animationRef.current = requestAnimationFrame(animate);
     } else {
@@ -154,7 +165,7 @@ export function useSmoothTruckAnimation(
         animationRef.current = null;
       }
     };
-  }, [isPlaying, animate, pathData.length]);
+  }, [isPlaying, pathData.length]); // Removed animate from deps to prevent re-triggering
 
   // Initialize position
   useEffect(() => {
