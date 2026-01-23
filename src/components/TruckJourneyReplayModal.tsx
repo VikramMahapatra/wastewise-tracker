@@ -333,9 +333,9 @@ export function TruckJourneyReplayModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col flex-1 min-h-0 gap-3">
-          {/* Map Container - Takes remaining space */}
-          <div className="flex-1 min-h-0 rounded-lg overflow-hidden border border-border relative">
+        <div className="flex flex-col flex-1 min-h-0 gap-2">
+          {/* Map Container - Takes 75% of available space */}
+          <div className="flex-[3] min-h-0 rounded-lg overflow-hidden border border-border relative">
             <GoogleMap
               mapContainerStyle={isExpanded ? expandedContainerStyle : containerStyle}
               center={currentPosition.lat !== 0 ? currentPosition : KHARADI_CENTER}
@@ -349,6 +349,11 @@ export function TruckJourneyReplayModal({
                 streetViewControl: false,
                 fullscreenControl: true,
                 mapTypeControl: false,
+                zoomControl: true,
+                zoomControlOptions: {
+                  position: typeof google !== 'undefined' ? google.maps.ControlPosition.RIGHT_CENTER : undefined,
+                },
+                gestureHandling: 'greedy',
               }}
             >
               {isMapLoaded && window.google && (
@@ -520,133 +525,121 @@ export function TruckJourneyReplayModal({
             </div>
           </div>
 
-          {/* Controls Section - Fixed at bottom */}
-          <div className="flex-shrink-0 space-y-3">
-            {/* Time Display */}
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="h-4 w-4" />
+          {/* Controls Section - Compact at bottom */}
+          <div className="flex-shrink-0 space-y-2 pb-1">
+            {/* Time Display + Progress Slider Combined */}
+            <div className="flex items-center gap-3 px-2">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
+                <Clock className="h-3.5 w-3.5" />
                 <span>{startTime}</span>
               </div>
-              <div className="text-center">
-                <Badge variant="secondary" className="text-lg px-4 py-1 font-mono">
-                  {currentTime}
-                </Badge>
+              <div className="flex-1">
+                <Slider
+                  value={[progress * 100]}
+                  max={100}
+                  step={0.5}
+                  onValueChange={handleSliderChange}
+                  className="cursor-pointer"
+                />
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <Badge variant="secondary" className="text-sm px-2 py-0.5 font-mono">
+                {currentTime}
+              </Badge>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
                 <span>{endTime}</span>
-                <Clock className="h-4 w-4" />
               </div>
             </div>
 
-            {/* Progress Slider */}
-            <div className="px-2">
-              <Slider
-                value={[progress * 100]}
-                max={100}
-                step={0.5}
-                onValueChange={handleSliderChange}
-                className="cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                <span>Start</span>
-                <div className="flex gap-4">
-                  {routeWaypoints.map((wp, idx) => (
-                    <span key={wp.id} className={visitedWaypoints[idx] ? 'text-green-500' : ''}>
-                      {wp.name.split(' ')[0]} {visitedWaypoints[idx] ? '✓' : '○'}
-                    </span>
+            {/* Playback Controls + Info Row */}
+            <div className="flex items-center justify-between gap-4 px-2">
+              {/* Journey Info - Left side */}
+              <div className="flex items-center gap-4 text-xs">
+                <div>
+                  <span className="text-muted-foreground">Driver: </span>
+                  <span className="font-medium">{truck.driver}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Route: </span>
+                  <span className="font-medium">{truck.route}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Pickups: </span>
+                  <span className="font-medium text-green-600">
+                    {visitedWaypoints.filter(Boolean).length}/{routeWaypoints.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Playback Controls - Center */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRestart}
+                  title="Restart"
+                  className="h-8 w-8 p-0"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSkipBack}
+                  title="Skip Back 10%"
+                  className="h-8 w-8 p-0"
+                >
+                  <Rewind className="h-3.5 w-3.5" />
+                </Button>
+
+                {isPlaying ? (
+                  <Button
+                    size="default"
+                    onClick={handlePause}
+                    className="w-10 h-10 rounded-full shadow-md"
+                  >
+                    <Pause className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    size="default"
+                    onClick={handlePlay}
+                    className="w-10 h-10 rounded-full shadow-md"
+                    disabled={isComplete}
+                  >
+                    <Play className="h-4 w-4 ml-0.5" />
+                  </Button>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSkipForward}
+                  title="Skip Forward 10%"
+                  className="h-8 w-8 p-0"
+                >
+                  <FastForward className="h-3.5 w-3.5" />
+                </Button>
+
+                {/* Speed selector buttons */}
+                <div className="flex items-center gap-0.5 ml-1 bg-muted rounded-md p-0.5">
+                  {SPEED_OPTIONS.map((speed) => (
+                    <Button
+                      key={speed}
+                      variant={playbackSpeed === speed ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => handleSpeedChange(speed)}
+                      className={`min-w-[36px] h-7 font-mono text-xs px-1.5 ${playbackSpeed === speed ? '' : 'hover:bg-background'}`}
+                    >
+                      {speed}x
+                    </Button>
                   ))}
                 </div>
-                <span>GCP</span>
               </div>
-            </div>
 
-          {/* Playback Controls */}
-          <div className="flex items-center justify-center gap-3">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleRestart}
-              title="Restart"
-            >
-              <RotateCcw className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleSkipBack}
-              title="Skip Back 10%"
-            >
-              <Rewind className="h-4 w-4" />
-            </Button>
-
-            {isPlaying ? (
-              <Button
-                size="lg"
-                onClick={handlePause}
-                className="w-16 h-16 rounded-full shadow-lg"
-              >
-                <Pause className="h-6 w-6" />
-              </Button>
-            ) : (
-              <Button
-                size="lg"
-                onClick={handlePlay}
-                className="w-16 h-16 rounded-full shadow-lg"
-                disabled={isComplete}
-              >
-                <Play className="h-6 w-6 ml-1" />
-              </Button>
-            )}
-
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleSkipForward}
-              title="Skip Forward 10%"
-            >
-              <FastForward className="h-4 w-4" />
-            </Button>
-
-            {/* Speed selector buttons */}
-            <div className="flex items-center gap-1 ml-2 bg-muted rounded-lg p-1">
-              {SPEED_OPTIONS.map((speed) => (
-                <Button
-                  key={speed}
-                  variant={playbackSpeed === speed ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handleSpeedChange(speed)}
-                  className={`min-w-[45px] font-mono text-xs ${playbackSpeed === speed ? '' : 'hover:bg-background'}`}
-                >
-                  {speed}x
-                </Button>
-              ))}
-            </div>
-          </div>
-
-            {/* Journey Info */}
-            <div className="grid grid-cols-5 gap-4 p-3 bg-muted/50 rounded-lg text-sm">
-              <div>
-                <p className="text-muted-foreground text-xs">Driver</p>
-                <p className="font-medium truncate">{truck.driver}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Route</p>
-                <p className="font-medium truncate">{truck.route}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Date</p>
-                <p className="font-medium">{selectedDate}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Pickups</p>
-                <p className="font-medium text-green-600">
-                  {visitedWaypoints.filter(Boolean).length}/{routeWaypoints.length}
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Status</p>
+              {/* Status - Right side */}
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-muted-foreground">{selectedDate}</span>
                 <Badge variant={isComplete ? "default" : isPlaying ? "secondary" : "outline"} className="text-xs">
                   {isComplete ? "Completed" : isPlaying ? "Playing" : "Paused"}
                 </Badge>
