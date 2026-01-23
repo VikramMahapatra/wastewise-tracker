@@ -301,16 +301,14 @@ export function TruckJourneyReplayModal({
 
   const stats = calculateStats();
 
-  // Generate trail points for visual effect
-  const trailPoints = useMemo(() => {
-    if (progressIndex < 1) return [];
-    const startIdx = Math.max(0, progressIndex - TRAIL_LENGTH);
-    return pathData.slice(startIdx, progressIndex).map((p, idx) => ({
-      lat: p.lat,
-      lng: p.lng,
-      opacity: (idx + 1) / TRAIL_LENGTH, // Fade effect
-    }));
-  }, [progressIndex, pathData]);
+  // Generate trail points for visual effect (computed inline, not a hook)
+  const trailPoints = progressIndex < 1 
+    ? [] 
+    : pathData.slice(Math.max(0, progressIndex - TRAIL_LENGTH), progressIndex).map((p, idx, arr) => ({
+        lat: p.lat,
+        lng: p.lng,
+        opacity: (idx + 1) / arr.length,
+      }));
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
