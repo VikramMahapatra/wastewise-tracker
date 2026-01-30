@@ -4,6 +4,7 @@ import MapView from "@/components/MapView";
 import TruckList from "@/components/TruckList";
 import AlertsPanel from "@/components/AlertsPanel";
 import ExpiryAlerts from "@/components/ExpiryAlerts";
+import OperationalStats from "@/components/OperationalStats";
 import { Card } from "@/components/ui/card";
 import { Activity, Clock, TrendingUp } from "lucide-react";
 
@@ -53,13 +54,16 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Alerts Section */}
+        {/* Alerts & Stats Section */}
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 lg:col-span-6">
+          <div className="col-span-12 lg:col-span-4">
             <AlertsPanel />
           </div>
-          <div className="col-span-12 lg:col-span-6">
+          <div className="col-span-12 lg:col-span-4">
             <ExpiryAlerts />
+          </div>
+          <div className="col-span-12 lg:col-span-4">
+            <OperationalStats />
           </div>
         </div>
 
