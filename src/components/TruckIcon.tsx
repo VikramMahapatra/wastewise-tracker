@@ -53,24 +53,62 @@ export const TruckIcon = ({ status, type, size = 32, className = "" }: TruckIcon
   );
 };
 
-// SVG data URL for Google Maps marker
+// SVG data URL for Google Maps marker - Realistic garbage truck
 export const createTruckMarkerIcon = (status: TruckStatus, type: TruckType): string => {
   const color = statusColors[status];
   const typeLabel = type === "primary" ? "P" : "S";
+  const typeBgColor = type === "primary" ? "#1e40af" : "#7c3aed";
   
   const svg = `
-    <svg width="40" height="48" viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+    <svg width="48" height="56" viewBox="0 0 48 56" xmlns="http://www.w3.org/2000/svg">
       <!-- Shadow -->
-      <ellipse cx="20" cy="46" rx="8" ry="2" fill="rgba(0,0,0,0.2)"/>
-      <!-- Marker pin -->
-      <path d="M20 0C11.716 0 5 6.716 5 15c0 10.5 15 31 15 31s15-20.5 15-31C35 6.716 28.284 0 20 0z" fill="${color}" stroke="white" stroke-width="2"/>
-      <!-- Truck icon inside -->
-      <rect x="11" y="9" width="12" height="8" rx="1" fill="white"/>
-      <rect x="19" y="7" width="6" height="10" rx="1" fill="white"/>
-      <circle cx="14" cy="19" r="2" fill="white"/>
-      <circle cx="22" cy="19" r="2" fill="white"/>
-      <!-- Type label -->
-      <text x="17" y="15" font-size="6" fill="${color}" font-weight="bold">${typeLabel}</text>
+      <ellipse cx="24" cy="54" rx="10" ry="2.5" fill="rgba(0,0,0,0.25)"/>
+      
+      <!-- Main pin background -->
+      <path d="M24 0C14.059 0 6 8.059 6 18c0 12.5 18 36 18 36s18-23.5 18-36C42 8.059 33.941 0 24 0z" fill="${color}" stroke="white" stroke-width="2.5"/>
+      
+      <!-- Garbage truck body - compactor style -->
+      <g transform="translate(9, 6)">
+        <!-- Truck bed/compactor -->
+        <rect x="0" y="8" width="18" height="12" rx="1.5" fill="white" opacity="0.95"/>
+        <rect x="1" y="9" width="16" height="10" rx="1" fill="${color}" opacity="0.3"/>
+        
+        <!-- Hydraulic lines on compactor -->
+        <line x1="3" y1="11" x2="3" y2="17" stroke="white" stroke-width="0.8" opacity="0.7"/>
+        <line x1="15" y1="11" x2="15" y2="17" stroke="white" stroke-width="0.8" opacity="0.7"/>
+        
+        <!-- Cab -->
+        <rect x="18" y="6" width="10" height="14" rx="2" fill="white" opacity="0.95"/>
+        
+        <!-- Windshield -->
+        <rect x="20" y="8" width="6" height="5" rx="1" fill="${color}" opacity="0.4"/>
+        <rect x="20.5" y="8.5" width="5" height="4" rx="0.5" fill="white" opacity="0.3"/>
+        
+        <!-- Door -->
+        <rect x="20" y="14" width="6" height="5" rx="0.5" fill="white" opacity="0.6" stroke="${color}" stroke-width="0.3" stroke-opacity="0.5"/>
+        
+        <!-- Side mirror -->
+        <rect x="18" y="10" width="1.5" height="2" rx="0.3" fill="white" opacity="0.8"/>
+        
+        <!-- Wheels -->
+        <circle cx="5" cy="22" r="3.5" fill="#1f2937"/>
+        <circle cx="5" cy="22" r="2" fill="#4b5563"/>
+        <circle cx="5" cy="22" r="0.8" fill="#1f2937"/>
+        
+        <circle cx="23" cy="22" r="3.5" fill="#1f2937"/>
+        <circle cx="23" cy="22" r="2" fill="#4b5563"/>
+        <circle cx="23" cy="22" r="0.8" fill="#1f2937"/>
+        
+        <!-- Headlight -->
+        <circle cx="27" y="16" r="1.2" fill="#fbbf24" opacity="0.9"/>
+      </g>
+      
+      <!-- Type badge -->
+      <circle cx="38" cy="8" r="7" fill="${typeBgColor}" stroke="white" stroke-width="2"/>
+      <text x="38" y="11" font-size="8" fill="white" font-weight="bold" text-anchor="middle" font-family="Arial, sans-serif">${typeLabel}</text>
+      
+      <!-- Status pulse for moving trucks -->
+      ${status === "moving" ? `<circle cx="38" cy="8" r="7" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"><animate attributeName="r" values="7;12;7" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite"/></circle>` : ''}
     </svg>
   `;
   

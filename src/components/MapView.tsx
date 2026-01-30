@@ -50,11 +50,8 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>("all");
   const [selectedVendor, setSelectedVendor] = useState<string>("all");
 
-  // Get unique vehicle types
-  const vehicleTypes = useMemo(() => {
-    const types = new Set(mockTrucks.map(t => t.type));
-    return Array.from(types);
-  }, []);
+  // Route types for filter
+  const routeTypes = ["primary", "secondary"];
 
   // Filter wards based on selected zone
   const filteredWards = useMemo(() => {
@@ -67,7 +64,7 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
     return trucks.filter(truck => {
       if (selectedZone !== "all" && truck.zoneId !== selectedZone) return false;
       if (selectedWard !== "all" && truck.wardId !== selectedWard) return false;
-      if (selectedVehicleType !== "all" && truck.vehicleType !== selectedVehicleType) return false;
+      if (selectedVehicleType !== "all" && truck.routeType !== selectedVehicleType) return false;
       if (selectedVendor !== "all" && truck.vendorId !== selectedVendor) return false;
       return true;
     });
@@ -111,7 +108,7 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Navigation className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">Live Fleet Map - Kharadi, Pune</h2>
+            <h2 className="text-lg font-semibold text-foreground">Live Fleet Map</h2>
           </div>
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-7 text-xs">
@@ -155,8 +152,8 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              {vehicleTypes.map(type => (
-                <SelectItem key={type} value={type} className="capitalize">{type.replace('-', ' ')}</SelectItem>
+              {routeTypes.map(type => (
+                <SelectItem key={type} value={type} className="capitalize">{type}</SelectItem>
               ))}
             </SelectContent>
           </Select>
