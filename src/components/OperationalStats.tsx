@@ -15,16 +15,19 @@ import {
   Route, 
   UserCheck,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  ChevronRight
 } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 const OperationalStats = () => {
+  const navigate = useNavigate();
   // Calculate stats
   const activeZones = mockZones.filter(z => z.status === 'active').length;
   const activeWards = mockWards.filter(w => w.status === 'active').length;
@@ -66,12 +69,12 @@ const OperationalStats = () => {
   };
 
   const stats = [
-    { label: "Zones", value: activeZones, total: mockZones.length, icon: MapPin, color: "text-chart-1", bgColor: "bg-chart-1/10" },
-    { label: "Wards", value: activeWards, total: mockWards.length, icon: Building2, color: "text-chart-2", bgColor: "bg-chart-2/10" },
-    { label: "Vendors", value: activeVendors, total: mockVendors.length, icon: Users, color: "text-chart-3", bgColor: "bg-chart-3/10" },
-    { label: "Trucks", value: activeTrucks, total: mockTrucks.length, icon: Truck, color: "text-chart-4", bgColor: "bg-chart-4/10" },
-    { label: "Drivers", value: activeDrivers, total: mockDrivers.length, icon: UserCheck, color: "text-primary", bgColor: "bg-primary/10" },
-    { label: "Routes", value: activeRoutes, total: mockRoutes.length, icon: Route, color: "text-chart-5", bgColor: "bg-chart-5/10" },
+    { label: "Zones", value: activeZones, total: mockZones.length, icon: MapPin, color: "text-chart-1", bgColor: "bg-chart-1/10", route: "/master/zones-wards" },
+    { label: "Wards", value: activeWards, total: mockWards.length, icon: Building2, color: "text-chart-2", bgColor: "bg-chart-2/10", route: "/master/zones-wards" },
+    { label: "Vendors", value: activeVendors, total: mockVendors.length, icon: Users, color: "text-chart-3", bgColor: "bg-chart-3/10", route: "/master/vendors" },
+    { label: "Trucks", value: activeTrucks, total: mockTrucks.length, icon: Truck, color: "text-chart-4", bgColor: "bg-chart-4/10", route: "/master/trucks" },
+    { label: "Drivers", value: activeDrivers, total: mockDrivers.length, icon: UserCheck, color: "text-primary", bgColor: "bg-primary/10", route: "/master/drivers" },
+    { label: "Routes", value: activeRoutes, total: mockRoutes.length, icon: Route, color: "text-chart-5", bgColor: "bg-chart-5/10", route: "/master/routes-pickups" },
   ];
 
   return (
@@ -90,15 +93,17 @@ const OperationalStats = () => {
             return (
               <div 
                 key={index} 
-                className={`${stat.bgColor} rounded-lg p-3 flex items-center gap-2`}
+                className={`${stat.bgColor} rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity group`}
+                onClick={() => navigate(stat.route)}
               >
                 <Icon className={`h-4 w-4 ${stat.color}`} />
-                <div>
+                <div className="flex-1">
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
                   <p className="text-sm font-semibold">
                     {stat.value}<span className="text-xs text-muted-foreground">/{stat.total}</span>
                   </p>
                 </div>
+                <ChevronRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             );
           })}
