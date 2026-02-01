@@ -60,19 +60,19 @@ import { differenceInDays, parseISO, format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 
 // Mock data for reports
-const dailyCollectionData = [
-  { id: 1, date: "2024-01-15", ward: "Kharadi East", zone: "Zone A", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", totalBins: 45, collected: 43, missed: 2, weight: 2.4, status: "completed" },
-  { id: 2, date: "2024-01-15", ward: "Kharadi West", zone: "Zone A", truck: "MH-12-CD-5678", driver: "Amit Singh", totalBins: 52, collected: 52, missed: 0, weight: 2.8, status: "completed" },
-  { id: 3, date: "2024-01-15", ward: "Viman Nagar", zone: "Zone B", truck: "MH-12-EF-9012", driver: "Suresh Patil", totalBins: 38, collected: 35, missed: 3, weight: 1.9, status: "partial" },
-  { id: 4, date: "2024-01-15", ward: "Kalyani Nagar", zone: "Zone B", truck: "MH-12-GH-3456", driver: "Mahesh Yadav", totalBins: 41, collected: 41, missed: 0, weight: 2.2, status: "completed" },
-  { id: 5, date: "2024-01-15", ward: "Wadgaon Sheri", zone: "Zone C", truck: "MH-12-IJ-7890", driver: "Ravi Sharma", totalBins: 35, collected: 30, missed: 5, weight: 1.6, status: "partial" },
-  { id: 6, date: "2024-01-14", ward: "Hadapsar", zone: "Zone C", truck: "MH-12-KL-1122", driver: "Manoj Patil", totalBins: 48, collected: 47, missed: 1, weight: 2.5, status: "completed" },
-  { id: 7, date: "2024-01-14", ward: "Magarpatta", zone: "Zone D", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", totalBins: 55, collected: 50, missed: 5, weight: 2.7, status: "partial" },
-  { id: 8, date: "2024-01-14", ward: "Koregaon Park", zone: "Zone A", truck: "MH-12-OP-5566", driver: "Sunil Yadav", totalBins: 42, collected: 42, missed: 0, weight: 2.3, status: "completed" },
-  { id: 9, date: "2024-01-14", ward: "Mundhwa", zone: "Zone B", truck: "MH-12-QR-7788", driver: "Anil Sharma", totalBins: 39, collected: 37, missed: 2, weight: 2.0, status: "completed" },
-  { id: 10, date: "2024-01-14", ward: "Keshav Nagar", zone: "Zone C", truck: "MH-12-ST-9900", driver: "Deepak Jadhav", totalBins: 44, collected: 40, missed: 4, weight: 2.1, status: "partial" },
-  { id: 11, date: "2024-01-13", ward: "Wagholi", zone: "Zone D", truck: "MH-12-UV-1212", driver: "Vikram Singh", totalBins: 50, collected: 50, missed: 0, weight: 2.6, status: "completed" },
-  { id: 12, date: "2024-01-13", ward: "Lohegaon", zone: "Zone A", truck: "MH-12-WX-3434", driver: "Prakash Rane", totalBins: 36, collected: 34, missed: 2, weight: 1.8, status: "completed" },
+const dailyPickupCoverageData = [
+  { id: 1, date: "2024-01-15", ward: "Kharadi East", zone: "Zone A", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", totalPoints: 45, covered: 43, missed: 2, weight: 2.4, status: "completed" },
+  { id: 2, date: "2024-01-15", ward: "Kharadi West", zone: "Zone A", truck: "MH-12-CD-5678", driver: "Amit Singh", totalPoints: 52, covered: 52, missed: 0, weight: 2.8, status: "completed" },
+  { id: 3, date: "2024-01-15", ward: "Viman Nagar", zone: "Zone B", truck: "MH-12-EF-9012", driver: "Suresh Patil", totalPoints: 38, covered: 35, missed: 3, weight: 1.9, status: "partial" },
+  { id: 4, date: "2024-01-15", ward: "Kalyani Nagar", zone: "Zone B", truck: "MH-12-GH-3456", driver: "Mahesh Yadav", totalPoints: 41, covered: 41, missed: 0, weight: 2.2, status: "completed" },
+  { id: 5, date: "2024-01-15", ward: "Wadgaon Sheri", zone: "Zone C", truck: "MH-12-IJ-7890", driver: "Ravi Sharma", totalPoints: 35, covered: 30, missed: 5, weight: 1.6, status: "partial" },
+  { id: 6, date: "2024-01-14", ward: "Hadapsar", zone: "Zone C", truck: "MH-12-KL-1122", driver: "Manoj Patil", totalPoints: 48, covered: 47, missed: 1, weight: 2.5, status: "completed" },
+  { id: 7, date: "2024-01-14", ward: "Magarpatta", zone: "Zone D", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", totalPoints: 55, covered: 50, missed: 5, weight: 2.7, status: "partial" },
+  { id: 8, date: "2024-01-14", ward: "Koregaon Park", zone: "Zone A", truck: "MH-12-OP-5566", driver: "Sunil Yadav", totalPoints: 42, covered: 42, missed: 0, weight: 2.3, status: "completed" },
+  { id: 9, date: "2024-01-14", ward: "Mundhwa", zone: "Zone B", truck: "MH-12-QR-7788", driver: "Anil Sharma", totalPoints: 39, covered: 37, missed: 2, weight: 2.0, status: "completed" },
+  { id: 10, date: "2024-01-14", ward: "Keshav Nagar", zone: "Zone C", truck: "MH-12-ST-9900", driver: "Deepak Jadhav", totalPoints: 44, covered: 40, missed: 4, weight: 2.1, status: "partial" },
+  { id: 11, date: "2024-01-13", ward: "Wagholi", zone: "Zone D", truck: "MH-12-UV-1212", driver: "Vikram Singh", totalPoints: 50, covered: 50, missed: 0, weight: 2.6, status: "completed" },
+  { id: 12, date: "2024-01-13", ward: "Lohegaon", zone: "Zone A", truck: "MH-12-WX-3434", driver: "Prakash Rane", totalPoints: 36, covered: 34, missed: 2, weight: 1.8, status: "completed" },
 ];
 
 const routePerformanceData = [
@@ -546,8 +546,8 @@ export default function Reports() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-4 md:grid-cols-12 h-auto gap-1 bg-muted/50 p-1">
           <TabsTrigger value="daily" className="flex items-center gap-1 text-xs md:text-sm">
-            <Calendar className="h-3 w-3 md:h-4 md:w-4" />
-            <span className="hidden md:inline">Daily</span> Collection
+            <MapPin className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Pickup</span> Coverage
           </TabsTrigger>
           <TabsTrigger value="route" className="flex items-center gap-1 text-xs md:text-sm">
             <Route className="h-3 w-3 md:h-4 md:w-4" />
@@ -601,10 +601,10 @@ export default function Reports() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <Trash2 className="h-5 w-5 text-primary" />
-                  Daily Garbage Collection Report
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Daily Pickup Coverage Report
                 </CardTitle>
-                <CardDescription>Waste collected by ward, zone, and truck with pickup status</CardDescription>
+                <CardDescription>Pickup points coverage by ward, zone, and truck with completion status</CardDescription>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => handleDownload("daily_collection", "csv")}>
@@ -613,7 +613,7 @@ export default function Reports() {
                 <Button variant="outline" size="sm" onClick={() => handleDownload("daily_collection", "pdf")}>
                   <Download className="h-4 w-4 mr-1" /> PDF
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Daily Collection")}>
+                <Button variant="outline" size="sm" onClick={() => handleEmailExport("Daily Pickup Coverage")}>
                   <Mail className="h-4 w-4 mr-1" /> Email
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handlePrint("daily_collection")}>
@@ -644,13 +644,13 @@ export default function Reports() {
                 <Card className="bg-emerald-500/10 border-emerald-500/20">
                   <CardContent className="p-4 text-center">
                     <p className="text-2xl font-bold text-emerald-600">211</p>
-                    <p className="text-xs text-muted-foreground">Total Bins</p>
+                    <p className="text-xs text-muted-foreground">Total Pickup Points</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-green-500/10 border-green-500/20">
                   <CardContent className="p-4 text-center">
                     <p className="text-2xl font-bold text-green-600">201</p>
-                    <p className="text-xs text-muted-foreground">Collected</p>
+                    <p className="text-xs text-muted-foreground">Covered</p>
                   </CardContent>
                 </Card>
                 <Card className="bg-red-500/10 border-red-500/20">
@@ -696,8 +696,8 @@ export default function Reports() {
                       <TableHead>Zone</TableHead>
                       <TableHead>Truck</TableHead>
                       <TableHead>Driver</TableHead>
-                      <TableHead className="text-center">Bins</TableHead>
-                      <TableHead className="text-center">Collected</TableHead>
+                      <TableHead className="text-center">Pickup Points</TableHead>
+                      <TableHead className="text-center">Covered</TableHead>
                       <TableHead className="text-center">Missed</TableHead>
                       <TableHead className="text-right">Weight (T)</TableHead>
                       <TableHead>Status</TableHead>
@@ -706,8 +706,8 @@ export default function Reports() {
                   <TableBody>
                     {(() => {
                       const filteredData = dailyStatusFilter === "all" 
-                        ? dailyCollectionData 
-                        : dailyCollectionData.filter(d => d.status === dailyStatusFilter);
+                        ? dailyPickupCoverageData 
+                        : dailyPickupCoverageData.filter(d => d.status === dailyStatusFilter);
                       return paginate(filteredData, dailyPage).map((row) => (
                         <TableRow key={row.id}>
                           <TableCell className="font-medium">{row.date}</TableCell>
@@ -715,8 +715,8 @@ export default function Reports() {
                           <TableCell>{row.zone}</TableCell>
                           <TableCell className="font-mono text-xs">{row.truck}</TableCell>
                           <TableCell>{row.driver}</TableCell>
-                          <TableCell className="text-center">{row.totalBins}</TableCell>
-                          <TableCell className="text-center text-green-600 font-medium">{row.collected}</TableCell>
+                          <TableCell className="text-center">{row.totalPoints}</TableCell>
+                          <TableCell className="text-center text-green-600 font-medium">{row.covered}</TableCell>
                           <TableCell className="text-center text-red-600 font-medium">{row.missed}</TableCell>
                           <TableCell className="text-right">{row.weight}</TableCell>
                           <TableCell>
@@ -733,8 +733,8 @@ export default function Reports() {
               </div>
               {(() => {
                 const filteredData = dailyStatusFilter === "all" 
-                  ? dailyCollectionData 
-                  : dailyCollectionData.filter(d => d.status === dailyStatusFilter);
+                  ? dailyPickupCoverageData 
+                  : dailyPickupCoverageData.filter(d => d.status === dailyStatusFilter);
                 return renderPagination(dailyPage, filteredData.length, setDailyPage);
               })()}
             </CardContent>
