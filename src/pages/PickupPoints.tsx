@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
 } from "@/components/ui/select";
 import { 
-  MapPin, Plus, Search, Building2, Home, Hospital, 
-  ShoppingBag, Trash2, Edit, Clock, AlertTriangle 
+  MapPin, Plus, Building2, Home, Hospital, 
+  ShoppingBag, Trash2, Edit, Route, Map
 } from "lucide-react";
 import { pickupPoints, gcpLocations, routes, PickupPoint } from "@/data/fleetData";
+import { mockZones, mockWards, mockRoutes } from "@/data/masterData";
 
 const typeConfig = {
   residential: { icon: Home, color: "text-primary", bgColor: "bg-primary/20", label: "Residential" },
@@ -21,23 +21,67 @@ const typeConfig = {
 };
 
 export default function PickupPoints() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<string>("all");
+  const [filterZone, setFilterZone] = useState<string>("all");
   const [filterWard, setFilterWard] = useState<string>("all");
+  const [filterRoute, setFilterRoute] = useState<string>("all");
   const [selectedPoint, setSelectedPoint] = useState<PickupPoint | null>(null);
 
-  const wards = [...new Set(pickupPoints.map(p => p.ward))];
+  // Get unique zones
+  const allZones = mockZones.filter(z => z.status === 'active');
+  
+  // Get wards based on selected zone
+  const filteredWards = useMemo(() => {
+    if (filterZone === "all") {
+      return mockWards.filter(w => w.status === 'active');
+    }
+    return mockWards.filter(w => w.zoneId === filterZone && w.status === 'active');
+  }, [filterZone]);
 
-  const filteredPoints = pickupPoints.filter(point => {
-    const matchesSearch = point.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         point.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === "all" || point.type === filterType;
-    const matchesWard = filterWard === "all" || point.ward === filterWard;
-    return matchesSearch && matchesType && matchesWard;
-  });
+  // Get ward names from ward IDs in pickup points
+  const getWardNameFromPoint = (wardName: string) => {
+    // pickupPoints use ward names like "Ward 12", map to mockWards
+    return wardName;
+  };
 
-  const highFillPoints = pickupPoints.filter(p => (p.fillLevel || 0) > 80);
+  // Filter points based on selections
+  const filteredPoints = useMemo(() => {
+    return pickupPoints.filter(point => {
+      // Zone filtering - check if point's ward belongs to selected zone
+      let matchesZone = true;
+      if (filterZone !== "all") {
+        const wardsInZone = mockWards.filter(w => w.zoneId === filterZone).map(w => w.name);
+        matchesZone = wardsInZone.some(wardName => point.ward.includes(wardName) || wardName.includes(point.ward.replace('Ward ', '')));
+      }
+      
+      const matchesWard = filterWard === "all" || point.ward === filterWard || 
+        mockWards.find(w => w.id === filterWard)?.name === point.ward.replace('Ward ', '');
+      const matchesRoute = filterRoute === "all" || point.assignedRoute === filterRoute;
+      return matchesZone && matchesWard && matchesRoute;
+    });
+  }, [filterZone, filterWard, filterRoute]);
+
+  // Calculate stats based on filtered points
+  const stats = useMemo(() => ({
+    totalPoints: filteredPoints.length,
+    gcpCount: gcpLocations.length,
+    assignedToRoutes: filteredPoints.filter(p => p.assignedRoute).length,
+  }), [filteredPoints]);
+
   const getRouteInfo = (routeId?: string) => routes.find(r => r.id === routeId);
+
+  // Reset ward when zone changes
+  const handleZoneChange = (value: string) => {
+    setFilterZone(value);
+    setFilterWard("all");
+  };
+
+  const hasActiveFilters = filterZone !== "all" || filterWard !== "all" || filterRoute !== "all";
+
+  const clearFilters = () => {
+    setFilterZone("all");
+    setFilterWard("all");
+    setFilterRoute("all");
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
@@ -52,8 +96,54 @@ export default function PickupPoints() {
         </Button>
       </div>
 
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap gap-4 items-center">
+            <Select value={filterZone} onValueChange={handleZoneChange}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Zone" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Zones</SelectItem>
+                {allZones.map(zone => (
+                  <SelectItem key={zone.id} value={zone.id}>{zone.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterWard} onValueChange={setFilterWard}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Ward" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Wards</SelectItem>
+                {filteredWards.map(ward => (
+                  <SelectItem key={ward.id} value={ward.id}>{ward.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterRoute} onValueChange={setFilterRoute}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Route" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Routes</SelectItem>
+                {routes.map(route => (
+                  <SelectItem key={route.id} value={route.id}>{route.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats */}
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -61,7 +151,7 @@ export default function PickupPoints() {
                 <MapPin className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{pickupPoints.length}</p>
+                <p className="text-2xl font-bold">{stats.totalPoints}</p>
                 <p className="text-sm text-muted-foreground">Total Points</p>
               </div>
             </div>
@@ -71,10 +161,10 @@ export default function PickupPoints() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-warning/20 rounded-lg">
-                <ShoppingBag className="h-5 w-5 text-warning" />
+                <Map className="h-5 w-5 text-warning" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{gcpLocations.length}</p>
+                <p className="text-2xl font-bold">{stats.gcpCount}</p>
                 <p className="text-sm text-muted-foreground">GCP Locations</p>
               </div>
             </div>
@@ -84,71 +174,16 @@ export default function PickupPoints() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-success/20 rounded-lg">
-                <Clock className="h-5 w-5 text-success" />
+                <Route className="h-5 w-5 text-success" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{pickupPoints.filter(p => p.assignedRoute).length}</p>
+                <p className="text-2xl font-bold">{stats.assignedToRoutes}</p>
                 <p className="text-sm text-muted-foreground">Assigned to Routes</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className={highFillPoints.length > 0 ? "bg-destructive/5 border-destructive/20" : ""}>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-destructive/20 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-destructive">{highFillPoints.length}</p>
-                <p className="text-sm text-muted-foreground">High Fill (&gt;80%)</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name or ID..."
-                  className="pl-9"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="residential">Residential</SelectItem>
-                <SelectItem value="commercial">Commercial</SelectItem>
-                <SelectItem value="hospital">Hospital</SelectItem>
-                <SelectItem value="market">Market</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterWard} onValueChange={setFilterWard}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Ward" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Wards</SelectItem>
-                {wards.map(ward => (
-                  <SelectItem key={ward} value={ward}>{ward}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Main Content */}
       <div className="grid lg:grid-cols-3 gap-4">
@@ -191,23 +226,6 @@ export default function PickupPoints() {
                           <span className="text-muted-foreground">Schedule:</span>
                           <span>{point.schedule}</span>
                         </div>
-                        
-                        {point.fillLevel !== undefined && (
-                          <div className="space-y-1">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Fill Level:</span>
-                              <span className={point.fillLevel > 80 ? "text-destructive font-medium" : point.fillLevel > 60 ? "text-warning" : "text-success"}>
-                                {point.fillLevel}%
-                              </span>
-                            </div>
-                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full rounded-full ${point.fillLevel > 80 ? "bg-destructive" : point.fillLevel > 60 ? "bg-warning" : "bg-success"}`}
-                                style={{ width: `${point.fillLevel}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
                         
                         {route && (
                           <div className="flex items-center justify-between pt-1 border-t border-border">
@@ -282,29 +300,6 @@ export default function PickupPoints() {
                     </div>
                   )}
                 </div>
-
-                {selectedPoint.fillLevel !== undefined && (
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Fill Level</span>
-                      <span className={`font-bold ${selectedPoint.fillLevel > 80 ? "text-destructive" : selectedPoint.fillLevel > 60 ? "text-warning" : "text-success"}`}>
-                        {selectedPoint.fillLevel}%
-                      </span>
-                    </div>
-                    <div className="h-3 bg-background rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all ${selectedPoint.fillLevel > 80 ? "bg-destructive" : selectedPoint.fillLevel > 60 ? "bg-warning" : "bg-success"}`}
-                        style={{ width: `${selectedPoint.fillLevel}%` }}
-                      />
-                    </div>
-                    {selectedPoint.fillLevel > 80 && (
-                      <p className="text-xs text-destructive mt-2 flex items-center gap-1">
-                        <AlertTriangle className="h-3 w-3" />
-                        Needs immediate collection
-                      </p>
-                    )}
-                  </div>
-                )}
 
                 {selectedPoint.assignedRoute && (
                   <div className="p-4 bg-primary/10 rounded-lg">
