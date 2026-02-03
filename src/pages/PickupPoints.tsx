@@ -88,7 +88,7 @@ export default function PickupPoints() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Pickup Points</h1>
-          <p className="text-muted-foreground">Manage garbage bin locations and schedules</p>
+          <p className="text-muted-foreground">Manage pickup point locations and schedules</p>
         </div>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />

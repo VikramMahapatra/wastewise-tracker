@@ -393,7 +393,7 @@ export const generateHistoricalPath = (truckId: string, date: string): Historica
   return { truckId, date, path };
 };
 
-// Pickup points (individual bins)
+// Pickup points
 export interface PickupPoint {
   id: string;
   name: string;
@@ -402,19 +402,18 @@ export interface PickupPoint {
   ward: string;
   schedule: string;
   assignedRoute?: string;
-  fillLevel?: number;
   lastCollection?: string;
 }
 
 export const pickupPoints: PickupPoint[] = [
-  { id: "PP-001", name: "Sector 22 Bin 1", position: { lat: 18.5535, lng: 73.9415 }, type: "residential", ward: "Ward 12", schedule: "Daily 7AM", assignedRoute: "RT-001", fillLevel: 75, lastCollection: "Today 7:15 AM" },
-  { id: "PP-002", name: "Sector 22 Bin 2", position: { lat: 18.5538, lng: 73.9418 }, type: "residential", ward: "Ward 12", schedule: "Daily 7AM", assignedRoute: "RT-001", fillLevel: 60, lastCollection: "Today 7:18 AM" },
-  { id: "PP-003", name: "Sector 23 Market", position: { lat: 18.5550, lng: 73.9430 }, type: "market", ward: "Ward 12", schedule: "Daily 6AM, 4PM", assignedRoute: "RT-001", fillLevel: 90, lastCollection: "Today 6:05 AM" },
-  { id: "PP-004", name: "City Hospital", position: { lat: 18.5545, lng: 73.9395 }, type: "hospital", ward: "Ward 12", schedule: "Daily 5AM", assignedRoute: "RT-001", fillLevel: 45, lastCollection: "Today 5:10 AM" },
-  { id: "PP-005", name: "Sector 14 Bin 1", position: { lat: 18.5480, lng: 73.9360 }, type: "residential", ward: "Ward 14", schedule: "Daily 8AM", assignedRoute: "RT-003", fillLevel: 80, lastCollection: "Today 8:00 AM" },
-  { id: "PP-006", name: "Tech Park 1", position: { lat: 18.5500, lng: 73.9450 }, type: "commercial", ward: "Ward 12", schedule: "Daily 9PM", assignedRoute: "RT-003", fillLevel: 55, lastCollection: "Yesterday 9:05 PM" },
-  { id: "PP-007", name: "Sector 14 Market", position: { lat: 18.5475, lng: 73.9355 }, type: "market", ward: "Ward 14", schedule: "Twice Daily", assignedRoute: "RT-003", fillLevel: 85, lastCollection: "Today 6:30 AM" },
-  { id: "PP-008", name: "Viman Nagar Society", position: { lat: 18.5620, lng: 73.9160 }, type: "residential", ward: "Ward 10", schedule: "Daily 7AM", fillLevel: 70, lastCollection: "Today 7:25 AM" },
+  { id: "PP-001", name: "Sector 22 Point 1", position: { lat: 18.5535, lng: 73.9415 }, type: "residential", ward: "Ward 12", schedule: "Daily 7AM", assignedRoute: "RT-001", lastCollection: "Today 7:15 AM" },
+  { id: "PP-002", name: "Sector 22 Point 2", position: { lat: 18.5538, lng: 73.9418 }, type: "residential", ward: "Ward 12", schedule: "Daily 7AM", assignedRoute: "RT-001", lastCollection: "Today 7:18 AM" },
+  { id: "PP-003", name: "Sector 23 Market", position: { lat: 18.5550, lng: 73.9430 }, type: "market", ward: "Ward 12", schedule: "Daily 6AM, 4PM", assignedRoute: "RT-001", lastCollection: "Today 6:05 AM" },
+  { id: "PP-004", name: "City Hospital", position: { lat: 18.5545, lng: 73.9395 }, type: "hospital", ward: "Ward 12", schedule: "Daily 5AM", assignedRoute: "RT-001", lastCollection: "Today 5:10 AM" },
+  { id: "PP-005", name: "Sector 14 Point 1", position: { lat: 18.5480, lng: 73.9360 }, type: "residential", ward: "Ward 14", schedule: "Daily 8AM", assignedRoute: "RT-003", lastCollection: "Today 8:00 AM" },
+  { id: "PP-006", name: "Tech Park 1", position: { lat: 18.5500, lng: 73.9450 }, type: "commercial", ward: "Ward 12", schedule: "Daily 9PM", assignedRoute: "RT-003", lastCollection: "Yesterday 9:05 PM" },
+  { id: "PP-007", name: "Sector 14 Market", position: { lat: 18.5475, lng: 73.9355 }, type: "market", ward: "Ward 14", schedule: "Twice Daily", assignedRoute: "RT-003", lastCollection: "Today 6:30 AM" },
+  { id: "PP-008", name: "Viman Nagar Society", position: { lat: 18.5620, lng: 73.9160 }, type: "residential", ward: "Ward 10", schedule: "Daily 7AM", lastCollection: "Today 7:25 AM" },
 ];
 
 export const GOOGLE_MAPS_API_KEY = "AIzaSyBm6KoD4T-fdLkIHvxwqsQq3EPjz14V2Sw";

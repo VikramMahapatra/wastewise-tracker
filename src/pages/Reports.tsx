@@ -137,16 +137,16 @@ const driverAttendanceData = [
 
 const complaintsData = [
   { id: "CMP001", date: "2024-01-15", ward: "Kharadi East", type: "Missed Pickup", status: "resolved", truck: "MH-12-AB-1234", responseTime: "2 hrs" },
-  { id: "CMP002", date: "2024-01-15", ward: "Viman Nagar", type: "Overflow Bin", status: "pending", truck: "MH-12-EF-9012", responseTime: "-" },
+  { id: "CMP002", date: "2024-01-15", ward: "Viman Nagar", type: "Irregular Timing", status: "pending", truck: "MH-12-EF-9012", responseTime: "-" },
   { id: "CMP003", date: "2024-01-14", ward: "Kalyani Nagar", type: "Irregular Timing", status: "resolved", truck: "MH-12-GH-3456", responseTime: "4 hrs" },
   { id: "CMP004", date: "2024-01-14", ward: "Wadgaon Sheri", type: "Missed Pickup", status: "in-progress", truck: "MH-12-IJ-7890", responseTime: "1 hr" },
   { id: "CMP005", date: "2024-01-13", ward: "Kharadi West", type: "Spillage", status: "resolved", truck: "MH-12-CD-5678", responseTime: "3 hrs" },
   { id: "CMP006", date: "2024-01-13", ward: "Hadapsar", type: "Missed Pickup", status: "pending", truck: "MH-12-KL-1122", responseTime: "-" },
-  { id: "CMP007", date: "2024-01-12", ward: "Magarpatta", type: "Overflow Bin", status: "resolved", truck: "MH-12-MN-3344", responseTime: "1.5 hrs" },
+  { id: "CMP007", date: "2024-01-12", ward: "Magarpatta", type: "Irregular Timing", status: "resolved", truck: "MH-12-MN-3344", responseTime: "1.5 hrs" },
   { id: "CMP008", date: "2024-01-12", ward: "Koregaon Park", type: "Spillage", status: "in-progress", truck: "MH-12-OP-5566", responseTime: "30 min" },
   { id: "CMP009", date: "2024-01-11", ward: "Mundhwa", type: "Irregular Timing", status: "resolved", truck: "MH-12-QR-7788", responseTime: "2.5 hrs" },
   { id: "CMP010", date: "2024-01-11", ward: "Keshav Nagar", type: "Missed Pickup", status: "pending", truck: "MH-12-ST-9900", responseTime: "-" },
-  { id: "CMP011", date: "2024-01-10", ward: "Wagholi", type: "Overflow Bin", status: "resolved", truck: "MH-12-UV-1212", responseTime: "3.5 hrs" },
+  { id: "CMP011", date: "2024-01-10", ward: "Wagholi", type: "Irregular Timing", status: "resolved", truck: "MH-12-UV-1212", responseTime: "3.5 hrs" },
   { id: "CMP012", date: "2024-01-10", ward: "Lohegaon", type: "Spillage", status: "in-progress", truck: "MH-12-WX-3434", responseTime: "45 min" },
 ];
 
@@ -1793,7 +1793,7 @@ export default function Reports() {
                     {[
                       { key: "all", label: "All" },
                       { key: "Missed Pickup", label: "Missed Pickup" },
-                      { key: "Overflow Bin", label: "Overflow" },
+                      { key: "Irregular Timing", label: "Irregular Timing" },
                       { key: "Spillage", label: "Spillage" }
                     ].map((filter) => (
                       <Badge

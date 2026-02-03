@@ -52,11 +52,11 @@ import {
 } from "recharts";
 
 // AI Predictions Data
-const overflowPredictions = [
-  { binId: "BIN-K001", location: "Kharadi IT Park", currentFill: 78, predictedFull: "2 hrs", risk: "high", confidence: 94 },
-  { binId: "BIN-K015", location: "EON Free Zone", currentFill: 65, predictedFull: "4 hrs", risk: "medium", confidence: 87 },
-  { binId: "BIN-K023", location: "World Trade Center", currentFill: 82, predictedFull: "1.5 hrs", risk: "critical", confidence: 96 },
-  { binId: "BIN-K007", location: "Zensar Campus", currentFill: 45, predictedFull: "8 hrs", risk: "low", confidence: 91 },
+const pickupDemandPredictions = [
+  { pointId: "PP-K001", location: "Kharadi IT Park", currentLoad: 78, predictedPeak: "2 hrs", priority: "high", confidence: 94 },
+  { pointId: "PP-K015", location: "EON Free Zone", currentLoad: 65, predictedPeak: "4 hrs", priority: "medium", confidence: 87 },
+  { pointId: "PP-K023", location: "World Trade Center", currentLoad: 82, predictedPeak: "1.5 hrs", priority: "critical", confidence: 96 },
+  { pointId: "PP-K007", location: "Zensar Campus", currentLoad: 45, predictedPeak: "8 hrs", priority: "low", confidence: 91 },
 ];
 
 const anomalyAlerts = [
@@ -76,7 +76,7 @@ const driverScores = [
 
 const routeOptimizations = [
   { routeId: "RT-001", currentTime: "4.2 hrs", optimizedTime: "3.1 hrs", savings: "26%", fuelSaved: "12L", suggestion: "Reorder pickups 5,6,7 based on traffic patterns" },
-  { routeId: "RT-003", currentTime: "5.8 hrs", optimizedTime: "4.5 hrs", savings: "22%", fuelSaved: "18L", suggestion: "Skip low-fill bins during peak hours" },
+  { routeId: "RT-003", currentTime: "5.8 hrs", optimizedTime: "4.5 hrs", savings: "22%", fuelSaved: "18L", suggestion: "Optimize route sequence during peak hours" },
   { routeId: "RT-007", currentTime: "3.5 hrs", optimizedTime: "2.8 hrs", savings: "20%", fuelSaved: "8L", suggestion: "Combine with RT-008 for efficiency" },
 ];
 
@@ -252,7 +252,7 @@ export default function Analytics() {
         {/* Predictions Tab */}
         <TabsContent value="predictions" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Overflow Predictions */}
+            {/* Pickup Demand Predictions */}
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
@@ -260,42 +260,42 @@ export default function Analytics() {
                     <Eye className="h-5 w-5 text-warning" />
                   </div>
                   <div>
-                    <CardTitle>Bin Overflow Predictions</CardTitle>
-                    <CardDescription>AI predicts when bins will reach capacity</CardDescription>
+                    <CardTitle>Pickup Demand Predictions</CardTitle>
+                    <CardDescription>AI predicts pickup point demand patterns</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {overflowPredictions.map((bin) => (
-                  <div key={bin.binId} className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                {pickupDemandPredictions.map((point) => (
+                  <div key={point.pointId} className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{bin.binId}</span>
+                        <span className="font-medium">{point.pointId}</span>
                       </div>
                       <Badge variant={
-                        bin.risk === "critical" ? "destructive" :
-                        bin.risk === "high" ? "destructive" :
-                        bin.risk === "medium" ? "secondary" : "outline"
+                        point.priority === "critical" ? "destructive" :
+                        point.priority === "high" ? "destructive" :
+                        point.priority === "medium" ? "secondary" : "outline"
                       }>
-                        {bin.risk.toUpperCase()}
+                        {point.priority.toUpperCase()}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{bin.location}</p>
+                    <p className="text-sm text-muted-foreground mb-2">{point.location}</p>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>Current Fill Level</span>
-                        <span className="font-medium">{bin.currentFill}%</span>
+                        <span>Current Load</span>
+                        <span className="font-medium">{point.currentLoad}%</span>
                       </div>
-                      <Progress value={bin.currentFill} className="h-2" />
+                      <Progress value={point.currentLoad} className="h-2" />
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          Full in: {bin.predictedFull}
+                          Peak in: {point.predictedPeak}
                         </span>
                         <span className="flex items-center gap-1">
                           <Brain className="h-3 w-3" />
-                          {bin.confidence}% confidence
+                          {point.confidence}% confidence
                         </span>
                       </div>
                     </div>

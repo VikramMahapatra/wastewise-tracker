@@ -138,7 +138,7 @@ export default function Routes() {
                   <div>
                     <h3 className="font-semibold text-primary">Primary Routes ({primaryRoutes.length})</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Primary trucks collect garbage from households/bins and dump at GCPs (Garbage Collection Points).
+                      Primary trucks collect garbage from pickup points and dump at GCPs (Garbage Collection Points).
                     </p>
                     <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                       <MapPin className="h-3 w-3" /> Pickup Points → <ArrowRight className="h-3 w-3" /> GCP

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { mockRoutes, mockPickupPoints, mockZones, mockWards, mockTrucks, Route, PickupPoint } from '@/data/masterData';
-import { Plus, Search, Edit, Trash2, MapPin, Route as RouteIcon, Clock, Download, Trash } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, MapPin, Route as RouteIcon, Clock, Download } from 'lucide-react';
 
 export default function MasterRoutesPickups() {
   const { toast } = useToast();
@@ -23,7 +23,7 @@ export default function MasterRoutesPickups() {
   const [editingPickup, setEditingPickup] = useState<PickupPoint | null>(null);
   
   const [routeForm, setRouteForm] = useState<Partial<Route>>({ name: '', code: '', type: 'primary', wardId: '', zoneId: '', assignedTruckId: '', totalPickupPoints: 0, estimatedDistance: 0, estimatedTime: 0, status: 'active' });
-  const [pickupForm, setPickupForm] = useState<Partial<PickupPoint>>({ binId: '', name: '', address: '', latitude: 0, longitude: 0, routeId: '', wardId: '', wasteType: 'mixed', expectedPickupTime: '', geofenceRadius: 30, hasSensor: false, status: 'active' });
+  const [pickupForm, setPickupForm] = useState<Partial<PickupPoint>>({ pointCode: '', name: '', address: '', latitude: 0, longitude: 0, routeId: '', wardId: '', wasteType: 'mixed', expectedPickupTime: '', geofenceRadius: 30, status: 'active' });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -82,20 +82,20 @@ export default function MasterRoutesPickups() {
   };
 
   const resetPickupForm = () => {
-    setPickupForm({ binId: '', name: '', address: '', latitude: 0, longitude: 0, routeId: '', wardId: '', wasteType: 'mixed', expectedPickupTime: '', geofenceRadius: 30, hasSensor: false, status: 'active' });
+    setPickupForm({ pointCode: '', name: '', address: '', latitude: 0, longitude: 0, routeId: '', wardId: '', wasteType: 'mixed', expectedPickupTime: '', geofenceRadius: 30, status: 'active' });
     setEditingPickup(null);
     setIsPickupDialogOpen(false);
   };
 
   const filteredRoutes = routes.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()) || r.code.toLowerCase().includes(searchQuery.toLowerCase()));
-  const filteredPickups = pickupPoints.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.binId.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredPickups = pickupPoints.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.pointCode.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Routes & Pickup Points</h1>
-          <p className="text-muted-foreground">Manage collection routes and bin locations</p>
+          <p className="text-muted-foreground">Manage collection routes and pickup locations</p>
         </div>
       </div>
 
@@ -118,8 +118,8 @@ export default function MasterRoutesPickups() {
           <CardContent><div className="text-2xl font-bold text-success">{pickupPoints.length}</div></CardContent>
         </Card>
         <Card className="bg-warning/10 border-warning/30">
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-warning">With Sensors</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-warning">{pickupPoints.filter(p => p.hasSensor).length}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-warning">Active Points</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-warning">{pickupPoints.filter(p => p.status === 'active').length}</div></CardContent>
         </Card>
       </div>
 
@@ -257,7 +257,7 @@ export default function MasterRoutesPickups() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Bin ID</Label><Input value={pickupForm.binId} onChange={(e) => setPickupForm({ ...pickupForm, binId: e.target.value })} /></div>
+                    <div className="space-y-2"><Label>Point Code</Label><Input value={pickupForm.pointCode} onChange={(e) => setPickupForm({ ...pickupForm, pointCode: e.target.value })} /></div>
                     <div className="space-y-2"><Label>Name</Label><Input value={pickupForm.name} onChange={(e) => setPickupForm({ ...pickupForm, name: e.target.value })} /></div>
                   </div>
                   <div className="space-y-2"><Label>Address</Label><Input value={pickupForm.address} onChange={(e) => setPickupForm({ ...pickupForm, address: e.target.value })} /></div>
@@ -281,16 +281,9 @@ export default function MasterRoutesPickups() {
                       </Select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2"><Label>Pickup Time</Label><Input type="time" value={pickupForm.expectedPickupTime} onChange={(e) => setPickupForm({ ...pickupForm, expectedPickupTime: e.target.value })} /></div>
                     <div className="space-y-2"><Label>Geofence (m)</Label><Input type="number" value={pickupForm.geofenceRadius} onChange={(e) => setPickupForm({ ...pickupForm, geofenceRadius: Number(e.target.value) })} /></div>
-                    <div className="space-y-2">
-                      <Label>Has Sensor</Label>
-                      <Select value={pickupForm.hasSensor ? 'yes' : 'no'} onValueChange={(v) => setPickupForm({ ...pickupForm, hasSensor: v === 'yes' })}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent><SelectItem value="yes">Yes</SelectItem><SelectItem value="no">No</SelectItem></SelectContent>
-                      </Select>
-                    </div>
                   </div>
                 </div>
                 <DialogFooter>
@@ -310,7 +303,6 @@ export default function MasterRoutesPickups() {
                     <TableHead>Route</TableHead>
                     <TableHead>Waste Type</TableHead>
                     <TableHead>Schedule</TableHead>
-                    <TableHead>Sensor</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -320,17 +312,16 @@ export default function MasterRoutesPickups() {
                     <TableRow key={pickup.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center"><Trash className="h-5 w-5 text-success" /></div>
+                          <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center"><MapPin className="h-5 w-5 text-success" /></div>
                           <div>
                             <div className="font-medium">{pickup.name}</div>
-                            <div className="text-sm text-muted-foreground">{pickup.binId}</div>
+                            <div className="text-sm text-muted-foreground">{pickup.pointCode}</div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell><Badge variant="outline">{getRouteName(pickup.routeId)}</Badge></TableCell>
                       <TableCell>{getWasteTypeBadge(pickup.wasteType)}</TableCell>
                       <TableCell><div className="flex items-center gap-1"><Clock className="h-3 w-3" /> {pickup.expectedPickupTime}</div></TableCell>
-                      <TableCell>{pickup.hasSensor ? <Badge className="bg-primary/20 text-primary">Yes</Badge> : <Badge variant="secondary">No</Badge>}</TableCell>
                       <TableCell>{getStatusBadge(pickup.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
