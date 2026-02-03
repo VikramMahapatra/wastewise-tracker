@@ -67,7 +67,7 @@ export interface Ward {
   zoneId: string;
   population: number;
   area: number;
-  totalBins: number;
+  totalPickupPoints: number;
   status: 'active' | 'inactive';
 }
 
@@ -87,7 +87,7 @@ export interface Route {
 
 export interface PickupPoint {
   id: string;
-  binId: string;
+  pointCode: string;
   name: string;
   address: string;
   latitude: number;
@@ -97,8 +97,7 @@ export interface PickupPoint {
   wasteType: 'dry' | 'wet' | 'mixed' | 'hazardous';
   expectedPickupTime: string;
   geofenceRadius: number;
-  hasSensor: boolean;
-  status: 'active' | 'inactive' | 'overflow';
+  status: 'active' | 'inactive';
 }
 
 // Mock Data
@@ -314,14 +313,14 @@ export const mockZones: Zone[] = [
 ];
 
 export const mockWards: Ward[] = [
-  { id: 'WD001', name: 'Kharadi', code: 'KHR', zoneId: 'ZN003', population: 45000, area: 12.5, totalBins: 150, status: 'active' },
-  { id: 'WD002', name: 'Hadapsar', code: 'HDP', zoneId: 'ZN003', population: 65000, area: 18.2, totalBins: 220, status: 'active' },
-  { id: 'WD003', name: 'Viman Nagar', code: 'VMN', zoneId: 'ZN003', population: 38000, area: 8.5, totalBins: 120, status: 'active' },
-  { id: 'WD004', name: 'Koregaon Park', code: 'KGP', zoneId: 'ZN002', population: 28000, area: 6.2, totalBins: 90, status: 'active' },
-  { id: 'WD005', name: 'Aundh', code: 'AND', zoneId: 'ZN001', population: 52000, area: 14.8, totalBins: 180, status: 'active' },
-  { id: 'WD006', name: 'Baner', code: 'BNR', zoneId: 'ZN001', population: 48000, area: 11.5, totalBins: 160, status: 'active' },
-  { id: 'WD007', name: 'Wakad', code: 'WKD', zoneId: 'ZN004', population: 55000, area: 13.2, totalBins: 190, status: 'active' },
-  { id: 'WD008', name: 'Shivaji Nagar', code: 'SJN', zoneId: 'ZN005', population: 32000, area: 5.8, totalBins: 110, status: 'active' }
+  { id: 'WD001', name: 'Kharadi', code: 'KHR', zoneId: 'ZN003', population: 45000, area: 12.5, totalPickupPoints: 150, status: 'active' },
+  { id: 'WD002', name: 'Hadapsar', code: 'HDP', zoneId: 'ZN003', population: 65000, area: 18.2, totalPickupPoints: 220, status: 'active' },
+  { id: 'WD003', name: 'Viman Nagar', code: 'VMN', zoneId: 'ZN003', population: 38000, area: 8.5, totalPickupPoints: 120, status: 'active' },
+  { id: 'WD004', name: 'Koregaon Park', code: 'KGP', zoneId: 'ZN002', population: 28000, area: 6.2, totalPickupPoints: 90, status: 'active' },
+  { id: 'WD005', name: 'Aundh', code: 'AND', zoneId: 'ZN001', population: 52000, area: 14.8, totalPickupPoints: 180, status: 'active' },
+  { id: 'WD006', name: 'Baner', code: 'BNR', zoneId: 'ZN001', population: 48000, area: 11.5, totalPickupPoints: 160, status: 'active' },
+  { id: 'WD007', name: 'Wakad', code: 'WKD', zoneId: 'ZN004', population: 55000, area: 13.2, totalPickupPoints: 190, status: 'active' },
+  { id: 'WD008', name: 'Shivaji Nagar', code: 'SJN', zoneId: 'ZN005', population: 32000, area: 5.8, totalPickupPoints: 110, status: 'active' }
 ];
 
 export const mockRoutes: Route[] = [
@@ -333,11 +332,11 @@ export const mockRoutes: Route[] = [
 ];
 
 export const mockPickupPoints: PickupPoint[] = [
-  { id: 'PP001', binId: 'BIN001', name: 'Kharadi IT Park', address: 'EON IT Park, Kharadi', latitude: 18.5520, longitude: 73.9490, routeId: 'RT001', wardId: 'WD001', wasteType: 'dry', expectedPickupTime: '06:30', geofenceRadius: 30, hasSensor: true, status: 'active' },
-  { id: 'PP002', binId: 'BIN002', name: 'World Trade Center', address: 'WTC, Kharadi', latitude: 18.5535, longitude: 73.9502, routeId: 'RT001', wardId: 'WD001', wasteType: 'mixed', expectedPickupTime: '06:45', geofenceRadius: 25, hasSensor: true, status: 'active' },
-  { id: 'PP003', binId: 'BIN003', name: 'Hadapsar Industrial Estate', address: 'MIDC Hadapsar', latitude: 18.5010, longitude: 73.9350, routeId: 'RT002', wardId: 'WD002', wasteType: 'hazardous', expectedPickupTime: '07:00', geofenceRadius: 40, hasSensor: true, status: 'active' },
-  { id: 'PP004', binId: 'BIN004', name: 'Viman Nagar Garden', address: 'Viman Nagar Park', latitude: 18.5680, longitude: 73.9150, routeId: 'RT003', wardId: 'WD003', wasteType: 'wet', expectedPickupTime: '05:30', geofenceRadius: 20, hasSensor: false, status: 'active' },
-  { id: 'PP005', binId: 'BIN005', name: 'Aundh IT Hub', address: 'Aundh IT Park', latitude: 18.5890, longitude: 73.8150, routeId: 'RT004', wardId: 'WD005', wasteType: 'dry', expectedPickupTime: '06:00', geofenceRadius: 35, hasSensor: true, status: 'overflow' }
+  { id: 'PP001', pointCode: 'PP-K001', name: 'Kharadi IT Park', address: 'EON IT Park, Kharadi', latitude: 18.5520, longitude: 73.9490, routeId: 'RT001', wardId: 'WD001', wasteType: 'dry', expectedPickupTime: '06:30', geofenceRadius: 30, status: 'active' },
+  { id: 'PP002', pointCode: 'PP-K002', name: 'World Trade Center', address: 'WTC, Kharadi', latitude: 18.5535, longitude: 73.9502, routeId: 'RT001', wardId: 'WD001', wasteType: 'mixed', expectedPickupTime: '06:45', geofenceRadius: 25, status: 'active' },
+  { id: 'PP003', pointCode: 'PP-H001', name: 'Hadapsar Industrial Estate', address: 'MIDC Hadapsar', latitude: 18.5010, longitude: 73.9350, routeId: 'RT002', wardId: 'WD002', wasteType: 'hazardous', expectedPickupTime: '07:00', geofenceRadius: 40, status: 'active' },
+  { id: 'PP004', pointCode: 'PP-V001', name: 'Viman Nagar Garden', address: 'Viman Nagar Park', latitude: 18.5680, longitude: 73.9150, routeId: 'RT003', wardId: 'WD003', wasteType: 'wet', expectedPickupTime: '05:30', geofenceRadius: 20, status: 'active' },
+  { id: 'PP005', pointCode: 'PP-A001', name: 'Aundh IT Hub', address: 'Aundh IT Park', latitude: 18.5890, longitude: 73.8150, routeId: 'RT004', wardId: 'WD005', wasteType: 'dry', expectedPickupTime: '06:00', geofenceRadius: 35, status: 'active' }
 ];
 
 // Escalation Configuration
@@ -367,7 +366,7 @@ export const defaultEscalationConfig: EscalationConfig = {
 // Ticket Types
 export type TicketStatus = 'open' | 'in_progress' | 'pending' | 'resolved' | 'closed';
 export type TicketPriority = 'low' | 'medium' | 'high' | 'critical';
-export type TicketCategory = 'complaint' | 'maintenance' | 'driver_issue' | 'vehicle_issue' | 'route_issue' | 'bin_issue' | 'other';
+export type TicketCategory = 'complaint' | 'maintenance' | 'driver_issue' | 'vehicle_issue' | 'route_issue' | 'pickup_issue' | 'other';
 
 export interface Ticket {
   id: string;
@@ -422,9 +421,9 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'TKT002',
-    title: 'Bin Overflow at Kharadi IT Park',
-    description: 'Multiple citizen complaints about overflowing bin. Need immediate attention.',
-    category: 'bin_issue',
+    title: 'Missed Pickup at Kharadi IT Park',
+    description: 'Multiple citizen complaints about missed pickup. Need immediate attention.',
+    category: 'pickup_issue',
     priority: 'critical',
     status: 'open',
     createdAt: '2024-03-10T10:15:00Z',

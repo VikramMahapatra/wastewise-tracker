@@ -23,7 +23,7 @@ export default function MasterZonesWards() {
   const [editingWard, setEditingWard] = useState<Ward | null>(null);
   
   const [zoneForm, setZoneForm] = useState<Partial<Zone>>({ name: '', code: '', description: '', supervisorName: '', supervisorPhone: '', totalWards: 0, status: 'active' });
-  const [wardForm, setWardForm] = useState<Partial<Ward>>({ name: '', code: '', zoneId: '', population: 0, area: 0, totalBins: 0, status: 'active' });
+  const [wardForm, setWardForm] = useState<Partial<Ward>>({ name: '', code: '', zoneId: '', population: 0, area: 0, totalPickupPoints: 0, status: 'active' });
 
   const getStatusBadge = (status: string) => {
     return status === 'active' 
@@ -72,7 +72,7 @@ export default function MasterZonesWards() {
   };
 
   const resetWardForm = () => {
-    setWardForm({ name: '', code: '', zoneId: '', population: 0, area: 0, totalBins: 0, status: 'active' });
+    setWardForm({ name: '', code: '', zoneId: '', population: 0, area: 0, totalPickupPoints: 0, status: 'active' });
     setEditingWard(null);
     setIsWardDialogOpen(false);
   };
@@ -110,8 +110,8 @@ export default function MasterZonesWards() {
           <CardContent><div className="text-2xl font-bold text-secondary">{(wards.reduce((a, w) => a + w.population, 0) / 1000).toFixed(0)}K</div></CardContent>
         </Card>
         <Card className="bg-success/10 border-success/30">
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-success">Total Bins</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold text-success">{wards.reduce((a, w) => a + w.totalBins, 0)}</div></CardContent>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-success">Total Pickup Points</CardTitle></CardHeader>
+          <CardContent><div className="text-2xl font-bold text-success">{wards.reduce((a, w) => a + w.totalPickupPoints, 0)}</div></CardContent>
         </Card>
       </div>
 
@@ -230,7 +230,7 @@ export default function MasterZonesWards() {
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2"><Label>Population</Label><Input type="number" value={wardForm.population} onChange={(e) => setWardForm({ ...wardForm, population: Number(e.target.value) })} /></div>
                     <div className="space-y-2"><Label>Area (km²)</Label><Input type="number" value={wardForm.area} onChange={(e) => setWardForm({ ...wardForm, area: Number(e.target.value) })} /></div>
-                    <div className="space-y-2"><Label>Total Bins</Label><Input type="number" value={wardForm.totalBins} onChange={(e) => setWardForm({ ...wardForm, totalBins: Number(e.target.value) })} /></div>
+                    <div className="space-y-2"><Label>Pickup Points</Label><Input type="number" value={wardForm.totalPickupPoints} onChange={(e) => setWardForm({ ...wardForm, totalPickupPoints: Number(e.target.value) })} /></div>
                   </div>
                   <div className="space-y-2">
                     <Label>Status</Label>
@@ -257,7 +257,7 @@ export default function MasterZonesWards() {
                     <TableHead>Zone</TableHead>
                     <TableHead>Population</TableHead>
                     <TableHead>Area</TableHead>
-                    <TableHead>Bins</TableHead>
+                    <TableHead>Pickup Points</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -272,7 +272,7 @@ export default function MasterZonesWards() {
                       <TableCell><Badge variant="outline">{getZoneName(ward.zoneId)}</Badge></TableCell>
                       <TableCell><div className="flex items-center gap-1"><Users className="h-3 w-3" /> {(ward.population / 1000).toFixed(1)}K</div></TableCell>
                       <TableCell>{ward.area} km²</TableCell>
-                      <TableCell>{ward.totalBins}</TableCell>
+                      <TableCell>{ward.totalPickupPoints}</TableCell>
                       <TableCell>{getStatusBadge(ward.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

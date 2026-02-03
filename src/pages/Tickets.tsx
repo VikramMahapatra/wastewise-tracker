@@ -200,7 +200,7 @@ export default function Tickets() {
                       <SelectItem value="driver_issue">Driver Issue</SelectItem>
                       <SelectItem value="vehicle_issue">Vehicle Issue</SelectItem>
                       <SelectItem value="route_issue">Route Issue</SelectItem>
-                      <SelectItem value="bin_issue">Bin Issue</SelectItem>
+                      <SelectItem value="pickup_issue">Pickup Issue</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
