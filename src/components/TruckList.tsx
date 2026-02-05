@@ -2,65 +2,30 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Truck, MapPin, Clock, ChevronRight, Gauge } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { trucksLive } from "@/data/trucks";
+import { routes } from "@/data/routes";
+import { zones } from "@/data/zones";
 
 interface TruckListProps {
   onSelectTruck: (truckId: string) => void;
   selectedTruck: string | null;
 }
 
-const trucks = [
-  {
-    id: "TRK-001",
-    number: "MH-12-AB-1234",
-    driver: "Rajesh Kumar",
-    status: "moving",
-    route: "Zone A - Route 1",
-    trips: 3,
-    speed: 35,
-    lastUpdate: "2 min ago",
-  },
-  {
-    id: "TRK-002",
-    number: "MH-12-CD-5678",
-    driver: "Amit Sharma",
-    status: "idle",
-    route: "Zone B - Route 3",
-    trips: 2,
-    speed: 0,
-    lastUpdate: "5 min ago",
-  },
-  {
-    id: "TRK-003",
-    number: "MH-12-EF-9012",
-    driver: "Suresh Patil",
-    status: "dumping",
-    route: "Zone A - Route 2",
-    trips: 4,
-    speed: 0,
-    lastUpdate: "1 min ago",
-  },
-  {
-    id: "TRK-004",
-    number: "MH-12-GH-3456",
-    driver: "Vijay Singh",
-    status: "moving",
-    route: "Zone C - Route 1",
-    trips: 2,
-    speed: 28,
-    lastUpdate: "3 min ago",
-  },
-  {
-    id: "TRK-005",
-    number: "MH-12-IJ-7890",
-    driver: "Prakash Desai",
-    status: "moving",
-    route: "Zone B - Route 2",
-    trips: 3,
-    speed: 42,
-    lastUpdate: "1 min ago",
-  },
-];
+// Transform live truck data for display
+const trucks = trucksLive.filter(t => !t.isSpare).map(t => {
+  const route = routes.find(r => r.id === t.routeId);
+  const zone = zones.find(z => z.id === t.zoneId);
+  return {
+    id: t.id,
+    number: t.truckNumber,
+    driver: t.driver,
+    status: t.status,
+    route: route ? `${zone?.code || ''} - ${route.name}` : 'Unassigned',
+    trips: t.tripsCompleted,
+    speed: t.speed,
+    lastUpdate: t.lastUpdate,
+  };
+});
 
 const TruckList = ({ onSelectTruck, selectedTruck }: TruckListProps) => {
   const getStatusColor = (status: string) => {
