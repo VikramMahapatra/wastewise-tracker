@@ -229,12 +229,18 @@ export default function RouteMapBuilder({ route, routeType, onSave, onCancel }: 
     const routeData: RouteData = {
       id: route?.id || `RT-${Date.now()}`,
       name: routeName,
+      code: routeName.substring(0, 6).toUpperCase().replace(/\s/g, '-'),
       type: routeType,
+      wardId: route?.wardId || 'WD006',
+      zoneId: route?.zoneId || 'ZN003',
       points,
       distance: calculateDistance(),
-      estimatedTime: calculateTime(),
+      estimatedDistance: parseInt(calculateDistance()) || 10,
+      estimatedTime: parseInt(calculateTime()) || 60,
+      totalPickupPoints: points.filter(p => p.type === 'pickup').length,
       status: "active",
       assignedTruck: route?.assignedTruck,
+      assignedTruckId: route?.assignedTruckId,
     };
 
     onSave(routeData);

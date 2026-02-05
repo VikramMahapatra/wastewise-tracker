@@ -4,73 +4,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, MapPinOff, Clock, Navigation, ChevronRight, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { alerts as alertsData } from "@/data/alerts";
 
-const alerts = [
-  {
-    id: 1,
-    type: "route_deviation",
-    truck: "TRK-002",
-    message: "Deviated from assigned route by 350m",
-    time: "5 min ago",
-    severity: "warning",
-  },
-  {
-    id: 2,
-    type: "missed_pickup",
-    truck: "TRK-004",
-    message: "Missed pickup at Zone C - Point 12",
-    time: "12 min ago",
-    severity: "high",
-  },
-  {
-    id: 3,
-    type: "unauthorized_halt",
-    truck: "TRK-002",
-    message: "Unauthorized halt detected - 15 minutes",
-    time: "18 min ago",
-    severity: "medium",
-  },
-  {
-    id: 4,
-    type: "route_deviation",
-    truck: "TRK-007",
-    message: "Off-route for extended period",
-    time: "25 min ago",
-    severity: "warning",
-  },
-  {
-    id: 5,
-    type: "speed_violation",
-    truck: "TRK-009",
-    message: "Speed limit exceeded: 65 km/h in 40 km/h zone",
-    time: "32 min ago",
-    severity: "high",
-  },
-  {
-    id: 6,
-    type: "geofence_breach",
-    truck: "TRK-011",
-    message: "Exited designated collection zone",
-    time: "45 min ago",
-    severity: "medium",
-  },
-  {
-    id: 7,
-    type: "missed_pickup",
-    truck: "TRK-003",
-    message: "Skipped 2 consecutive pickup points",
-    time: "52 min ago",
-    severity: "high",
-  },
-  {
-    id: 8,
-    type: "device_tamper",
-    truck: "TRK-015",
-    message: "GPS device disconnection detected",
-    time: "1 hr ago",
-    severity: "high",
-  },
-];
+// Transform alerts data for display
+const alerts = alertsData.map(a => ({
+  id: a.id,
+  type: a.type,
+  truck: a.truckId,
+  truckNumber: a.truckNumber,
+  driver: a.driverName,
+  message: a.message,
+  time: a.time,
+  severity: a.severity,
+}));
 
 const AlertsPanel = () => {
   const navigate = useNavigate();
