@@ -24,10 +24,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
+    // Check for existing session - but don't auto-login
+    // User must explicitly login each time for security
     const savedUser = localStorage.getItem('mockUser');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        const parsed = JSON.parse(savedUser);
+        // Validate session is still valid (optional: add expiry check)
+        if (parsed && parsed.id && parsed.email && parsed.role) {
+          setUser(parsed);
+        } else {
+          localStorage.removeItem('mockUser');
+        }
+      } catch {
+        localStorage.removeItem('mockUser');
+      }
     }
     setIsLoading(false);
   }, []);
