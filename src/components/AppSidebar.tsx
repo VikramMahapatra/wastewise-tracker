@@ -14,10 +14,12 @@ import {
   User,
   Building2,
   Route,
-  Wrench
+  Wrench,
+  LogOut
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Sidebar,
@@ -29,8 +31,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const menuItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
@@ -57,7 +62,13 @@ const masterItems = [
 
 export function AppSidebar() {
   const { open } = useSidebar();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/auth');
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -125,6 +136,43 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-border/40 p-3">
+        {open ? (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 px-2">
+              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user?.name}</p>
+                <Badge variant={isAdmin ? "default" : "secondary"} className="text-[10px] h-4">
+                  {isAdmin ? 'Admin' : 'User'}
+                </Badge>
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLogout}
+              className="w-full justify-start gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleLogout}
+            className="w-full"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }
