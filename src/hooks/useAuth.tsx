@@ -1,17 +1,20 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+export type UserRole = 'admin' | 'user';
+
 interface User {
   id: string;
   email: string;
   name: string;
-  role: 'super_admin' | 'city_admin' | 'zone_supervisor' | 'driver' | 'data_analyst';
+  role: UserRole;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,13 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    // Mock login - in production this would call your backend
+  const login = async (email: string, password: string, role: UserRole) => {
+    // Mock login - in production this would call your backend with proper authentication
     const mockUser: User = {
-      id: '1',
+      id: role === 'admin' ? 'admin-1' : 'user-1',
       email,
       name: email.split('@')[0],
-      role: 'city_admin',
+      role,
     };
     
     localStorage.setItem('mockUser', JSON.stringify(mockUser));
@@ -47,8 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );
