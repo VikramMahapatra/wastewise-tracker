@@ -17,6 +17,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
+import { useAuth } from '@/hooks/useAuth';
 
 import {
   Sidebar,
@@ -56,6 +57,7 @@ const masterItems = [
 
 export function AppSidebar() {
   const { open } = useSidebar();
+  const { isAdmin } = useAuth();
 
   return (
     <Sidebar collapsible="icon">
@@ -97,29 +99,31 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         
-        <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-2">
-            <Database className="h-3 w-3" /> Master Entries
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {masterItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url}
-                      className="flex items-center gap-3 hover:bg-muted/50 rounded-md"
-                      activeClassName="bg-muted text-primary font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="flex items-center gap-2">
+              <Database className="h-3 w-3" /> Master Entries
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {masterItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url}
+                        className="flex items-center gap-3 hover:bg-muted/50 rounded-md"
+                        activeClassName="bg-muted text-primary font-medium"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );

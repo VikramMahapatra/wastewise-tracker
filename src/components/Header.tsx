@@ -1,4 +1,4 @@
-import { Bell, User, LogOut } from "lucide-react";
+import { Bell, User, LogOut, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -64,14 +64,22 @@ export default function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="relative">
               <User className="h-5 w-5" />
+              {isAdmin && (
+                <Shield className="absolute -bottom-1 -right-1 h-3 w-3 text-primary" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>{user?.name}</span>
+                <div className="flex items-center gap-2">
+                  <span>{user?.name}</span>
+                  <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs">
+                    {isAdmin ? 'Admin' : 'User'}
+                  </Badge>
+                </div>
                 <span className="text-xs font-normal text-muted-foreground">{user?.email}</span>
               </div>
             </DropdownMenuLabel>
