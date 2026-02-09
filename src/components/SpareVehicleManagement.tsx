@@ -31,7 +31,7 @@ import {
   Clock
 } from "lucide-react";
 import { trucks as fleetTrucks, TruckData, TruckStatus } from "@/data/fleetData";
-import { mockVendors } from "@/data/masterData";
+import { mockVendors, mockZones, mockWards } from "@/data/masterData";
 
 interface SpareAssignment {
   breakdownTruckId: string;
@@ -49,6 +49,16 @@ export function SpareVehicleManagement() {
   const [selectedSpareTruck, setSelectedSpareTruck] = useState<string>("");
   const [breakdownReason, setBreakdownReason] = useState("");
   const [spareAssignments, setSpareAssignments] = useState<SpareAssignment[]>([]);
+  
+  // Filters for breakdown table
+  const [brkZoneFilter, setBrkZoneFilter] = useState("all");
+  const [brkWardFilter, setBrkWardFilter] = useState("all");
+  const [brkVendorFilter, setBrkVendorFilter] = useState("all");
+  const [brkRouteTypeFilter, setBrkRouteTypeFilter] = useState("all");
+
+  const filteredWards = brkZoneFilter !== "all" 
+    ? mockWards.filter(w => w.zoneId === brkZoneFilter) 
+    : mockWards;
 
   // Get breakdown trucks
   const breakdownTrucks = trucksData.filter(t => t.status === "breakdown" && !t.replacedBySpareId);
@@ -281,11 +291,46 @@ export function SpareVehicleManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Filters */}
+          <div className="grid gap-3 md:grid-cols-4 mb-4">
+            <Select value={brkZoneFilter} onValueChange={(v) => { setBrkZoneFilter(v); setBrkWardFilter("all"); }}>
+              <SelectTrigger><SelectValue placeholder="Zone" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Zones</SelectItem>
+                {mockZones.map(z => <SelectItem key={z.id} value={z.id}>{z.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={brkWardFilter} onValueChange={setBrkWardFilter}>
+              <SelectTrigger><SelectValue placeholder="Ward" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Wards</SelectItem>
+                {filteredWards.map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={brkVendorFilter} onValueChange={setBrkVendorFilter}>
+              <SelectTrigger><SelectValue placeholder="Vendor" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Vendors</SelectItem>
+                {mockVendors.map(v => <SelectItem key={v.id} value={v.id}>{v.companyName}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={brkRouteTypeFilter} onValueChange={setBrkRouteTypeFilter}>
+              <SelectTrigger><SelectValue placeholder="Route Type" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="primary">Primary</SelectItem>
+                <SelectItem value="secondary">Secondary</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Truck</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Zone</TableHead>
+                <TableHead>Block</TableHead>
                 <TableHead>Driver</TableHead>
                 <TableHead>Route</TableHead>
                 <TableHead>Status</TableHead>
@@ -293,35 +338,48 @@ export function SpareVehicleManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {trucksData.filter(t => !t.isSpare && t.status !== "breakdown").slice(0, 10).map((truck) => (
-                <TableRow key={truck.id}>
-                  <TableCell className="font-medium">{truck.truckNumber}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="capitalize">{truck.truckType}</Badge>
-                  </TableCell>
-                  <TableCell>{truck.driver}</TableCell>
-                  <TableCell>{truck.route}</TableCell>
-                  <TableCell>
-                    <Badge className={`capitalize ${
-                      truck.status === "moving" ? "bg-success/20 text-success" :
-                      truck.status === "idle" ? "bg-warning/20 text-warning" :
-                      "bg-muted"
-                    }`}>
-                      {truck.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={() => handleMarkBreakdown(truck)}
-                    >
-                      <AlertTriangle className="h-4 w-4 mr-1" />
-                      Report Breakdown
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {trucksData
+                .filter(t => !t.isSpare && t.status !== "breakdown")
+                .filter(t => brkZoneFilter === "all" || t.zoneId === brkZoneFilter)
+                .filter(t => brkWardFilter === "all" || t.wardId === brkWardFilter)
+                .filter(t => brkVendorFilter === "all" || t.vendorId === brkVendorFilter)
+                .filter(t => brkRouteTypeFilter === "all" || t.truckType === brkRouteTypeFilter)
+                .slice(0, 20)
+                .map((truck) => {
+                  const zone = mockZones.find(z => z.id === truck.zoneId);
+                  const ward = mockWards.find(w => w.id === truck.wardId);
+                  return (
+                    <TableRow key={truck.id}>
+                      <TableCell className="font-medium">{truck.truckNumber}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">{truck.truckType}</Badge>
+                      </TableCell>
+                      <TableCell>{zone?.name || "-"}</TableCell>
+                      <TableCell>{ward?.name || "-"}</TableCell>
+                      <TableCell>{truck.driver}</TableCell>
+                      <TableCell>{truck.route}</TableCell>
+                      <TableCell>
+                        <Badge className={`capitalize ${
+                          truck.status === "moving" ? "bg-success/20 text-success" :
+                          truck.status === "idle" ? "bg-warning/20 text-warning" :
+                          "bg-muted"
+                        }`}>
+                          {truck.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleMarkBreakdown(truck)}
+                        >
+                          <AlertTriangle className="h-4 w-4 mr-1" />
+                          Report Breakdown
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </CardContent>
