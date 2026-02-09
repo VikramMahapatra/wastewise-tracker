@@ -184,18 +184,18 @@ const zoneWiseData = [
 
 // Late Arrival Report Data
 const lateArrivalData = [
-  { id: 1, date: "2024-01-15", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", route: "Route A-12", scheduledTime: "06:00", actualTime: "06:25", delay: 25, reason: "Traffic congestion", status: "late" },
-  { id: 2, date: "2024-01-15", truck: "MH-12-CD-5678", driver: "Amit Singh", route: "Route B-05", scheduledTime: "06:30", actualTime: "06:35", delay: 5, reason: "", status: "on-time" },
-  { id: 3, date: "2024-01-15", truck: "MH-12-EF-9012", driver: "Suresh Patil", route: "Route C-08", scheduledTime: "07:00", actualTime: "07:45", delay: 45, reason: "Vehicle breakdown", status: "late" },
-  { id: 4, date: "2024-01-15", truck: "MH-12-GH-3456", driver: "Vikram Singh", route: "Route A-15", scheduledTime: "06:15", actualTime: "06:18", delay: 3, reason: "", status: "on-time" },
-  { id: 5, date: "2024-01-14", truck: "MH-12-IJ-7890", driver: "Deepak Jadhav", route: "Route D-03", scheduledTime: "06:00", actualTime: "06:32", delay: 32, reason: "Driver reported late", status: "late" },
-  { id: 6, date: "2024-01-14", truck: "MH-12-KL-1122", driver: "Manoj Patil", route: "Route E-02", scheduledTime: "05:30", actualTime: "05:28", delay: -2, reason: "", status: "on-time" },
-  { id: 7, date: "2024-01-14", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", route: "Route F-01", scheduledTime: "06:45", actualTime: "07:15", delay: 30, reason: "Fuel filling", status: "late" },
-  { id: 8, date: "2024-01-13", truck: "MH-12-OP-5566", driver: "Sunil Yadav", route: "Route G-04", scheduledTime: "06:00", actualTime: "06:05", delay: 5, reason: "", status: "on-time" },
-  { id: 9, date: "2024-01-13", truck: "MH-12-QR-7788", driver: "Anil Sharma", route: "Route H-02", scheduledTime: "06:30", actualTime: "07:00", delay: 30, reason: "Road construction", status: "late" },
-  { id: 10, date: "2024-01-13", truck: "MH-12-ST-9900", driver: "Prakash Rane", route: "Route I-01", scheduledTime: "06:15", actualTime: "06:12", delay: -3, reason: "", status: "on-time" },
-  { id: 11, date: "2024-01-12", truck: "MH-12-UV-1212", driver: "Mahesh Yadav", route: "Route J-03", scheduledTime: "06:00", actualTime: "06:40", delay: 40, reason: "Personal emergency", status: "late" },
-  { id: 12, date: "2024-01-12", truck: "MH-12-WX-3434", driver: "Ravi Sharma", route: "Route K-02", scheduledTime: "06:45", actualTime: "06:50", delay: 5, reason: "", status: "on-time" },
+  { id: 1, date: "2024-01-15", truck: "MH-12-AB-1234", driver: "Rajesh Kumar", route: "Route A-12", scheduledTime: "06:00", actualTime: "06:25", delay: 25, reason: "Traffic congestion", status: "late", zone: "North Zone", ward: "Aundh", vendor: "Mahesh Enterprises", routeType: "primary" },
+  { id: 2, date: "2024-01-15", truck: "MH-12-CD-5678", driver: "Amit Singh", route: "Route B-05", scheduledTime: "06:30", actualTime: "06:35", delay: 5, reason: "", status: "on-time", zone: "East Zone", ward: "Kharadi", vendor: "Mahesh Enterprises", routeType: "primary" },
+  { id: 3, date: "2024-01-15", truck: "MH-12-EF-9012", driver: "Suresh Patil", route: "Route C-08", scheduledTime: "07:00", actualTime: "07:45", delay: 45, reason: "Vehicle breakdown", status: "late", zone: "East Zone", ward: "Viman Nagar", vendor: "Mahesh Enterprises", routeType: "secondary" },
+  { id: 4, date: "2024-01-15", truck: "MH-12-GH-3456", driver: "Vikram Singh", route: "Route A-15", scheduledTime: "06:15", actualTime: "06:18", delay: 3, reason: "", status: "on-time", zone: "East Zone", ward: "Viman Nagar", vendor: "Mahesh Enterprises", routeType: "primary" },
+  { id: 5, date: "2024-01-14", truck: "MH-12-IJ-7890", driver: "Deepak Jadhav", route: "Route D-03", scheduledTime: "06:00", actualTime: "06:32", delay: 32, reason: "Driver reported late", status: "late", zone: "North Zone", ward: "Baner", vendor: "Green Transport Co", routeType: "primary" },
+  { id: 6, date: "2024-01-14", truck: "MH-12-KL-1122", driver: "Manoj Patil", route: "Route E-02", scheduledTime: "05:30", actualTime: "05:28", delay: -2, reason: "", status: "on-time", zone: "North Zone", ward: "Baner", vendor: "Green Transport Co", routeType: "secondary" },
+  { id: 7, date: "2024-01-14", truck: "MH-12-MN-3344", driver: "Ravi Deshmukh", route: "Route F-01", scheduledTime: "06:45", actualTime: "07:15", delay: 30, reason: "Fuel filling", status: "late", zone: "North Zone", ward: "Aundh", vendor: "Green Transport Co", routeType: "primary" },
+  { id: 8, date: "2024-01-13", truck: "MH-12-OP-5566", driver: "Sunil Yadav", route: "Route G-04", scheduledTime: "06:00", actualTime: "06:05", delay: 5, reason: "", status: "on-time", zone: "South Zone", ward: "Hadapsar", vendor: "City Waste Solutions", routeType: "primary" },
+  { id: 9, date: "2024-01-13", truck: "MH-12-QR-7788", driver: "Anil Sharma", route: "Route H-02", scheduledTime: "06:30", actualTime: "07:00", delay: 30, reason: "Road construction", status: "late", zone: "South Zone", ward: "Kondhwa", vendor: "City Waste Solutions", routeType: "secondary" },
+  { id: 10, date: "2024-01-13", truck: "MH-12-ST-9900", driver: "Prakash Rane", route: "Route I-01", scheduledTime: "06:15", actualTime: "06:12", delay: -3, reason: "", status: "on-time", zone: "West Zone", ward: "Kothrud", vendor: "City Waste Solutions", routeType: "primary" },
+  { id: 11, date: "2024-01-12", truck: "MH-12-UV-1212", driver: "Mahesh Yadav", route: "Route J-03", scheduledTime: "06:00", actualTime: "06:40", delay: 40, reason: "Personal emergency", status: "late", zone: "West Zone", ward: "Warje", vendor: "Green Transport Co", routeType: "secondary" },
+  { id: 12, date: "2024-01-12", truck: "MH-12-WX-3434", driver: "Ravi Sharma", route: "Route K-02", scheduledTime: "06:45", actualTime: "06:50", delay: 5, reason: "", status: "on-time", zone: "Central Zone", ward: "Deccan", vendor: "Mahesh Enterprises", routeType: "primary" },
 ];
 
 // Driver Behavior Report Data
@@ -296,6 +296,10 @@ export default function Reports() {
   const [complaintsTypeFilter, setComplaintsTypeFilter] = useState("all");
   const [expiryStatusFilter, setExpiryStatusFilter] = useState("all");
   const [dumpYardSiteFilter, setDumpYardSiteFilter] = useState("all");
+  const [lateZoneFilter, setLateZoneFilter] = useState("all");
+  const [lateWardFilter, setLateWardFilter] = useState("all");
+  const [lateVendorFilter, setLateVendorFilter] = useState("all");
+  const [lateRouteTypeFilter, setLateRouteTypeFilter] = useState("all");
   
   // Sync with URL param
   useEffect(() => {
@@ -1294,7 +1298,13 @@ export default function Reports() {
             <CardContent className="space-y-6">
               {(() => {
                 const buffer = parseInt(localStorage.getItem('lateArrivalBuffer') || '10');
-                const allData = lateArrivalData;
+                const allData = lateArrivalData.filter(row => {
+                  const zoneMatch = lateZoneFilter === "all" || row.zone === lateZoneFilter;
+                  const wardMatch = lateWardFilter === "all" || row.ward === lateWardFilter;
+                  const vendorMatch = lateVendorFilter === "all" || row.vendor === lateVendorFilter;
+                  const routeTypeMatch = lateRouteTypeFilter === "all" || row.routeType === lateRouteTypeFilter;
+                  return zoneMatch && wardMatch && vendorMatch && routeTypeMatch;
+                });
                 const filteredByStatus = allData.filter(row => {
                   if (lateStatusFilter === "all") return true;
                   const isLate = row.delay > buffer;
@@ -1305,9 +1315,54 @@ export default function Reports() {
                 const onTimeCount = allData.filter(d => d.delay <= buffer).length;
                 const avgDelay = Math.round(allData.filter(d => d.delay > buffer).reduce((sum, d) => sum + d.delay, 0) / Math.max(lateCount, 1));
 
+                const uniqueZones = [...new Set(lateArrivalData.map(d => d.zone))];
+                const uniqueWards = [...new Set(lateArrivalData.filter(d => lateZoneFilter === "all" || d.zone === lateZoneFilter).map(d => d.ward))];
+                const uniqueVendors = [...new Set(lateArrivalData.map(d => d.vendor))];
+
                 return (
                   <>
-                    {/* Filter Tabs */}
+                    {/* Filters */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Select value={lateZoneFilter} onValueChange={(v) => { setLateZoneFilter(v); setLateWardFilter("all"); setLateArrivalPage(1); }}>
+                        <SelectTrigger className="w-[160px] h-8 text-xs">
+                          <SelectValue placeholder="Zone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Zones</SelectItem>
+                          {uniqueZones.map(z => <SelectItem key={z} value={z}>{z}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <Select value={lateWardFilter} onValueChange={(v) => { setLateWardFilter(v); setLateArrivalPage(1); }}>
+                        <SelectTrigger className="w-[160px] h-8 text-xs">
+                          <SelectValue placeholder="Ward" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Wards</SelectItem>
+                          {uniqueWards.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <Select value={lateVendorFilter} onValueChange={(v) => { setLateVendorFilter(v); setLateArrivalPage(1); }}>
+                        <SelectTrigger className="w-[180px] h-8 text-xs">
+                          <SelectValue placeholder="Vendor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Vendors</SelectItem>
+                          {uniqueVendors.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <Select value={lateRouteTypeFilter} onValueChange={(v) => { setLateRouteTypeFilter(v); setLateArrivalPage(1); }}>
+                        <SelectTrigger className="w-[160px] h-8 text-xs">
+                          <SelectValue placeholder="Route Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Types</SelectItem>
+                          <SelectItem value="primary">Primary</SelectItem>
+                          <SelectItem value="secondary">Secondary</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Status Filter */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium text-muted-foreground">Filter by Status:</span>
                       <div className="flex gap-1">
@@ -1349,7 +1404,7 @@ export default function Reports() {
                       </Card>
                       <Card className="bg-primary/10 border-primary/20">
                         <CardContent className="p-4 text-center">
-                          <p className="text-2xl font-bold text-primary">{Math.round((onTimeCount / allData.length) * 100)}%</p>
+                          <p className="text-2xl font-bold text-primary">{allData.length > 0 ? Math.round((onTimeCount / allData.length) * 100) : 0}%</p>
                           <p className="text-xs text-muted-foreground">On-Time Rate</p>
                         </CardContent>
                       </Card>
@@ -1360,9 +1415,11 @@ export default function Reports() {
                         <TableHeader>
                           <TableRow className="bg-muted/50">
                             <TableHead>Date</TableHead>
+                            <TableHead>Zone</TableHead>
                             <TableHead>Truck</TableHead>
                             <TableHead>Driver</TableHead>
                             <TableHead>Route</TableHead>
+                            <TableHead>Type</TableHead>
                             <TableHead className="text-center">Scheduled</TableHead>
                             <TableHead className="text-center">Actual</TableHead>
                             <TableHead className="text-center">Delay</TableHead>
@@ -1376,9 +1433,15 @@ export default function Reports() {
                             return (
                               <TableRow key={row.id} className={isLate ? "bg-red-500/5" : ""}>
                                 <TableCell className="font-medium">{row.date}</TableCell>
+                                <TableCell className="text-xs">{row.zone}</TableCell>
                                 <TableCell className="font-mono text-xs">{row.truck}</TableCell>
                                 <TableCell>{row.driver}</TableCell>
                                 <TableCell>{row.route}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="text-xs">
+                                    {row.routeType === "primary" ? "P" : "S"}
+                                  </Badge>
+                                </TableCell>
                                 <TableCell className="text-center">{row.scheduledTime}</TableCell>
                                 <TableCell className="text-center">{row.actualTime}</TableCell>
                                 <TableCell className="text-center">
