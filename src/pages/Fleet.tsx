@@ -242,8 +242,8 @@ export default function Fleet() {
                         onClick={() => setSelectedMarker(truck.id)}
                         icon={{
                           url: createTruckMarkerIcon(truck.status, truck.truckType),
-                          scaledSize: new window.google.maps.Size(40, 48),
-                          anchor: new window.google.maps.Point(20, 48),
+                          scaledSize: new window.google.maps.Size(48, 32),
+                          anchor: new window.google.maps.Point(24, 28),
                         }}
                       >
                         {selectedMarker === truck.id && (

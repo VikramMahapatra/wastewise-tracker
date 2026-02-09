@@ -44,7 +44,7 @@ const Index = () => {
           {/* Left Column - Map */}
           <div className="col-span-12 xl:col-span-8">
             <div className="h-[500px]">
-              <MapView selectedTruck={selectedTruck} />
+              <MapView selectedTruck={selectedTruck} allowFullscreen />
             </div>
           </div>
           
