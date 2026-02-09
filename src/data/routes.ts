@@ -237,5 +237,6 @@ export const getPickupPointsByWard = (wardId: string): PickupPoint[] => pickupPo
 export const getGCPByZone = (zoneId: string): GCPLocation[] => gcpLocations.filter(g => g.zoneId === zoneId);
 
 // Map constants
-export const GOOGLE_MAPS_API_KEY = "AIzaSyBm6KoD4T-fdLkIHvxwqsQq3EPjz14V2Sw";
+// export const GOOGLE_MAPS_API_KEY = "AIzaSyBm6KoD4T-fdLkIHvxwqsQq3EPjz14V2Sw";
+export const GOOGLE_MAPS_API_KEY = "U2FsdGVkX1/jnvm/w4KHqqmJO/nqXHvS9Mv76Ix+oC6Rl5LpMQWl9UtgkoxyeTRHvoVW+6IIPFZlqE8Ujjgtdw=="
 export const KHARADI_CENTER = { lat: 18.5540, lng: 73.9425 };
