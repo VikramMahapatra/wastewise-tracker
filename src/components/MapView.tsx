@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useMemo } from "react";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { Card } from "@/components/ui/card";
-import { Navigation, Filter, X } from "lucide-react";
+import { Navigation, Filter, X, Maximize2, Minimize2 } from "lucide-react";
 import { trucks as fleetTrucks, GOOGLE_MAPS_API_KEY, KHARADI_CENTER } from "@/data/fleetData";
 import { mockZones, mockWards, mockVendors, mockTrucks } from "@/data/masterData";
 import { createTruckMarkerIcon } from "./TruckIcon";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface MapViewProps {
   selectedTruck: string | null;
+  allowFullscreen?: boolean;
 }
 
 // Transform fleet data for map display with additional metadata
@@ -39,9 +40,10 @@ const containerStyle = {
   height: '100%'
 };
 
-const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
+const MapView = ({ selectedTruck: propSelectedTruck, allowFullscreen = false }: MapViewProps) => {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
   
   // Filter states
@@ -102,7 +104,7 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
   }, []);
 
   return (
-    <Card className="overflow-hidden h-full flex flex-col">
+    <Card className={`overflow-hidden flex flex-col transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 rounded-none h-screen' : 'h-full'}`}>
       {/* Header */}
       <div className="p-3 border-b border-border bg-muted/30">
         <div className="flex items-center justify-between mb-3">
@@ -114,6 +116,11 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
             <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-7 text-xs">
               <X className="h-3 w-3 mr-1" />
               Clear Filters
+            </Button>
+          )}
+          {allowFullscreen && (
+            <Button variant="ghost" size="sm" onClick={() => setIsFullscreen(!isFullscreen)} className="h-7 text-xs">
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
           )}
         </div>
@@ -197,8 +204,8 @@ const MapView = ({ selectedTruck: propSelectedTruck }: MapViewProps) => {
                 onClick={() => setSelectedMarker(truck.id)}
                 icon={{
                   url: createTruckMarkerIcon(truck.status as any, truck.routeType as any),
-                  scaledSize: new google.maps.Size(40, 48),
-                  anchor: new google.maps.Point(20, 48),
+                  scaledSize: new google.maps.Size(48, 32),
+                  anchor: new google.maps.Point(24, 28),
                 }}
               >
                 {selectedMarker === truck.id && (
